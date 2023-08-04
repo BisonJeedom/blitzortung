@@ -1,0 +1,28 @@
+{
+	"id": "blitzortung",
+	"name": "Impacts de foudre (Blitzortung)",
+	"description": {
+		"fr_FR": "Ce plugin permet la récupération des impacts de foudre en temps réel à travers le monde"
+	},
+	"licence": "AGPL",
+	"author": "Jeedom SAS",
+	"require": "4.2.0",
+	"category": "weather",
+	"hasDependency": false,
+	"hasOwnDeamon": true,
+	"maxDependancyInstallTime": 0,
+	"changelog": "https://github.com/BisonJeedom/documentations/blob/main/blitzortung/changelog_stable.md",
+	"documentation": "https://github.com/BisonJeedom/documentations/blob/main/blitzortung/index_stable.md",
+	"changelog_beta": "https://github.com/BisonJeedom/documentations/blob/main/blitzortung/changelog_beta.md",
+	"documentation_beta": "https://github.com/BisonJeedom/documentations/blob/main/blitzortung/index_beta.md",
+	"language": [
+		"fr_FR"
+	],
+	"compatibility": [
+		"smart",
+		"rpi",
+		"diy",
+		"v4",
+		"atlas"
+	]
+}

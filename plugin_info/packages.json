@@ -1,0 +1,11 @@
+{
+  "pre-install": {},
+  "apt": {},
+  "pip3": {
+    "websockets": {}
+  },
+  "npm": {},
+  "yarn": {},
+  "plugin": {},
+  "post-install": {}
+}
