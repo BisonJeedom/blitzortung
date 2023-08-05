@@ -21,3 +21,16 @@ if (!isConnect()) {
   include_file('desktop', '404', 'php');
   die();
 }
+?>
+<form class="form-horizontal">
+  <fieldset>
+    <div class="form-group">
+      <label class="col-md-4 control-label">{{Port du démon}}
+        <sup><i class="fas fa-question-circle tooltips" title="{{Renseignez un autre port uniquement si celui-ci est déjà utilisé sur votre Jeedom}}"></i></sup>
+      </label>
+      <div class="col-md-4">
+        <input class="configKey form-control" data-l1key="socketport" placeholder="56023">
+      </div>
+    </div>
+  </fieldset>
+</form>

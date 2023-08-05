@@ -106,7 +106,7 @@ class jeedom_com():
 		threading.Thread( target=self.thread_change,args=(change,)).start()
 
 	def thread_change(self,change):
-		logging.info('Send to jeedom :  %s' % (str(change),))
+		logging.debug('Send to jeedom :  %s' % (str(change),))
 		i=0
 		while i < self.retry:
 			try:

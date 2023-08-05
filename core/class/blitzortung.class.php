@@ -104,7 +104,7 @@ class blitzortung extends eqLogic {
         $json = $eqLogic->getConfiguration("json_impacts");
         $LastImpactRetention = $eqLogic->getConfiguration("cfg_LastImpactRetention", 1);
 
-        log::add('blitzortung', 'info', '- [Start] Nettoyage des enregistrements de '.$eqLogic->getName());
+        log::add('blitzortung', 'info', '| [Start] Nettoyage des enregistrements de ' . $eqLogic->getName());
         log::add('blitzortung', 'info', '| Durée de conservation : ' . $LastImpactRetention . ' h');
 
         $arr = json_decode($json, true);
@@ -131,7 +131,7 @@ class blitzortung extends eqLogic {
 
         $delete_record = $count_start - $count_end;
         log::add('blitzortung', 'info', '| Suppression de ' . $delete_record . ' enregistrements');
-        log::add('blitzortung', 'info', '- [End] Nettoyage des enregistrements de '.$eqLogic->getName());
+        log::add('blitzortung', 'info', '| [End] Nettoyage des enregistrements de ' . $eqLogic->getName());
 
         $json = json_encode($new_arr);
         $eqLogic->setConfiguration("json_impacts", $json);
@@ -218,7 +218,7 @@ class blitzortung extends eqLogic {
     $this->CreateCmd('lastlat', 'Dernière latitude', '', '0', '3', '', 'info', 'string', '', '1');
     $this->CreateCmd('lastlon', 'Dernière longitude', '', '0', '3', '', 'info', 'string', '', '1');
     $this->CreateCmd('lastdistance', 'Dernière distance', '', '1', '3', '', 'info', 'numeric', 'km', '1');
-    $this->CreateCmd('counter', 'Compteur d\'impacts', '', '0', '3', '', 'info', 'numeric', '', '1');
+    $this->CreateCmd('counter', 'Compteur des impacts', '', '0', '3', '', 'info', 'numeric', '', '1');
   }
 
   // Fonction exécutée automatiquement avant la suppression de l'équipement
@@ -264,7 +264,7 @@ class blitzortung extends eqLogic {
 
   public static function deamon_start() {
     self::deamon_stop();
-    self::getFreePort();
+    //self::getFreePort();
     $deamon_info = self::deamon_info();
     if ($deamon_info['launchable'] != 'ok') {
       throw new Exception(__('Veuillez vérifier la configuration', __FILE__));
@@ -279,17 +279,17 @@ class blitzortung extends eqLogic {
     
     log::add(__CLASS__, 'info', 'GPS : '.$latitude.' / '. $longitude);
     */
-
+ 
     $path = realpath(dirname(__FILE__) . '/../../resources/blitzortungd'); // répertoire du démon
     $cmd = 'python3 ' . $path . '/blitzortungd.py'; // nom du démon
     $cmd .= ' --loglevel ' . log::convertLogLevel(log::getLogLevel(__CLASS__));
-    $cmd .= ' --socketport ' . config::byKey('socketport', __CLASS__); // port par défaut défini via la fonction getFreePort()
+    $cmd .= ' --socketport ' . config::byKey('socketport', __CLASS__, '56023'); // port par défaut défini via la fonction getFreePort()
     $cmd .= ' --callback ' . network::getNetworkAccess('internal', 'proto:127.0.0.1:port:comp') . '/plugins/blitzortung/core/php/jeeblitzortung.php'; // chemin de la callback url à modifier (voir ci-dessous)
     //$cmd .= ' --latitude "' . $latitude .'"';
     //$cmd .= ' --longitude "' . $longitude .'"';
     $cmd .= ' --apikey ' . jeedom::getApiKey(__CLASS__); // l'apikey pour authentifier les échanges suivants
     $cmd .= ' --pid ' . jeedom::getTmpFolder(__CLASS__) . '/deamon.pid'; // chemin vers le pid file
-    log::add(__CLASS__, 'info', 'Lancement démon');
+    log::add(__CLASS__, 'info', 'Exécution du démon');
     $result = exec($cmd . ' >> ' . log::getPathToLog('blitzortungd') . ' 2>&1 &'); // nom du log pour le démon
     $i = 0;
     while ($i < 20) {
@@ -300,7 +300,7 @@ class blitzortung extends eqLogic {
       sleep(1);
       $i++;
     }
-    if ($i >= 30) {
+    if ($i >= 20) {
       log::add(__CLASS__, 'error', __('Impossible de lancer le démon, vérifiez le log', __FILE__), 'unableStartDeamon');
       return false;
     }
@@ -367,7 +367,7 @@ class blitzortung extends eqLogic {
     //$replace['#counter#'] = $counter;
     //$replace['#lastdistance#'] = $this->getCmd(null, 'lastdistance')->execCmd();
 
-   
+
     $cmd = $this->getCmd('info', 'counter');
     $replace['#stateCounter#'] = $cmd->execCmd();
     $replace['#cmdIdCounter#'] = $cmd->getId();
@@ -375,8 +375,8 @@ class blitzortung extends eqLogic {
     $cmd = $this->getCmd('info', 'lastdistance');
     $replace['#stateDistance#'] = $cmd->execCmd();
     $replace['#cmdIdDistance#'] = $cmd->getId();
-    
-   
+
+
     $getTemplate = getTemplate('core', $version, 'blitzortung.template', __CLASS__); // on récupère le template du plugin.
     $template_replace = template_replace($replace, $getTemplate); // on remplace les tags
     $postToHtml = $this->postToHtml($_version, $template_replace); // on met en cache le widget, si la config de l'user le permet.  
