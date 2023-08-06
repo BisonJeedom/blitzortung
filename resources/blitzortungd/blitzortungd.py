@@ -14,13 +14,10 @@
 # along with Jeedom. If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-import string
 import sys
 import os
 import time
-import datetime
 import traceback
-import re
 import signal
 from optparse import OptionParser
 from os.path import join

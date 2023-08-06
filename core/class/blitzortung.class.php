@@ -42,10 +42,8 @@ class blitzortung extends eqLogic {
 
   /*
   * Fonction exécutée automatiquement toutes les 5 minutes par Jeedom
+  public static function cron5() {}
   */
-  public static function cron5() {
-    self::blitzortungCron();
-  }
 
   /*
   * Fonction exécutée automatiquement toutes les 10 minutes par Jeedom
@@ -279,7 +277,7 @@ class blitzortung extends eqLogic {
     
     log::add(__CLASS__, 'info', 'GPS : '.$latitude.' / '. $longitude);
     */
- 
+
     $path = realpath(dirname(__FILE__) . '/../../resources/blitzortungd'); // répertoire du démon
     $cmd = 'python3 ' . $path . '/blitzortungd.py'; // nom du démon
     $cmd .= ' --loglevel ' . log::convertLogLevel(log::getLogLevel(__CLASS__));
@@ -349,7 +347,7 @@ class blitzortung extends eqLogic {
     log::add('blitzortung', 'debug', '[template] Affichage du template pour ' . $eqLogicName . ' [START]');
 
     $json = $this->getConfiguration("json_impacts");
-    $rayon = $this->getConfiguration('cfg_rayon', 100);
+    $rayon = $this->getConfiguration('cfg_rayon', 50);
     $LastImpactRetention = $this->getConfiguration("cfg_LastImpactRetention", 1);
 
     $arr = json_decode($json, true);
