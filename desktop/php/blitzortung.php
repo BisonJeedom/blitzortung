@@ -181,6 +181,21 @@ $eqLogics = eqLogic::byType($plugin->getId());
 							</div>
 
 							<div class="form-group">
+								<label class="col-sm-4 control-label">{{Facteur de zoom en ouvrant la carte}}
+									<sup><i class="fas fa-question-circle tooltips" title="{{Choisir entre 8 (plan large) et 12 (plan serré)}}"></i></sup>
+								</label>
+								<div class="col-sm-6">
+									<select id="bt_select_Zoom" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="cfg_Zoom" placeholder="10">
+										<option value="8">{{8}}</option>
+										<option value="9">{{9}}</option>
+										<option value="10">{{10}}</option>
+										<option value="11">{{11}}</option>
+										<option value="12">{{12}}</option>
+									</select>
+								</div>
+							</div>
+
+							<div class="form-group">
 								<label class="col-sm-4 control-label">{{Utiliser le template du plugin}}</label>
 								<div class="col-sm-6">
 									<input type="checkbox" class="eqLogicAttr" data-l1key="configuration" data-l2key="usePluginTemplate" checked>

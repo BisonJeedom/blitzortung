@@ -217,6 +217,8 @@ class blitzortung extends eqLogic {
 
   // Fonction exécutée automatiquement avant la création de l'équipement
   public function preInsert() {
+    $this->setConfiguration('cfg_LastImpactRetention','1');
+    $this->setConfiguration('cfg_Zoom','10');
   }
 
   // Fonction exécutée automatiquement après la création de l'équipement
@@ -243,7 +245,7 @@ class blitzortung extends eqLogic {
     $this->CreateCmd('lastdistance', 'Dernière distance', '', '1', '3', '', 'info', 'numeric', 'km', '1');
     $this->CreateCmd('counter', 'Compteur des impacts', '', '0', '3', '', 'info', 'numeric', '', '1');
     $this->CreateCmd('mapurl', 'URL de la carte', '', '0', '3', '', 'info', 'string', '', '1');
-    $this->checkAndUpdateCmd('mapurl', 'https://map.blitzortung.org/#10/'. self::getLatitude($this) . '/' . self::getLongitude($this));
+    $this->checkAndUpdateCmd('mapurl', 'https://map.blitzortung.org/#' . $this->getConfiguration("cfg_Zoom",10) . '/'. self::getLatitude($this) . '/' . self::getLongitude($this));
   }
 
   // Fonction exécutée automatiquement avant la suppression de l'équipement
