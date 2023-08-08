@@ -242,6 +242,8 @@ class blitzortung extends eqLogic {
     $this->CreateCmd('lastlon', 'Dernière longitude', '', '0', '3', '', 'info', 'string', '', '1');
     $this->CreateCmd('lastdistance', 'Dernière distance', '', '1', '3', '', 'info', 'numeric', 'km', '1');
     $this->CreateCmd('counter', 'Compteur des impacts', '', '0', '3', '', 'info', 'numeric', '', '1');
+    $this->CreateCmd('mapurl', 'URL de la carte', '', '0', '3', '', 'info', 'string', '', '1');
+    $this->checkAndUpdateCmd('mapurl', 'https://map.blitzortung.org/#10/'. self::getLatitude($this) . '/' . self::getLongitude($this));
   }
 
   // Fonction exécutée automatiquement avant la suppression de l'équipement
@@ -408,12 +410,7 @@ class blitzortung extends eqLogic {
     $replace['#retention#'] = $LastImpactRetention;
     $replace['#tsmax#'] = $tsmax;
 
-    $replace['#latitude#'] = blitzortung::getLatitude($this);
-    $replace['#longitude#'] = blitzortung::getLongitude($this);
-
-    //$replace['#counter#'] = $counter;
-    //$replace['#lastdistance#'] = $this->getCmd(null, 'lastdistance')->execCmd();
-
+    $replace['#mapurl#'] = $this->getCmd('info', 'mapurl')->execCmd();
 
     $cmd = $this->getCmd('info', 'counter');
     $replace['#stateCounter#'] = $cmd->execCmd();
