@@ -36,6 +36,11 @@
     <div id="container-#id#" style="width: 550px; height: 400px; margin: 0 auto"></div>
 
 
+    <div class="cursor pluginAction logoSecondary">
+        <i class="icon kiko-map"></i>
+        <span><a href="https://map.blitzortung.org/#10/#latitude#/#longitude#" target="_blank">Ouvrir la carte sur Blitzortung</a></span>
+    </div>
+
     <script>
         if ('#refresh_id#' != '') {
             $('.eqLogic[data-eqLogic_uid=#uid#] .refresh').on('click', function () {
@@ -103,7 +108,9 @@
                 title: {
                     text: 'Minutes'
                 },
-                tickInterval: 60,
+                min: 0,
+                max: #tsmax#,
+                //tickInterval: 60,
                 labels: {
                     formatter: function () {
                         var time = this.value;

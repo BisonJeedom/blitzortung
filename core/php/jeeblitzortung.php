@@ -52,10 +52,8 @@ try {
 
   if (isset($result_array['time'])) {
     foreach (eqLogic::byType('blitzortung', true) as $eqLogic) {
-      $latitude = $eqLogic->getConfiguration('cfg_latitude', '');
-      $longitude = $eqLogic->getConfiguration('cfg_longitude', '');
-      $latitude = ($latitude == '') ? config::bykey('info::latitude') : $latitude;
-      $longitude = ($longitude == '') ? config::bykey('info::longitude') : $longitude;
+      $latitude = blitzortung::getLatitude($eqLogic);
+      $longitude = blitzortung::getLongitude($eqLogic);
       $rayon = $eqLogic->getConfiguration('cfg_rayon', 50);
       //log::add('blitzortung', 'info', 'latitude configurée : '.$latitude);
       //log::add('blitzortung', 'info', 'longitude configurée : '.$longitude);          
@@ -63,7 +61,7 @@ try {
         $distance = getDistanceBetweenPoints($latitude, $longitude, $result_array['lat'], $result_array['lon'], 'kilometres');
         if ($distance <= $rayon) {
           $ts_local = round($result_array['time'] / 1000000000) + getUTCoffset('Europe/Paris'); // Convert nano to secondes with UTC offset
-          
+
           log::add('blitzortung', 'debug', ' > json : ' . $result);
 
 
@@ -71,7 +69,7 @@ try {
           $arr = json_decode($json, true);
           $arr[] = ['ts' => $ts_local, 'lat' => $result_array['lat'], 'lon' => $result_array['lon'], 'distance' => $distance];
           $counter = count($arr);
-          log::add('blitzortung', 'info', '[' . $ts_local . ']' . ' ' . '[' . $counter . ']'. ' distance impact : ' . $distance . ' km' . ' | ' . 'lat: ' . $result_array['lat'] . ' lon: ' . $result_array['lon']);
+          log::add('blitzortung', 'info', '[' . $ts_local . ']' . ' ' . '[' . $counter . ']' . ' distance impact : ' . $distance . ' km' . ' | ' . 'lat: ' . $result_array['lat'] . ' lon: ' . $result_array['lon']);
           //log::add('blitzortung', 'info', ' > new count : ' . $counter);
           $json = json_encode($arr);
           log::add('blitzortung', 'debug', ' > json_impacts : ' . $json);
