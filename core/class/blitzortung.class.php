@@ -179,7 +179,7 @@ class blitzortung extends eqLogic {
     return $port;
   }
 
-  public function CreateCmd($_eqlogic, $_name, $_template, $_histo, $_historound, $_generictype, $_type, $_subtype, $_unite, $_visible) {
+  public function CreateCmd($_eqlogic, $_name, $_template, $_histo, $_historound, $_histomode, $_repeatEvent, $_generictype, $_type, $_subtype, $_unite, $_visible) {
     $info = $this->getCmd(null, $_eqlogic);
     if (!is_object($info)) {
       $info = new blitzortungCmd();
@@ -192,6 +192,12 @@ class blitzortung extends eqLogic {
       }
       if (!empty($_historound)) {
         $info->setConfiguration('historizeRound', $_historound);
+      }
+      if (!empty($_histomode)) {
+        $info->setConfiguration('historizeMode', $_histomode);
+      }
+      if (!empty($_repeatEvent)) {
+        $info->setConfiguration('repeatEventManagement', $_repeatEvent);
       }
       if (!empty($_generictype)) {
         $info->setGeneric_type($_generictype);
@@ -239,12 +245,12 @@ class blitzortung extends eqLogic {
 
   // Fonction exécutée automatiquement après la sauvegarde (création ou mise à jour) de l'équipement
   public function postSave() {
-    $this->CreateCmd('refresh', 'Rafraichir', '', '0', '3', '', 'action', 'other', '', '1');
-    $this->CreateCmd('lastlat', 'Dernière latitude', '', '0', '3', '', 'info', 'string', '', '1');
-    $this->CreateCmd('lastlon', 'Dernière longitude', '', '0', '3', '', 'info', 'string', '', '1');
-    $this->CreateCmd('lastdistance', 'Dernière distance', '', '1', '3', '', 'info', 'numeric', 'km', '1');
-    $this->CreateCmd('counter', 'Compteur des impacts', '', '0', '3', '', 'info', 'numeric', '', '1');
-    $this->CreateCmd('mapurl', 'URL de la carte', '', '0', '3', '', 'info', 'string', '', '1');
+    $this->CreateCmd('refresh', 'Rafraichir', '', '0', '', '', '', '', 'action', 'other', '', '1');
+    $this->CreateCmd('lastlat', 'Dernière latitude', '', '0', '', '', '', '', 'info', 'string', '', '1');
+    $this->CreateCmd('lastlon', 'Dernière longitude', '', '0', '', '', '', '', 'info', 'string', '', '1');
+    $this->CreateCmd('lastdistance', 'Dernière distance', '', '1', '2', 'none', 'always', '', 'info', 'numeric', 'km', '1');
+    $this->CreateCmd('counter', 'Compteur des impacts', '', '0', '', '', '', '', 'info', 'numeric', '', '1');
+    $this->CreateCmd('mapurl', 'URL de la carte', '', '0', '', '', '', '', 'info', 'string', '', '1');
     $this->checkAndUpdateCmd('mapurl', 'https://map.blitzortung.org/#' . $this->getConfiguration("cfg_Zoom",10) . '/'. self::getLatitude($this) . '/' . self::getLongitude($this));
   }
 
