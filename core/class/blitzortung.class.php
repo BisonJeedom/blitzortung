@@ -96,6 +96,18 @@ class blitzortung extends eqLogic {
     return ($dtz->getOffset($timeCity));
   }
 
+  public static function getLatitude($_eqLogic) {
+    $latitude = $_eqLogic->getConfiguration('cfg_latitude', '');
+    $latitude = ($latitude == '') ? config::bykey('info::latitude') : $latitude;
+    return $latitude;
+  }
+
+  public static function getLongitude($_eqLogic) {
+    $longitude = $_eqLogic->getConfiguration('cfg_longitude', '');
+    $longitude = ($longitude == '') ? config::bykey('info::longitude') : $longitude;
+    return $longitude;
+  }
+
   public static function blitzortungCron() {
     foreach (eqLogic::byType('blitzortung', true) as $eqLogic) {
       if ($eqLogic->getIsEnable()) {
@@ -108,20 +120,33 @@ class blitzortung extends eqLogic {
         $arr = json_decode($json, true);
         $count_start = count($arr);
         $ts_limit = time() + self::getUTCoffset('Europe/Paris') - 3600 * $LastImpactRetention; // Heure actuelle moins le délais de rétention
+        $ts_limit_5mn = time() + self::getUTCoffset('Europe/Paris') - 300;
 
         log::add('blitzortung', 'debug', '| TS LIMIT : ' . $ts_limit);
+        log::add('blitzortung', 'debug', '| TS LIMIT 5mn : ' . $ts_limit_5mn);
 
         log::add('blitzortung', 'debug', '| Impacts enregistrés : ' . $json);
         log::add('blitzortung', 'debug', '| Nombre d\'enregistrement  : ' . $count_start);
 
         $new_arr = array();
+        $add_5mn = 0;
+        $moy_5mn = 0;
+        $i = 0;
         foreach ($arr as $key => $value) {
           if ($value["ts"] < $ts_limit) {
             log::add('blitzortung', 'debug', '| ' . $value["ts"] . ' < ' . $ts_limit . ' removing entry ' . $key);
           } else {
             $new_arr[] = $value;
           }
+          if ($value["ts"] > $ts_limit_5mn) { // Si le TS est dans les 5 dernières minutes
+            $add_5mn = $add_5mn + $value["distance"];
+            $i++;
+            //log::add('blitzortung', 'info', '| ' . $i . ' ' . $value["ts"] . ' ' .$value["distance"] . ' km');
+          }
         }
+        $moy_5mn = ($i == 0) ? 0 : round($add_5mn / $i, 0);
+
+        log::add('blitzortung', 'info', '| Sur les 5 dernières minutes : Moyenne de ' .  $moy_5mn . ' km' . '(' . $i . ' impacts)');
 
         $count_end = count($new_arr);
         log::add('blitzortung', 'debug', '| Impacts enregistrés : ' . $json);
@@ -225,6 +250,24 @@ class blitzortung extends eqLogic {
 
   // Fonction exécutée automatiquement après la suppression de l'équipement
   public function postRemove() {
+  }
+
+  public static function dependancy_info() {
+    $return = array();
+    $return['log'] = log::getPathToLog(__CLASS__ . '_update');
+    $return['progress_file'] = jeedom::getTmpFolder(__CLASS__) . '/dependency';
+    if (file_exists(jeedom::getTmpFolder(__CLASS__) . '/dependency')) {
+      $return['state'] = 'in_progress';
+    } else {
+      if (exec(system::getCmdSudo() . system::get('cmd_check') . '-Ec "python3\-pyudev') < 1) {
+        $return['state'] = 'nok';
+      } elseif (exec(system::getCmdSudo() . 'pip3 list | grep -Ewc "websockets"') < 1) {
+        $return['state'] = 'nok';
+      } else {
+        $return['state'] = 'ok';
+      }
+    }
+    return $return;
   }
 
   public static function deamon_info() {
@@ -349,19 +392,25 @@ class blitzortung extends eqLogic {
     $json = $this->getConfiguration("json_impacts");
     $rayon = $this->getConfiguration('cfg_rayon', 50);
     $LastImpactRetention = $this->getConfiguration("cfg_LastImpactRetention", 1);
+    $tsmax = $LastImpactRetention * 3600; // Valeur maximum sur le graphique (en secondes)
 
     $arr = json_decode($json, true);
 
     foreach ($arr as $key => $value) {
-      $ts_mn = time() + self::getUTCoffset('Europe/Paris') - $value["ts"];
+      $ts = time() + self::getUTCoffset('Europe/Paris') - $value["ts"]; // Délais depuis l'enregistrement en secondes
       //$replace['#data#'] .= '[' . $ts_mn . ',' . $value["distance"] . ',' . '"A"' . ',' . 'color:"43C3FF"' . ']' . ',';
-      $replace['#data#'] .= '[' . $ts_mn . ',' . $value["distance"] . ']' . ',';
+      $replace['#data#'] .= '[' . $ts . ',' . $value["distance"] . ']' . ',';
     }
-    //log::add('blitzortung', 'info', $replace['#data#']);
-
+    //log::add('blitzortung', 'info', $replace['#data#']);    
     $replace['#data#'] = substr($replace['#data#'], 0, -1);
+
     $replace['#rayon#'] = $rayon;
     $replace['#retention#'] = $LastImpactRetention;
+    $replace['#tsmax#'] = $tsmax;
+
+    $replace['#latitude#'] = blitzortung::getLatitude($this);
+    $replace['#longitude#'] = blitzortung::getLongitude($this);
+
     //$replace['#counter#'] = $counter;
     //$replace['#lastdistance#'] = $this->getCmd(null, 'lastdistance')->execCmd();
 
