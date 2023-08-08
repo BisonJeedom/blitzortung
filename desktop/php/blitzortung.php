@@ -6,8 +6,6 @@ if (!isConnect('admin')) {
 $plugin = plugin::byId('blitzortung');
 sendVarToJS('eqType', $plugin->getId());
 $eqLogics = eqLogic::byType($plugin->getId());
-
-
 ?>
 
 <div class="row row-overflow">
@@ -16,6 +14,11 @@ $eqLogics = eqLogic::byType($plugin->getId());
 		<legend><i class="fas fa-cog"></i> {{Gestion}}</legend>
 		<!-- Boutons de gestion du plugin -->
 		<div class="eqLogicThumbnailContainer">
+			<div class="cursor pluginAction logoSecondary" data-action="openLocation" data-location="<?= $plugin->getDocumentation() ?>">
+				<i class="fas fa-book-open"></i>
+				<br>
+				<span>{{Documentation}}</span>
+			</div>
 			<div class="cursor eqLogicAction logoPrimary" data-action="add">
 				<i class="fas fa-plus-circle"></i>
 				<br>
