@@ -110,7 +110,7 @@ async def run():
     while True:
         try:        
             logging.info("Sélection du serveur")
-            hosts = ["ws1", "ws7", "ws8"]
+            hosts = ["ws1", "ws3", "ws7", "ws8"]
             uri = "wss://{}.blitzortung.org:443/".format(random.choice(hosts))            
             logging.info("url : " + str(uri))
             time.sleep(3)
