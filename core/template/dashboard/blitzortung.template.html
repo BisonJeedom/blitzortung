@@ -149,9 +149,19 @@
 
             series: [{
                 keys: ['x', 'y'],
-                color: "#E0FF43",
                 name: "Impacts",
-                data: [#data#]
+                data: [#data#],
+                zoneAxis: 'y',
+                zones: [{
+                    value: 10,
+                    color: '#EA251F'
+                }, {
+                    value: 30,
+                    color: '#EA6E1E'
+                },
+                {
+                    color: '#DFE150'
+                }]
             }]
         });
     </script>
