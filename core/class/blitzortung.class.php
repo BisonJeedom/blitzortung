@@ -134,8 +134,6 @@ class blitzortung extends eqLogic {
 
         $new_arr = array();
         $average_arr = array();
-        $add_5mn = 0;
-        $moy_5mn = 0;
         $i = 0;
 
         foreach ($arr as $key => $value) {
@@ -162,32 +160,39 @@ class blitzortung extends eqLogic {
           }
         }
 
+        // Analyse de l'évolution de l'orage //
         for ($i = 0; $i < 3; $i++) {
-          $c = $average_arr[$i][0];
-          log::add('blitzortung', 'info', 'count : ' . $c);
           $average_arr[$i][1] = ($average_arr[$i][0] == 0) ? 0 : round($average_arr[$i][1] / $average_arr[$i][0], 2);
-          log::add('blitzortung', 'info', 'avg : ' . $average_arr[$i][1]);
         }
         log::add('blitzortung', 'info', '| [-15mn -> -10mn] : Moyenne de ' .  $average_arr[0][1] . ' km ' . '(' . $average_arr[0][0] . ' impacts)');
         log::add('blitzortung', 'info', '| [-10mn -> -5mn] : Moyenne de ' .  $average_arr[1][1] . ' km ' . '(' . $average_arr[1][0] . ' impacts)');
         log::add('blitzortung', 'info', '| [-5mn -> -0mn] : Moyenne de ' .  $average_arr[2][1] . ' km ' . '(' . $average_arr[2][0] . ' impacts)');
 
-        // Analyse de l'évolution de l'orage
         if ($average_arr[0][0] > $average_arr[1][0] && $average_arr[1][0] >= $average_arr[2][0]) {
           log::add('blitzortung', 'info', '| Nombre d\'impacts en diminution');
           $evolution_impacts = 'Impacts en diminution';
+          $eqLogic->checkAndUpdateCmd('counterevolution', -1);
         }
         if ($average_arr[0][0] < $average_arr[1][0] && $average_arr[1][0] <= $average_arr[2][0]) {
           log::add('blitzortung', 'info', '| Nombre d\'impacts en augmentation');
           $evolution_impacts = 'Impacts en augmentation';
+          $eqLogic->checkAndUpdateCmd('counterevolution', 1);
         }
         if ($average_arr[0][1] > $average_arr[1][1] && $average_arr[1][1] >= $average_arr[2][1]) {
           log::add('blitzortung', 'info', '| L\'orage se rapproche');
           $evolution_distance = 'Rapprochement des impacts';
+          $eqLogic->checkAndUpdateCmd('distanceevolution', 1);
         }
         if ($average_arr[0][0] < $average_arr[1][0] && $average_arr[1][0] < $average_arr[2][0]) {
           log::add('blitzortung', 'info', '| L\'orage s\'éloigne');
           $evolution_distance = 'Eloignement des impacts';
+          $eqLogic->checkAndUpdateCmd('distanceevolution', -1);
+        }
+        if ($evolution_distance == '') {
+          $eqLogic->checkAndUpdateCmd('distanceevolution', 0);
+        }
+        if ($evolution_impacts == '') {
+          $eqLogic->checkAndUpdateCmd('counterevolution', 0);
         }
 
         $count_end = count($new_arr);
@@ -202,7 +207,7 @@ class blitzortung extends eqLogic {
         $eqLogic->setConfiguration("json_impacts", $json);
         $eqLogic->checkAndUpdateCmd('counter', $count_end);
 
-        $eqLogic->setConfiguration("evolution", $evolution_impacts . ' --- ' . $evolution_distance);
+        $eqLogic->setConfiguration("evolution", 'Evolution sur 15 minutes : ' . $evolution_impacts . ' --- ' . $evolution_distance);
 
         $eqLogic->save();
 
@@ -297,7 +302,9 @@ class blitzortung extends eqLogic {
     $this->CreateCmd('lastlat', 'Dernière latitude', '', '0', '', '', '', '', '', 'info', 'string', '', '1');
     $this->CreateCmd('lastlon', 'Dernière longitude', '', '0', '', '', '', '', '', 'info', 'string', '', '1');
     $this->CreateCmd('lastdistance', 'Dernière distance', '', '1', '2', 'none', '-1 month', 'always', '', 'info', 'numeric', 'km', '1');
+    $this->CreateCmd('distanceevolution', 'Evolution de la distance sur 15mn', '', '1', '', 'none', '-1 month', '', '', 'info', 'numeric', '', '1');
     $this->CreateCmd('counter', 'Compteur des impacts', '', '0', '', '', '', '', '', 'info', 'numeric', '', '1');
+    $this->CreateCmd('counterevolution', 'Evolution des impacts sur 15mn', '', '1', '', 'none', '-1 month', '', '', 'info', 'numeric', '', '1');
     $this->CreateCmd('mapurl', 'URL de la carte', '', '0', '', '', '', '', '', 'info', 'string', '', '1');
     $this->checkAndUpdateCmd('mapurl', 'https://map.blitzortung.org/#' . $this->getConfiguration("cfg_Zoom", 10) . '/' . self::getLatitude($this) . '/' . self::getLongitude($this));
   }
