@@ -32,20 +32,16 @@
             </text>
         </svg>
         </div>
-        <div style="padding-top: 50px;">        
+        <div style="padding-top: 40px;">        
             <div id="counter-#id#" class="cmd" style="margin-top: 10px;font-size :14px;">
                 <span id="spanCounter-#cmdIdCounter#"></span> impacts depuis #retention# heure(s) sur un rayon de
                 #rayon# km
             </div>            
-            <div id="evolution-#id#" class="cmd" style="margin-top: 10px;font-size :14px;">#evolution#</div>
-            
+            <div id="evolution-#id#" class="cmd" style="margin-top: 10px;font-size :14px;">#evolution#</div>            
         </div>
     </div>
 
-
-
-
-    <div id="container-#id#" style="width: 550px; height: 400px; overflow: initial !important"></div>
+    <div id="container-#id#" style="width: 550px; height: 400px;"></div>
 
     <div class="cursor pluginAction logoSecondary">
         <i class="icon kiko-marker-map"></i>
@@ -172,6 +168,10 @@
         });
     </script>
 
-
+<style>
+#container-#id# { 
+    overflow: visible !important;
+}
+</style>
 
 </div>
