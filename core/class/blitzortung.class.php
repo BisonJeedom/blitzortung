@@ -481,8 +481,18 @@ class blitzortung extends eqLogic {
     $replace['#cmdIdCounter#'] = $cmd->getId();
 
     $cmd = $this->getCmd('info', 'lastdistance');
-    $replace['#stateDistance#'] = $cmd->execCmd();
+    $distance = $cmd->execCmd();
+    $replace['#stateDistance#'] = $distance;
+    $replace['#uniteDistance#'] = 'km';
     $replace['#cmdIdDistance#'] = $cmd->getId();
+
+    if ($distance <= 10) {
+      $replace['#circlecolorValue#'] = '#EA251F';
+    } elseif ($distance <= 30) {
+      $replace['#CirclecolorValue#'] = '#EA6E1E';
+    } else {
+      $replace['#CirclecolorValue#'] = '#DFE150';
+    }    
 
     $replace['#evolution#'] = $evolution;
 
