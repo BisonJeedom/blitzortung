@@ -25,6 +25,7 @@ function blitzortung_install() {
 // Fonction exécutée automatiquement après la mise à jour du plugin
 function blitzortung_update() {
     blitzortung::setupCron(1);
+    blitzortung::postSave();
 }
 
 // Fonction exécutée automatiquement après la suppression du plugin
