@@ -196,6 +196,9 @@ class blitzortung extends eqLogic {
         }
 
         $count_end = count($new_arr);
+        if ($count_end == 0) {
+          $eqLogic->checkAndUpdateCmd('lastdistance', '');
+        }
         log::add('blitzortung', 'debug', '| Impacts enregistrés : ' . $json);
         log::add('blitzortung', 'debug', '| Nombre d\'enregistrement  : ' . $count_end);
 
@@ -486,13 +489,17 @@ class blitzortung extends eqLogic {
     $replace['#uniteDistance#'] = 'km';
     $replace['#cmdIdDistance#'] = $cmd->getId();
 
-    if ($distance <= 10) {
-      $replace['#circlecolorValue#'] = '#EA251F';
-    } elseif ($distance <= 30) {
-      $replace['#CirclecolorValue#'] = '#EA6E1E';
+    if ($distance != '') {
+      if ($distance <= 10) {
+        $replace['#circlecolorValue#'] = '#EA251F'; // Cercle en rouge
+      } elseif ($distance <= 30) {
+        $replace['#CirclecolorValue#'] = '#EA6E1E'; // Cercle en orange
+      } else {
+        $replace['#CirclecolorValue#'] = '#DFE150'; // Cercle en jaune
+      }
     } else {
-      $replace['#CirclecolorValue#'] = '#DFE150';
-    }    
+      $replace['#CirclecolorValue#'] = '#3A5B8F'; // Cercle en bleu
+    }
 
     $replace['#evolution#'] = $evolution;
 

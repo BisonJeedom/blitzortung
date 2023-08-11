@@ -21,27 +21,28 @@
         <div id="lastdistance_hidden#id#" style="display:none;"></div>
     </center>
 
-    <div style="width:800px;">        
+    <div style="width:800px;">
         <div style="float:left;">
-        <br>
-        <svg height="100" width="120">
-            <circle id="circleDistance-#id#" cx="60" cy="50" r="45" stroke="#CirclecolorValue#" stroke-width="2"
-                fill="none" />
-            <text x="60" y="50" dominant-baseline="middle" text-anchor="middle" font-weight="normal" font-size="1.2em" fill="var(--txt-color)">
-                <tspan id="circleTxtDistance-#id#" x="50%" dy="0.3em"></tspan>
-            </text>
-        </svg>
+            <br>
+            <svg height="100" width="120">
+                <circle id="circleDistance-#id#" cx="60" cy="50" r="45" stroke="#CirclecolorValue#" stroke-width="2"
+                    fill="none" />
+                <text x="60" y="50" dominant-baseline="middle" text-anchor="middle" font-weight="normal"
+                    font-size="1.2em" fill="var(--txt-color)">
+                    <tspan id="circleTxtDistance-#id#" x="50%" dy="0.3em"></tspan>
+                </text>
+            </svg>
         </div>
-        <div style="padding-top: 40px;">        
+        <div style="padding-top: 40px;">
             <div id="counter-#id#" class="cmd" style="margin-top: 10px;font-size :14px;">
                 <span id="spanCounter-#cmdIdCounter#"></span> impacts depuis #retention# heure(s) sur un rayon de
                 #rayon# km
-            </div>            
-            <div id="evolution-#id#" class="cmd" style="margin-top: 10px;font-size :14px;">#evolution#</div>            
+            </div>
+            <div id="evolution-#id#" class="cmd" style="margin-top: 10px;font-size :14px;">#evolution#</div>
         </div>
     </div>
 
-    <div id="container-#id#" style="width: 550px; height: 400px;"></div>
+    <div id="container-#id#" style="width: 100%; height: 350px;"></div>
 
     <div class="cursor pluginAction logoSecondary">
         <i class="icon kiko-marker-map"></i>
@@ -63,17 +64,20 @@
         jeedom.cmd.refreshValue([{ cmd_id: '#cmdIdCounter#', display_value: '#stateCounter#' }])
 
         jeedom.cmd.addUpdateFunction('#cmdIdDistance#', function (_options) {
-            $('#circleTxtDistance-#id#').empty().append(_options.display_value)
-            $('#circleTxtDistance-#id#').append(' ' + _options.unit)           
             let d = _options.display_value
-            if (d <= 10) {               
-                document.getElementById("circleDistance-#id#").setAttribute("stroke", '#EA251F') // Couleur Rouge
-            } else if (d <= 30) {                
-                document.getElementById("circleDistance-#id#").setAttribute("stroke", '#EA6E1E') // couleur Orange
-            } else {                
-                document.getElementById("circleDistance-#id#").setAttribute("stroke", '#DFE150') // Couleur Jaune
+            $('#circleTxtDistance-#id#').empty().append(d)
+            if (d != 0) {
+                $('#circleTxtDistance-#id#').append(' ' + _options.unit)
+                if (d <= 10) {
+                    document.getElementById("circleDistance-#id#").setAttribute("stroke", '#EA251F') // Cercle en Rouge
+                } else if (d <= 30) {
+                    document.getElementById("circleDistance-#id#").setAttribute("stroke", '#EA6E1E') // Cercle en Orange
+                } else {
+                    document.getElementById("circleDistance-#id#").setAttribute("stroke", '#DFE150') // Cercle en Jaune
+                }
+            } else {
+                document.getElementById("circleDistance-#id#").setAttribute("stroke", '#3A5B8F')
             }
-
         });
         jeedom.cmd.refreshValue([{ cmd_id: '#cmdIdDistance#', display_value: '#stateDistance#', unit: '#uniteDistance#' }])
 
@@ -115,7 +119,7 @@
                     text: 'Minutes'
                 },
                 min: 0,
-                max: #tsmax#,                
+                max: #tsmax#,
                 labels: {
                     formatter: function () {
                         var time = this.value;
@@ -123,7 +127,6 @@
                         return min;
                     }
                 }
-
             },
 
             tooltip: {
@@ -132,7 +135,6 @@
                 pointFormatter: function () {
                     return this.y + ' km il y a ' + Math.round(this.x / 60, 0) + ' minutes'
                 }
-
             },
 
             legend: {
@@ -167,11 +169,4 @@
             }]
         });
     </script>
-
-<style>
-#container-#id# { 
-    overflow: visible !important;
-}
-</style>
-
 </div>
