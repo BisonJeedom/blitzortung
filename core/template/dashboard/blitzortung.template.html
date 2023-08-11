@@ -21,24 +21,32 @@
         <div id="lastdistance_hidden#id#" style="display:none;"></div>
     </center>
 
-    <center>
-        <div id="counter-#id#" class="cmd" style="margin-top: 10px;font-size :14px;">
-            <span id="spanCounter-#cmdIdCounter#">#counter#</span> impacts depuis #retention# heure(s) sur un rayon de
-            #rayon# km
+    <div style="width:800px;">
+        <div style="float:left;">
+            <br>
+            <svg height="100" width="120">
+                <circle id="circleDistance-#id#" cx="60" cy="50" r="45" stroke="#CirclecolorValue#" stroke-width="2"
+                    fill="none" />
+                <text x="60" y="50" dominant-baseline="middle" text-anchor="middle" font-weight="normal"
+                    font-size="1.2em" fill="var(--txt-color)">
+                    <tspan id="circleTxtDistance-#id#" x="50%" dy="0.3em"></tspan>
+                </text>
+            </svg>
         </div>
-
-        <div id="lastdistance-#id#" class="cmd" style="margin-top: 10px;font-size :14px;">
-            Dernier impact à <span id="spanDistance-#cmdIdDistance#">#lastdistance#</span> kilomètre(s)
+        <div style="padding-top: 40px;">
+            <div id="counter-#id#" class="cmd" style="margin-top: 10px;font-size :14px;">
+                <span id="spanCounter-#cmdIdCounter#"></span> impacts depuis #retention# heure(s) sur un rayon de
+                #rayon# km
+            </div>
+            <div id="evolution-#id#" class="cmd" style="margin-top: 10px;font-size :14px;">#evolution#</div>
         </div>
-    </center>
+    </div>
 
-
-    <div id="container-#id#" style="width: 550px; height: 400px; margin: 0 auto"></div>
-
+    <div id="container-#id#" style="width: 100%; height: 350px;"></div>
 
     <div class="cursor pluginAction logoSecondary">
-        <i class="icon kiko-map"></i>
-        <span><a href="https://map.blitzortung.org/#10/#latitude#/#longitude#" target="_blank">Ouvrir la carte sur Blitzortung</a></span>
+        <i class="icon kiko-marker-map"></i>
+        <span><a href="#mapurl#" target="_blank">Ouvrir la carte sur Blitzortung</a></span>
     </div>
 
     <script>
@@ -50,30 +58,32 @@
             $('.eqLogic[data-eqLogic_uid=#uid#] .refresh').remove();
         }
 
-        /*
-          jeedom.cmd.addUpdateFunction('#cmdId#',function(_options) {
-              $('#spanCounter-#cmdId#').text(_options.display_value);
-          });
-  
-          jeedom.cmd.refreshValue([{cmd_id :'#cmdId#',display_value: '#stateId#'}])
-          */
-
-
         jeedom.cmd.addUpdateFunction('#cmdIdCounter#', function (_options) {
             $('#spanCounter-#cmdIdCounter#').text(_options.display_value);
         });
         jeedom.cmd.refreshValue([{ cmd_id: '#cmdIdCounter#', display_value: '#stateCounter#' }])
 
         jeedom.cmd.addUpdateFunction('#cmdIdDistance#', function (_options) {
-            $('#spanDistance-#cmdIdDistance#').text(_options.display_value);
+            let d = _options.display_value
+            $('#circleTxtDistance-#id#').empty().append(d)
+            if (d != 0) {
+                $('#circleTxtDistance-#id#').append(' ' + _options.unit)
+                if (d <= 10) {
+                    document.getElementById("circleDistance-#id#").setAttribute("stroke", '#EA251F') // Cercle en Rouge
+                } else if (d <= 30) {
+                    document.getElementById("circleDistance-#id#").setAttribute("stroke", '#EA6E1E') // Cercle en Orange
+                } else {
+                    document.getElementById("circleDistance-#id#").setAttribute("stroke", '#DFE150') // Cercle en Jaune
+                }
+            } else {
+                document.getElementById("circleDistance-#id#").setAttribute("stroke", '#3A5B8F')
+            }
         });
-        jeedom.cmd.refreshValue([{ cmd_id: '#cmdIdDistance#', display_value: '#stateDistance#' }])
+        jeedom.cmd.refreshValue([{ cmd_id: '#cmdIdDistance#', display_value: '#stateDistance#', unit: '#uniteDistance#' }])
 
-
-        /* Désactivation du bargraphe Aujourd'hui s'il n'existe pas de données */
         if ('#stateCounter#' == '' || '#stateCounter#' == 0) {
             document.getElementById("counter-#id#").style.display = "none";
-            document.getElementById("lastdistance-#id#").style.display = "none";
+
             document.getElementById("counter_hidden#id#").style.display = "block";
             document.getElementById("lastdistance_hidden#id#").style.display = "block";
         }
@@ -101,7 +111,8 @@
             yAxis: {
                 title: {
                     text: 'Distance (km)'
-                }
+                },
+                min: 0
             },
 
             xAxis: {
@@ -110,7 +121,6 @@
                 },
                 min: 0,
                 max: #tsmax#,
-                //tickInterval: 60,
                 labels: {
                     formatter: function () {
                         var time = this.value;
@@ -118,7 +128,6 @@
                         return min;
                     }
                 }
-
             },
 
             tooltip: {
@@ -127,7 +136,6 @@
                 pointFormatter: function () {
                     return this.y + ' km il y a ' + Math.round(this.x / 60, 0) + ' minutes'
                 }
-
             },
 
             legend: {
@@ -146,11 +154,20 @@
 
             series: [{
                 keys: ['x', 'y'],
-                color: "#E0FF43",
                 name: "Impacts",
-                data: [#data#]
+                data: [#data#],
+                zoneAxis: 'y',
+                zones: [{
+                    value: 10,
+                    color: '#EA251F'
+                }, {
+                    value: 30,
+                    color: '#EA6E1E'
+                },
+                {
+                    color: '#DFE150'
+                }]
             }]
         });
     </script>
-
 </div>

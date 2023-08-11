@@ -22,6 +22,16 @@ function getUTCoffset($City) {
   return ($dtz->getOffset($timeCity));
 }
 
+function checkExist($_array, $_new_record) {
+  $c = count($_array);
+  for ($n = $c-1; $n > $c-10; $n--) {            
+    if ($_array[$n]['ts'] == $_new_record['ts'] && $_array[$n]['lat'] == $_new_record['lat'] && $_array[$n]['lon'] == $_new_record['lon'] && $_array[$n]['distance'] == $_new_record['distance']) {     
+      return 1;         
+    }
+  }
+  return 0;
+}
+
 try {
   require_once dirname(__FILE__) . "/../../../../core/php/core.inc.php";
 
@@ -64,24 +74,28 @@ try {
 
           log::add('blitzortung', 'debug', ' > json : ' . $result);
 
-
           $json = $eqLogic->getConfiguration("json_impacts");
           $arr = json_decode($json, true);
-          $arr[] = ['ts' => $ts_local, 'lat' => $result_array['lat'], 'lon' => $result_array['lon'], 'distance' => $distance];
-          $counter = count($arr);
-          log::add('blitzortung', 'info', '[' . $ts_local . ']' . ' ' . '[' . $counter . ']' . ' distance impact : ' . $distance . ' km' . ' | ' . 'lat: ' . $result_array['lat'] . ' lon: ' . $result_array['lon']);
-          //log::add('blitzortung', 'info', ' > new count : ' . $counter);
-          $json = json_encode($arr);
-          log::add('blitzortung', 'debug', ' > json_impacts : ' . $json);
-          $eqLogic->setConfiguration("json_impacts", $json);
-          $eqLogic->save();
+          $new_record = ['ts' => $ts_local, 'lat' => $result_array['lat'], 'lon' => $result_array['lon'], 'distance' => $distance];
 
-          $eqLogic->checkAndUpdateCmd('lastlat', $result_array['lat']);
-          $eqLogic->checkAndUpdateCmd('lastlon', $result_array['lon']);
-          $eqLogic->checkAndUpdateCmd('lastdistance', $distance);
-          $eqLogic->checkAndUpdateCmd('counter', $counter);
+          if (checkExist($arr, $new_record) == 0) {
+            $arr[] = $new_record;
+            $counter = count($arr);
+            log::add('blitzortung', 'info', '[' . $eqLogic->getName() . ']' . ' ' . '[' . $ts_local . ']' . ' ' . '[' . $counter . ']' . ' distance impact : ' . $distance . ' km' . ' | ' . 'lat: ' . $result_array['lat'] . ' lon: ' . $result_array['lon']);
+            $json = json_encode($arr);
+            log::add('blitzortung', 'debug', ' > json_impacts : ' . $json);
+            $eqLogic->setConfiguration("json_impacts", $json);
+            $eqLogic->save();
 
-          //$eqLogic->refreshWidget();
+            $eqLogic->checkAndUpdateCmd('lastlat', $result_array['lat']);
+            $eqLogic->checkAndUpdateCmd('lastlon', $result_array['lon']);
+            $eqLogic->checkAndUpdateCmd('lastdistance', $distance);
+            $eqLogic->checkAndUpdateCmd('counter', $counter);
+
+            //$eqLogic->refreshWidget();
+          } else {
+            log::add('blitzortung', 'debug', 'L\'impact ' . json_encode($new_record). 'a déjà été capté par un autre detecteur -> non enregistré');
+          }
         }
       }
     }

@@ -121,34 +121,84 @@ class blitzortung extends eqLogic {
         $count_start = count($arr);
         $ts_limit = time() + self::getUTCoffset('Europe/Paris') - 3600 * $LastImpactRetention; // Heure actuelle moins le délais de rétention
         $ts_limit_5mn = time() + self::getUTCoffset('Europe/Paris') - 300;
+        $ts_limit_10mn = time() + self::getUTCoffset('Europe/Paris') - 600;
+        $ts_limit_15mn = time() + self::getUTCoffset('Europe/Paris') - 900;
 
         log::add('blitzortung', 'debug', '| TS LIMIT : ' . $ts_limit);
+        log::add('blitzortung', 'debug', '| TS LIMIT 15mn : ' . $ts_limit_15mn);
+        log::add('blitzortung', 'debug', '| TS LIMIT 10mn : ' . $ts_limit_10mn);
         log::add('blitzortung', 'debug', '| TS LIMIT 5mn : ' . $ts_limit_5mn);
 
         log::add('blitzortung', 'debug', '| Impacts enregistrés : ' . $json);
         log::add('blitzortung', 'debug', '| Nombre d\'enregistrement  : ' . $count_start);
 
         $new_arr = array();
-        $add_5mn = 0;
-        $moy_5mn = 0;
+        $average_arr = array();
         $i = 0;
+
         foreach ($arr as $key => $value) {
           if ($value["ts"] < $ts_limit) {
             log::add('blitzortung', 'debug', '| ' . $value["ts"] . ' < ' . $ts_limit . ' removing entry ' . $key);
           } else {
             $new_arr[] = $value;
           }
-          if ($value["ts"] > $ts_limit_5mn) { // Si le TS est dans les 5 dernières minutes
-            $add_5mn = $add_5mn + $value["distance"];
-            $i++;
-            //log::add('blitzortung', 'info', '| ' . $i . ' ' . $value["ts"] . ' ' .$value["distance"] . ' km');
+          // $average_arr[0] : -15mn -> -10mn ;  $average_arr[1] : -10mn -> -5mn ; $average_arr[2] : -5mn -> 0mn
+          if ($value["ts"] > $ts_limit_15mn) { // Si le TS est dans les 5 dernières minutes
+            if ($value["ts"] < $ts_limit_10mn) {
+              $average_arr[0][0]++;
+              $average_arr[0][1] = $average_arr[0][1] + $value["distance"];
+              log::add('blitzortung', 'debug', '| ' .  '[-15mn -> -10mn] ' . $value["ts"] . ' ' . $value["distance"] . ' km');
+            } elseif ($value["ts"] < $ts_limit_5mn) {
+              $average_arr[1][0]++;
+              $average_arr[1][1] = $average_arr[1][1] + $value["distance"];
+              log::add('blitzortung', 'debug', '| ' .  '[-10mn -> -5mn] ' . $value["ts"] . ' ' . $value["distance"] . ' km');
+            } else {
+              $average_arr[2][0]++;
+              $average_arr[2][1] = $average_arr[2][1] + $value["distance"];
+              log::add('blitzortung', 'debug', '| ' .  '[-5mn -> -0mn] ' . $value["ts"] . ' ' . $value["distance"] . ' km');
+            }
           }
         }
-        $moy_5mn = ($i == 0) ? 0 : round($add_5mn / $i, 0);
 
-        log::add('blitzortung', 'info', '| Sur les 5 dernières minutes : Moyenne de ' .  $moy_5mn . ' km' . '(' . $i . ' impacts)');
+        // Analyse de l'évolution de l'orage //
+        for ($i = 0; $i < 3; $i++) {
+          $average_arr[$i][1] = ($average_arr[$i][0] == 0) ? 0 : round($average_arr[$i][1] / $average_arr[$i][0], 2);
+        }
+        log::add('blitzortung', 'info', '| [-15mn -> -10mn] : Moyenne de ' .  $average_arr[0][1] . ' km ' . '(' . $average_arr[0][0] . ' impacts)');
+        log::add('blitzortung', 'info', '| [-10mn -> -5mn] : Moyenne de ' .  $average_arr[1][1] . ' km ' . '(' . $average_arr[1][0] . ' impacts)');
+        log::add('blitzortung', 'info', '| [-5mn -> -0mn] : Moyenne de ' .  $average_arr[2][1] . ' km ' . '(' . $average_arr[2][0] . ' impacts)');
+
+        if ($average_arr[0][0] > $average_arr[1][0] && $average_arr[1][0] >= $average_arr[2][0]) {
+          log::add('blitzortung', 'info', '| Nombre d\'impacts en diminution');
+          $evolution_impacts = 'Impacts en diminution';
+          $eqLogic->checkAndUpdateCmd('counterevolution', -1);
+        }
+        if ($average_arr[0][0] < $average_arr[1][0] && $average_arr[1][0] <= $average_arr[2][0]) {
+          log::add('blitzortung', 'info', '| Nombre d\'impacts en augmentation');
+          $evolution_impacts = 'Impacts en augmentation';
+          $eqLogic->checkAndUpdateCmd('counterevolution', 1);
+        }
+        if ($average_arr[0][1] > $average_arr[1][1] && $average_arr[1][1] >= $average_arr[2][1]) {
+          log::add('blitzortung', 'info', '| L\'orage se rapproche');
+          $evolution_distance = 'Rapprochement des impacts';
+          $eqLogic->checkAndUpdateCmd('distanceevolution', 1);
+        }
+        if ($average_arr[0][0] < $average_arr[1][0] && $average_arr[1][0] < $average_arr[2][0]) {
+          log::add('blitzortung', 'info', '| L\'orage s\'éloigne');
+          $evolution_distance = 'Eloignement des impacts';
+          $eqLogic->checkAndUpdateCmd('distanceevolution', -1);
+        }
+        if ($evolution_distance == '') {
+          $eqLogic->checkAndUpdateCmd('distanceevolution', 0);
+        }
+        if ($evolution_impacts == '') {
+          $eqLogic->checkAndUpdateCmd('counterevolution', 0);
+        }
 
         $count_end = count($new_arr);
+        if ($count_end == 0) {
+          $eqLogic->checkAndUpdateCmd('lastdistance', '');
+        }
         log::add('blitzortung', 'debug', '| Impacts enregistrés : ' . $json);
         log::add('blitzortung', 'debug', '| Nombre d\'enregistrement  : ' . $count_end);
 
@@ -159,6 +209,9 @@ class blitzortung extends eqLogic {
         $json = json_encode($new_arr);
         $eqLogic->setConfiguration("json_impacts", $json);
         $eqLogic->checkAndUpdateCmd('counter', $count_end);
+
+        $eqLogic->setConfiguration("evolution", 'Evolution sur 15 minutes : ' . $evolution_impacts . ' --- ' . $evolution_distance);
+
         $eqLogic->save();
 
         $eqLogic->refreshWidget();
@@ -179,7 +232,7 @@ class blitzortung extends eqLogic {
     return $port;
   }
 
-  public function CreateCmd($_eqlogic, $_name, $_template, $_histo, $_historound, $_generictype, $_type, $_subtype, $_unite, $_visible) {
+  public function CreateCmd($_eqlogic, $_name, $_template, $_histo, $_historound, $_histomode, $_histopurge, $_repeatEvent, $_generictype, $_type, $_subtype, $_unite, $_visible) {
     $info = $this->getCmd(null, $_eqlogic);
     if (!is_object($info)) {
       $info = new blitzortungCmd();
@@ -192,6 +245,15 @@ class blitzortung extends eqLogic {
       }
       if (!empty($_historound)) {
         $info->setConfiguration('historizeRound', $_historound);
+      }
+      if (!empty($_histomode)) {
+        $info->setConfiguration('historizeMode', $_histomode);
+      }
+      if (!empty($_histopurge)) {
+        $info->setConfiguration('historyPurge', $_histopurge);
+      }
+      if (!empty($_repeatEvent)) {
+        $info->setConfiguration('repeatEventManagement', $_repeatEvent);
       }
       if (!empty($_generictype)) {
         $info->setGeneric_type($_generictype);
@@ -217,6 +279,8 @@ class blitzortung extends eqLogic {
 
   // Fonction exécutée automatiquement avant la création de l'équipement
   public function preInsert() {
+    $this->setConfiguration('cfg_LastImpactRetention', '1');
+    $this->setConfiguration('cfg_Zoom', '10');
   }
 
   // Fonction exécutée automatiquement après la création de l'équipement
@@ -237,11 +301,15 @@ class blitzortung extends eqLogic {
 
   // Fonction exécutée automatiquement après la sauvegarde (création ou mise à jour) de l'équipement
   public function postSave() {
-    $this->CreateCmd('refresh', 'Rafraichir', '', '0', '3', '', 'action', 'other', '', '1');
-    $this->CreateCmd('lastlat', 'Dernière latitude', '', '0', '3', '', 'info', 'string', '', '1');
-    $this->CreateCmd('lastlon', 'Dernière longitude', '', '0', '3', '', 'info', 'string', '', '1');
-    $this->CreateCmd('lastdistance', 'Dernière distance', '', '1', '3', '', 'info', 'numeric', 'km', '1');
-    $this->CreateCmd('counter', 'Compteur des impacts', '', '0', '3', '', 'info', 'numeric', '', '1');
+    $this->CreateCmd('refresh', 'Rafraichir', '', '0', '', '', '', '', '', 'action', 'other', '', '1');
+    $this->CreateCmd('lastlat', 'Dernière latitude', '', '0', '', '', '', '', '', 'info', 'string', '', '1');
+    $this->CreateCmd('lastlon', 'Dernière longitude', '', '0', '', '', '', '', '', 'info', 'string', '', '1');
+    $this->CreateCmd('lastdistance', 'Dernière distance', '', '1', '2', 'none', '-1 month', 'always', '', 'info', 'numeric', 'km', '1');
+    $this->CreateCmd('distanceevolution', 'Evolution de la distance sur 15mn', '', '1', '', 'none', '-1 month', '', '', 'info', 'numeric', '', '1');
+    $this->CreateCmd('counter', 'Compteur des impacts', '', '0', '', '', '', '', '', 'info', 'numeric', '', '1');
+    $this->CreateCmd('counterevolution', 'Evolution des impacts sur 15mn', '', '1', '', 'none', '-1 month', '', '', 'info', 'numeric', '', '1');
+    $this->CreateCmd('mapurl', 'URL de la carte', '', '0', '', '', '', '', '', 'info', 'string', '', '1');
+    $this->checkAndUpdateCmd('mapurl', 'https://map.blitzortung.org/#' . $this->getConfiguration("cfg_Zoom", 10) . '/' . self::getLatitude($this) . '/' . self::getLongitude($this));
   }
 
   // Fonction exécutée automatiquement avant la suppression de l'équipement
@@ -390,6 +458,7 @@ class blitzortung extends eqLogic {
     log::add('blitzortung', 'debug', '[template] Affichage du template pour ' . $eqLogicName . ' [START]');
 
     $json = $this->getConfiguration("json_impacts");
+    $evolution = $this->getConfiguration("evolution");
     $rayon = $this->getConfiguration('cfg_rayon', 50);
     $LastImpactRetention = $this->getConfiguration("cfg_LastImpactRetention", 1);
     $tsmax = $LastImpactRetention * 3600; // Valeur maximum sur le graphique (en secondes)
@@ -408,21 +477,31 @@ class blitzortung extends eqLogic {
     $replace['#retention#'] = $LastImpactRetention;
     $replace['#tsmax#'] = $tsmax;
 
-    $replace['#latitude#'] = blitzortung::getLatitude($this);
-    $replace['#longitude#'] = blitzortung::getLongitude($this);
-
-    //$replace['#counter#'] = $counter;
-    //$replace['#lastdistance#'] = $this->getCmd(null, 'lastdistance')->execCmd();
-
+    $replace['#mapurl#'] = $this->getCmd('info', 'mapurl')->execCmd();
 
     $cmd = $this->getCmd('info', 'counter');
     $replace['#stateCounter#'] = $cmd->execCmd();
     $replace['#cmdIdCounter#'] = $cmd->getId();
 
     $cmd = $this->getCmd('info', 'lastdistance');
-    $replace['#stateDistance#'] = $cmd->execCmd();
+    $distance = $cmd->execCmd();
+    $replace['#stateDistance#'] = $distance;
+    $replace['#uniteDistance#'] = 'km';
     $replace['#cmdIdDistance#'] = $cmd->getId();
 
+    if ($distance != '') {
+      if ($distance <= 10) {
+        $replace['#circlecolorValue#'] = '#EA251F'; // Cercle en rouge
+      } elseif ($distance <= 30) {
+        $replace['#CirclecolorValue#'] = '#EA6E1E'; // Cercle en orange
+      } else {
+        $replace['#CirclecolorValue#'] = '#DFE150'; // Cercle en jaune
+      }
+    } else {
+      $replace['#CirclecolorValue#'] = '#3A5B8F'; // Cercle en bleu
+    }
+
+    $replace['#evolution#'] = $evolution;
 
     $getTemplate = getTemplate('core', $version, 'blitzortung.template', __CLASS__); // on récupère le template du plugin.
     $template_replace = template_replace($replace, $getTemplate); // on remplace les tags
