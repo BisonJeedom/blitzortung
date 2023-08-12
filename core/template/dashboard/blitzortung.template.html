@@ -13,14 +13,6 @@
         <a href="#eqLink#" class="reportModeHidden">#name_display# <span class="object_name">#object_name#</span></a>
     </center>
 
-    <center>
-        <div id="counter_hidden#id#" style="margin-top: 10px;font-size :14px;display:none;">Aucun impact depuis
-            #retention# heure(s) dans un rayon de #rayon#
-            km
-        </div>
-        <div id="lastdistance_hidden#id#" style="display:none;"></div>
-    </center>
-
     <div style="width:800px;">
         <div style="float:left;">
             <br>
@@ -34,6 +26,9 @@
             </svg>
         </div>
         <div style="padding-top: 40px;">
+            <div id="counter_hidden#id#" style="margin-top: 10px;font-size :14px;display:none;">Aucun impact depuis
+                #retention# heure(s) dans un rayon de #rayon# km
+            </div>
             <div id="counter-#id#" class="cmd" style="margin-top: 10px;font-size :14px;">
                 <span id="spanCounter-#cmdIdCounter#"></span> impacts depuis #retention# heure(s) dans un rayon de
                 #rayon# km
@@ -83,9 +78,7 @@
 
         if ('#stateCounter#' == '' || '#stateCounter#' == 0) {
             document.getElementById("counter-#id#").style.display = "none";
-
             document.getElementById("counter_hidden#id#").style.display = "block";
-            document.getElementById("lastdistance_hidden#id#").style.display = "block";
         }
 
         Highcharts.chart('container-#id#', {
@@ -112,7 +105,8 @@
                 title: {
                     text: 'Distance (km)'
                 },
-                min: 0
+                min: 0,
+                max: #rayon#
             },
 
             xAxis: {
@@ -121,6 +115,7 @@
                 },
                 min: 0,
                 max: #tsmax#,
+                tickPositions: [#tickPositions#],
                 labels: {
                     formatter: function () {
                         var time = this.value;

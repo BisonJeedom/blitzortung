@@ -477,6 +477,14 @@ class blitzortung extends eqLogic {
     $replace['#retention#'] = $LastImpactRetention;
     $replace['#tsmax#'] = $tsmax;
 
+    // Passage d'un tableau pour définir les positions des ticks sur les abscisses
+    $i = $LastImpactRetention * 6;
+    for ($j = 0; $j <= $i; $j++) {
+      $k = $j * 600; // l'affichage est divisé par 60 pour afficher en minutes
+      $replace['#tickPositions#'] .= $k . ',';
+    }
+    $replace['#tickPositions#'] = substr($replace['#tickPositions#'], 0, -1);
+
     $replace['#mapurl#'] = $this->getCmd('info', 'mapurl')->execCmd();
 
     $cmd = $this->getCmd('info', 'counter');
