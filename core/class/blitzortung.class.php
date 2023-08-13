@@ -169,30 +169,31 @@ class blitzortung extends eqLogic {
         log::add('blitzortung', 'info', '| [-10mn -> -5mn] : Moyenne de ' .  $average_arr[1][1] . ' km ' . '(' . $average_arr[1][0] . ' impacts)');
         log::add('blitzortung', 'info', '| [-5mn -> -0mn] : Moyenne de ' .  $average_arr[2][1] . ' km ' . '(' . $average_arr[2][0] . ' impacts)');
 
+        $evolution_impacts = false; $evolution_distance = false;
         if ($average_arr[0][0] > $average_arr[1][0] && $average_arr[1][0] >= $average_arr[2][0]) {
           log::add('blitzortung', 'info', '| Nombre d\'impacts en diminution');
-          $evolution_impacts = 'Impacts en diminution';
+          $evolution_impacts = true;
           $eqLogic->checkAndUpdateCmd('counterevolution', -1);
         }
         if ($average_arr[0][0] < $average_arr[1][0] && $average_arr[1][0] <= $average_arr[2][0]) {
           log::add('blitzortung', 'info', '| Nombre d\'impacts en augmentation');
-          $evolution_impacts = 'Impacts en augmentation';
+          $evolution_impacts = true;
           $eqLogic->checkAndUpdateCmd('counterevolution', 1);
         }
         if ($average_arr[0][1] > $average_arr[1][1] && $average_arr[1][1] >= $average_arr[2][1]) {
           log::add('blitzortung', 'info', '| L\'orage se rapproche');
-          $evolution_distance = 'Rapprochement des impacts';
+          $evolution_distance = true;
           $eqLogic->checkAndUpdateCmd('distanceevolution', 1);
         }
         if ($average_arr[0][0] < $average_arr[1][0] && $average_arr[1][0] < $average_arr[2][0]) {
           log::add('blitzortung', 'info', '| L\'orage s\'éloigne');
-          $evolution_distance = 'Eloignement des impacts';
+          $evolution_distance = true;
           $eqLogic->checkAndUpdateCmd('distanceevolution', -1);
         }
-        if ($evolution_distance == '') {
+        if ($evolution_distance === false) {
           $eqLogic->checkAndUpdateCmd('distanceevolution', 0);
         }
-        if ($evolution_impacts == '') {
+        if ($evolution_impacts === false) {
           $eqLogic->checkAndUpdateCmd('counterevolution', 0);
         }
 
