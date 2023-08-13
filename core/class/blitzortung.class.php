@@ -162,6 +162,7 @@ class blitzortung extends eqLogic {
 
         // Analyse de l'évolution de l'orage //
         for ($i = 0; $i < 3; $i++) {
+          $average_arr[$i][0] = ($average_arr[$i][0] == '') ? 0 : $average_arr[$i][0];
           $average_arr[$i][1] = ($average_arr[$i][0] == 0) ? 0 : round($average_arr[$i][1] / $average_arr[$i][0], 2);
         }
         log::add('blitzortung', 'info', '| [-15mn -> -10mn] : Moyenne de ' .  $average_arr[0][1] . ' km ' . '(' . $average_arr[0][0] . ' impacts)');
@@ -458,7 +459,6 @@ class blitzortung extends eqLogic {
     log::add('blitzortung', 'debug', '[template] Affichage du template pour ' . $eqLogicName . ' [START]');
 
     $json = $this->getConfiguration("json_impacts");
-    $evolution = $this->getConfiguration("evolution");
     $rayon = $this->getConfiguration('cfg_rayon', 50);
     $LastImpactRetention = $this->getConfiguration("cfg_LastImpactRetention", 1);
     $tsmax = $LastImpactRetention * 3600; // Valeur maximum sur le graphique (en secondes)
@@ -487,15 +487,17 @@ class blitzortung extends eqLogic {
 
     $replace['#mapurl#'] = $this->getCmd('info', 'mapurl')->execCmd();
 
+    // Gestion du nombre d'impact pour mise à jour du widget
     $cmd = $this->getCmd('info', 'counter');
-    $replace['#stateCounter#'] = $cmd->execCmd();
+    $replace['#stateCounter#'] = $cmd->execCmd();;
     $replace['#cmdIdCounter#'] = $cmd->getId();
 
+    // Gestion de la distance pour mise à jour du widget
     $cmd = $this->getCmd('info', 'lastdistance');
     $distance = $cmd->execCmd();
     $replace['#stateDistance#'] = $distance;
     $replace['#uniteDistance#'] = 'km';
-    $replace['#cmdIdDistance#'] = $cmd->getId();
+    $replace['#cmdIdDistance#'] = $cmd->getId();   
 
     if ($distance != '') {
       if ($distance <= 10) {
@@ -509,7 +511,30 @@ class blitzortung extends eqLogic {
       $replace['#CirclecolorValue#'] = '#3A5B8F'; // Cercle en bleu
     }
 
-    $replace['#evolution#'] = $evolution;
+    $cmd = $this->getCmd('info', 'counterevolution');
+    $counterevolution = $cmd->execCmd();
+    //$counterevolution = 1;  // temporaire
+    if ($counterevolution == -1) {
+      $replace['#counterevolution#'] = 'Diminution';
+    } elseif ($counterevolution == 1) {
+      $replace['#counterevolution#'] = 'Augmentation';
+    } else {
+      $replace['#counterevolution#'] = '---';
+    }
+    $replace['#cmdIdcounterevolution#'] = $cmd->getId();
+
+
+    $cmd = $this->getCmd('info', 'distanceevolution');
+    $distanceevolution = $cmd->execCmd();
+    //$distanceevolution = 0;
+    if ($distanceevolution == -1) {
+      $replace['#distanceevolution#'] = 'Eloignement';
+    } elseif ($distanceevolution == 1) {
+      $replace['#distanceevolution#'] = 'Rapprochement';
+    } else {
+      $replace['#distanceevolution#'] = '---';
+    }
+    $replace['#cmdIddistanceevolution#'] = $cmd->getId();   
 
     $getTemplate = getTemplate('core', $version, 'blitzortung.template', __CLASS__); // on récupère le template du plugin.
     $template_replace = template_replace($replace, $getTemplate); // on remplace les tags

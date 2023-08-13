@@ -24,9 +24,9 @@ function getUTCoffset($City) {
 
 function checkExist($_array, $_new_record) {
   $c = count($_array);
-  for ($n = $c-1; $n > $c-10; $n--) {            
-    if ($_array[$n]['ts'] == $_new_record['ts'] && $_array[$n]['lat'] == $_new_record['lat'] && $_array[$n]['lon'] == $_new_record['lon'] && $_array[$n]['distance'] == $_new_record['distance']) {     
-      return 1;         
+  for ($n = $c - 1; $n > $c - 10; $n--) {
+    if ($_array[$n]['ts'] == $_new_record['ts'] && $_array[$n]['lat'] == $_new_record['lat'] && $_array[$n]['lon'] == $_new_record['lon'] && $_array[$n]['distance'] == $_new_record['distance']) {
+      return 1;
     }
   }
   return 0;
@@ -94,7 +94,7 @@ try {
 
             //$eqLogic->refreshWidget();
           } else {
-            log::add('blitzortung', 'debug', 'L\'impact ' . json_encode($new_record). 'a déjà été capté par un autre detecteur -> non enregistré');
+            log::add('blitzortung', 'debug', 'L\'impact ' . json_encode($new_record) . 'a déjà été capté par un autre detecteur -> non enregistré');
           }
         }
       }

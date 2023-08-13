@@ -13,156 +13,236 @@
         <a href="#eqLink#" class="reportModeHidden">#name_display# <span class="object_name">#object_name#</span></a>
     </center>
 
-    <div style="width:800px;">
-        <div style="float:left;">
-            <br>
-            <svg height="100" width="120">
-                <circle id="circleDistance-#id#" cx="60" cy="50" r="45" stroke="#CirclecolorValue#" stroke-width="2"
-                    fill="none" />
-                <text x="60" y="50" dominant-baseline="middle" text-anchor="middle" font-weight="normal"
-                    font-size="1.2em" fill="var(--txt-color)">
-                    <tspan id="circleTxtDistance-#id#" x="50%" dy="0.3em"></tspan>
-                </text>
-            </svg>
-        </div>
-        <div style="padding-top: 40px;">
-            <div id="counter_hidden#id#" style="margin-top: 10px;font-size :14px;display:none;">Aucun impact depuis
-                #retention# heure(s) dans un rayon de #rayon# km
-            </div>
-            <div id="counter-#id#" class="cmd" style="margin-top: 10px;font-size :14px;">
-                <span id="spanCounter-#cmdIdCounter#"></span> impacts depuis #retention# heure(s) dans un rayon de
-                #rayon# km
-            </div>
-            <div id="evolution-#id#" class="cmd" style="margin-top: 10px;font-size :14px;">#evolution#</div>
-        </div>
+    <center>
+        <div id="counter-#id#" class="cmd" style="margin-top: 10px; margin-bottom: 10px; font-size :14px;">Impacts de
+            foudre depuis #retention# heure(s) dans un rayon de #rayon# km</div>
+    </center>
+
+    <div style="width:100%">
+        <table style="text-align: center;width: 100%;">
+            <tr>
+                <td>
+                    <div style="padding-top: 10px;">
+                        <svg height="120" width="120">
+                            <text x="0" y="3" dominant-baseline="middle" text-anchor="middle" font-weight="normal"
+                                font-size="1em" fill="var(--txt-color)">
+                                <tspan x="50%" dy="0.3em">Nombre d'impacts</tspan>
+                            </text>
+                            <circle id="circle1Impacts-#id#" cx="60" cy="65" r="45" stroke="#3A5B8F" stroke-width="2" fill="none" />
+                            <circle id="circle2Impacts-#id#" cx="60" cy="65" r="40" stroke="none" stroke-width="2" fill="none" />
+                            <circle id="circle3Impacts-#id#" cx="60" cy="65" r="35" stroke="none" stroke-width="2" fill="none" />
+                            <text dominant-baseline="middle" text-anchor="middle" font-weight="normal" font-size="1.2em" fill="var(--txt-color)">
+                                <tspan id="circleTxtImpacts-#id#" x="50%" y="50%" dy="0.3em">#stateCounter#</tspan>
+                            </text>
+                        </svg>
+                    </div>
+                </td>
+                <td>
+                    <div>
+                        <br>
+                        <svg height="120" width="120">
+                            <text x="0" y="3" dominant-baseline="middle" text-anchor="middle" font-weight="normal" font-size="1em" fill="var(--txt-color)">
+                                <tspan x="50%" dy="0.3em">Dernier impact</tspan>
+                            </text>
+                            <circle id="circleDistance-#id#" cx="60" cy="65" r="45" stroke="#CirclecolorValue#"
+                                stroke-width="2" fill="none" />
+                            <text dominant-baseline="middle" text-anchor="middle" font-weight="normal" font-size="1.2em"
+                                fill="var(--txt-color)">
+                                <tspan id="circleTxtDistance-#id#" x="50%" y="50%" dy="0.3em">#stateDistance#</tspan>
+                            </text>
+                        </svg>
+                    </div>
+                </td>
+                <td>
+                    <div>
+                        <br>
+                        <svg height="120" width="150">
+                            <text x="0" y="3" dominant-baseline="middle" text-anchor="middle" font-weight="normal"
+                                font-size="1em" fill="var(--txt-color)">
+                                <tspan x="50%" dy="0.3em">Nombre d'impacts</tspan>
+                            </text>
+                            <ellipse cx="75" cy="65" rx="74" ry="45" stroke="#3A5B8F" stroke-width="2"
+                                fill="none" />
+                            <text dominant-baseline="middle" text-anchor="middle" font-weight="normal" font-size="1.2em"
+                                fill="var(--txt-color)">
+                                <tspan id="ellipseTxtCounterEvolution-#id#" x="50%" y="50%" dy="0.3em">#counterevolution#</tspan>
+                            </text>
+                        </svg>
+                    </div>
+                </td>
+                <td>
+                    <br>
+                    <svg height="120" width="150">
+                        <text x="0" y="3" dominant-baseline="middle" text-anchor="middle" font-weight="normal"
+                            font-size="1em" fill="var(--txt-color)">
+                            <tspan x="50%" dy="0.3em">Distance</tspan>
+                        </text>
+                        <ellipse cx="75" cy="65" rx="74" ry="45" stroke="#3A5B8F" stroke-width="2"
+                            fill="none" />
+                        <text dominant-baseline="middle" text-anchor="middle" font-weight="normal" font-size="1.2em"
+                            fill="var(--txt-color)">
+                            <tspan id="ellipseTxtDistanceEvolution-#id#" x="50%" y="50%" dy="0.3em">#distanceevolution#</tspan>
+                        </text>
+                    </svg>
     </div>
+    </td>
+    </tr>
+    <tr>
+        <td style="background-color: var(--bg-modal-color);">&nbsp;</td>
+        <td style="background-color: var(--bg-modal-color);">&nbsp;</td>
+        <td style="background-color: var(--bg-modal-color);" colspan="2">Evolution continue sur 15 minutes</td>
+    </tr>
+    </table>
+</div>
 
-    <div id="container-#id#" style="width: 100%; height: 350px;"></div>
+<div id="container-#id#" style="width: 100%; height: 350px;"></div>
 
-    <div class="cursor pluginAction logoSecondary">
-        <i class="icon kiko-marker-map"></i>
-        <span><a href="#mapurl#" target="_blank">Ouvrir la carte sur Blitzortung</a></span>
-    </div>
+<div class="cursor pluginAction logoSecondary">
+    <i class="icon kiko-marker-map"></i>
+    <span><a href="#mapurl#" target="_blank">Ouvrir la carte sur Blitzortung</a></span>
+</div>
 
-    <script>
-        if ('#refresh_id#' != '') {
-            $('.eqLogic[data-eqLogic_uid=#uid#] .refresh').on('click', function () {
-                jeedom.cmd.execute({ id: '#refresh_id#' });
-            });
-        } else {
-            $('.eqLogic[data-eqLogic_uid=#uid#] .refresh').remove();
-        }
-
-        jeedom.cmd.addUpdateFunction('#cmdIdCounter#', function (_options) {
-            $('#spanCounter-#cmdIdCounter#').text(_options.display_value);
+<script>
+    if ('#refresh_id#' != '') {
+        $('.eqLogic[data-eqLogic_uid=#uid#] .refresh').on('click', function () {
+            jeedom.cmd.execute({ id: '#refresh_id#' });
         });
-        jeedom.cmd.refreshValue([{ cmd_id: '#cmdIdCounter#', display_value: '#stateCounter#' }])
+    } else {
+        $('.eqLogic[data-eqLogic_uid=#uid#] .refresh').remove();
+    }
 
-        jeedom.cmd.addUpdateFunction('#cmdIdDistance#', function (_options) {
-            let d = _options.display_value
-            $('#circleTxtDistance-#id#').empty().append(d)
-            if (d != 0) {
-                $('#circleTxtDistance-#id#').append(' ' + _options.unit)
-                if (d <= 10) {
-                    document.getElementById("circleDistance-#id#").setAttribute("stroke", '#EA251F') // Cercle en Rouge
-                } else if (d <= 30) {
-                    document.getElementById("circleDistance-#id#").setAttribute("stroke", '#EA6E1E') // Cercle en Orange
-                } else {
-                    document.getElementById("circleDistance-#id#").setAttribute("stroke", '#DFE150') // Cercle en Jaune
-                }
+    jeedom.cmd.addUpdateFunction('#cmdIdCounter#', function (_options) {
+        let v = _options.display_value
+        $('#circleTxtImpacts-#id#').text(v);
+        if (v > 50) { // Au dela de 50 impacts, affichage de 2 cerles
+            document.getElementById("circle2Impacts-#id#").setAttribute("stroke", '#3A5B8F')
+            if (v > 200) { // Au dela de 200 impacts, affichage de 3 cerles
+                document.getElementById("circle3Impacts-#id#").setAttribute("stroke", '#3A5B8F')
             } else {
-                document.getElementById("circleDistance-#id#").setAttribute("stroke", '#3A5B8F')
+                document.getElementById("circle3Impacts-#id#").setAttribute("stroke", 'none')
             }
-        });
-        jeedom.cmd.refreshValue([{ cmd_id: '#cmdIdDistance#', display_value: '#stateDistance#', unit: '#uniteDistance#' }])
-
-        if ('#stateCounter#' == '' || '#stateCounter#' == 0) {
-            document.getElementById("counter-#id#").style.display = "none";
-            document.getElementById("counter_hidden#id#").style.display = "block";
+        } else {
+            document.getElementById("circle2Impacts-#id#").setAttribute("stroke", 'none')
         }
+    });
+    jeedom.cmd.refreshValue([{ cmd_id: '#cmdIdCounter#', display_value: '#stateCounter#' }])
 
-        Highcharts.chart('container-#id#', {
-            chart: {
-                type: 'scatter',
-                zoomType: 'xy'
-            },
 
+    jeedom.cmd.addUpdateFunction('#cmdIdDistance#', function (_options) {
+        let d = _options.display_value
+        if (d == '') {
+            $('#circleTxtDistance-#id#').text('---');
+        } else {
+            $('#circleTxtDistance-#id#').empty().append(d)
+        }
+        if (d != 0) {
+            $('#circleTxtDistance-#id#').append(' ' + _options.unit)
+            if (d <= 10) {
+                document.getElementById("circleDistance-#id#").setAttribute("stroke", '#EA251F') // Cercle en Rouge
+            } else if (d <= 30) {
+                document.getElementById("circleDistance-#id#").setAttribute("stroke", '#EA6E1E') // Cercle en Orange
+            } else {
+                document.getElementById("circleDistance-#id#").setAttribute("stroke", '#DFE150') // Cercle en Jaune
+            }
+        } else {
+            document.getElementById("circleDistance-#id#").setAttribute("stroke", '#3A5B8F')
+        }
+    });
+    jeedom.cmd.refreshValue([{ cmd_id: '#cmdIdDistance#', display_value: '#stateDistance#', unit: '#uniteDistance#' }])
+
+
+    jeedom.cmd.addUpdateFunction('#cmdIdcounterevolution#', function (_options) {
+        $('#ellipseTxtCounterEvolution-#id#').text(_options.display_value);
+    });
+    jeedom.cmd.refreshValue([{ cmd_id: '#cmdIdcounterevolution#', display_value: '#counterevolution#' }])
+    
+
+    jeedom.cmd.addUpdateFunction('#cmdIddistanceevolution#', function (_options) {
+        $('#ellipseTxtDistanceEvolution-#id#').text(_options.display_value);
+    });
+    jeedom.cmd.refreshValue([{ cmd_id: '#cmdIddistanceevolution#', display_value: '#distanceevolution#' }])
+
+    Highcharts.chart('container-#id#', {
+        chart: {
+            type: 'scatter',
+            zoomType: 'xy'
+        },
+
+        title: {
+            style: { "color": "var(--txt-color)" },
+            text: ''
+        },
+
+        subtitle: {
+            useHTML: true,
+            text: ''
+        },
+
+        credits: {
+            enabled: false
+        },
+
+        yAxis: {
             title: {
-                style: { "color": "var(--txt-color)" },
-                text: 'Impacts de foudre dans un rayon de #rayon# km'
+                text: 'Distance (km)'
+            },
+            min: 0,
+            max: #rayon#
             },
 
-            subtitle: {
-                useHTML: true,
-                text: ''
+        xAxis: {
+            title: {
+                text: 'Minutes'
             },
-
-            credits: {
-                enabled: false
-            },
-
-            yAxis: {
-                title: {
-                    text: 'Distance (km)'
-                },
-                min: 0,
-                max: #rayon#
-            },
-
-            xAxis: {
-                title: {
-                    text: 'Minutes'
-                },
-                min: 0,
-                max: #tsmax#,
-                tickPositions: [#tickPositions#],
-                labels: {
-                    formatter: function () {
-                        var time = this.value;
-                        var min = parseInt(time / 60);
-                        return min;
-                    }
+            min: 0,
+            max: #tsmax#,
+            tickPositions: [#tickPositions#],
+            labels: {
+                formatter: function () {
+                    var time = this.value;
+                    var min = parseInt(time / 60);
+                    return min;
                 }
-            },
+            }
+        },
 
-            tooltip: {
-                useHTML: true,
-                headerFormat: null,
-                pointFormatter: function () {
-                    return this.y + ' km il y a ' + Math.round(this.x / 60, 0) + ' minutes'
+        tooltip: {
+            useHTML: true,
+            headerFormat: null,
+            pointFormatter: function () {
+                return this.y + ' km il y a ' + Math.round(this.x / 60, 0) + ' minutes'
+            }
+        },
+
+        legend: {
+            enabled: false
+        },
+
+        plotOptions: {
+            scatter: {
+                marker: {
+                    radius: 2.5,
+                    symbol: 'circle',
+
                 }
+            }
+        },
+
+        series: [{
+            keys: ['x', 'y'],
+            data: [#data#],
+            zoneAxis: 'y',
+            zones: [{
+                value: 10,
+                color: '#EA251F'
+            }, {
+                value: 30,
+                color: '#EA6E1E'
             },
-
-            legend: {
-                enabled: true
-            },
-
-            plotOptions: {
-                scatter: {
-                    marker: {
-                        radius: 2.5,
-                        symbol: 'circle',
-
-                    }
-                }
-            },
-
-            series: [{
-                keys: ['x', 'y'],
-                name: "Impacts",
-                data: [#data#],
-                zoneAxis: 'y',
-                zones: [{
-                    value: 10,
-                    color: '#EA251F'
-                }, {
-                    value: 30,
-                    color: '#EA6E1E'
-                },
-                {
-                    color: '#DFE150'
-                }]
+            {
+                color: '#DFE150'
             }]
-        });
-    </script>
+        }]
+    });
+</script>
 </div>
