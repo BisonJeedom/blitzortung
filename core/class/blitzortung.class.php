@@ -284,6 +284,7 @@ class blitzortung extends eqLogic {
   public function preInsert() {
     $this->setConfiguration('cfg_LastImpactRetention', '1');
     $this->setConfiguration('cfg_Zoom', '10');
+    $this->setConfiguration('cfg_TemplateName', 'horizontal');
   }
 
   // Fonction exécutée automatiquement après la création de l'équipement
@@ -446,7 +447,8 @@ class blitzortung extends eqLogic {
   * Permet de modifier l'affichage du widget (également utilisable par les commandes)
   */
   public function toHtml($_version = 'dashboard') {
-    if ($this->getConfiguration('usePluginTemplate') != 1) {
+    $TemplateName = $this->getConfiguration("cfg_TemplateName", "horizontal"); // Récupération du template choisi (par défaut : horizontal)
+    if ($TemplateName == 'aucun') {
       return parent::toHtml($_version);
     }
 
@@ -543,9 +545,9 @@ class blitzortung extends eqLogic {
     } else {
       $replace['#distanceevolution#'] = '---';
     }
-    $replace['#cmdIddistanceevolution#'] = $cmd->getId();
+    $replace['#cmdIddistanceevolution#'] = $cmd->getId();   
 
-    $getTemplate = getTemplate('core', $version, 'blitzortung.template', __CLASS__); // on récupère le template du plugin.
+    $getTemplate = getTemplate('core', $version, 'blitzortung_' . $TemplateName . '.template', __CLASS__); // on récupère le template du plugin.
     $template_replace = template_replace($replace, $getTemplate); // on remplace les tags
     $postToHtml = $this->postToHtml($_version, $template_replace); // on met en cache le widget, si la config de l'user le permet.  
     log::add('blitzortung', 'debug', '[template] Affichage du template pour ' . $eqLogicName . ' [END]');
