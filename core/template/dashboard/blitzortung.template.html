@@ -28,10 +28,14 @@
                                 font-size="1em" fill="var(--txt-color)">
                                 <tspan x="50%" dy="0.3em">Nombre d'impacts</tspan>
                             </text>
-                            <circle id="circle1Impacts-#id#" cx="60" cy="65" r="45" stroke="#3A5B8F" stroke-width="2" fill="none" />
-                            <circle id="circle2Impacts-#id#" cx="60" cy="65" r="40" stroke="none" stroke-width="2" fill="none" />
-                            <circle id="circle3Impacts-#id#" cx="60" cy="65" r="35" stroke="none" stroke-width="2" fill="none" />
-                            <text dominant-baseline="middle" text-anchor="middle" font-weight="normal" font-size="1.2em" fill="var(--txt-color)">
+                            <circle id="circle1Impacts-#id#" cx="60" cy="65" r="45" stroke="#3A5B8F" stroke-width="2"
+                                fill="none" />
+                            <circle id="circle2Impacts-#id#" cx="60" cy="65" r="40" stroke="none" stroke-width="2"
+                                fill="none" />
+                            <circle id="circle3Impacts-#id#" cx="60" cy="65" r="35" stroke="none" stroke-width="2"
+                                fill="none" />
+                            <text dominant-baseline="middle" text-anchor="middle" font-weight="normal" font-size="1.2em"
+                                fill="var(--txt-color)">
                                 <tspan id="circleTxtImpacts-#id#" x="50%" y="50%" dy="0.3em">#stateCounter#</tspan>
                             </text>
                         </svg>
@@ -40,16 +44,35 @@
                 <td>
                     <div>
                         <br>
-                        <svg height="120" width="120">
-                            <text x="0" y="3" dominant-baseline="middle" text-anchor="middle" font-weight="normal" font-size="1em" fill="var(--txt-color)">
-                                <tspan x="50%" dy="0.3em">Dernier impact</tspan>
+                        <svg height="120" width="180">
+                            <text x="0" y="3" dominant-baseline="middle" text-anchor="middle" font-weight="normal"
+                                font-size="1em" fill="var(--txt-color)">
+                                <tspan x="50%" dy="0.3em">Dernier impact et direction</tspan>
                             </text>
                             <circle id="circleDistance-#id#" cx="60" cy="65" r="45" stroke="#CirclecolorValue#"
                                 stroke-width="2" fill="none" />
+                            <!-- <line id="lineDistance-#id#" x1="89.75" y1="46.6" x2="115.25" y2="31.2" stroke="blue" stroke-width="2" /> -->
                             <text dominant-baseline="middle" text-anchor="middle" font-weight="normal" font-size="1.2em"
                                 fill="var(--txt-color)">
-                                <tspan id="circleTxtDistance-#id#" x="50%" y="50%" dy="0.3em">#stateDistance#</tspan>
+                                <tspan id="circleTxtDistance-#id#" x="33%" y="50%" dy="0.3em">#stateDistance#</tspan>
                             </text>
+                            <circle id="circleOrientation-#id#" cx="145" cy="65" r="30" stroke="#3A5B8F"
+                                stroke-width="2" fill="none" />
+                            <text font-weight="normal" font-size="1.2em" fill="var(--txt-color)">
+                                <tspan x="77%" y="23%" dy="0.3em">N</tspan>
+                            </text>
+                        </svg>
+                        <svg id="SvgOrientation-#id#" data-v-47880d39="" width="30" height="30" viewBox="0 0 1000 1000"
+                            enable-background="new 0 0 1000 1000" xml:space="preserve"
+                            style="transform: translate(-55px,-40px) rotate(#orientationValue#deg);">
+                            <g data-v-47880d39="" fill="#3C73A5">
+                                <path data-v-47880d39=""
+                                    d="M510.5,749.6c-14.9-9.9-38.1-9.9-53.1,1.7l-262,207.3c-14.9,11.6-21.6,6.6-14.9-11.6L474,48.1c5-16.6,14.9-18.2,21.6,0l325,898.7c6.6,16.6-1.7,23.2-14.9,11.6L510.5,749.6z">
+                                </path>
+                                <path data-v-47880d39=""
+                                    d="M817.2,990c-8.3,0-16.6-3.3-26.5-9.9L497.2,769.5c-5-3.3-18.2-3.3-23.2,0L210.3,976.7c-19.9,16.6-41.5,14.9-51.4,0c-6.6-9.9-8.3-21.6-3.3-38.1L449.1,39.8C459,13.3,477.3,10,483.9,10c6.6,0,24.9,3.3,34.8,29.8l325,898.7c5,14.9,5,28.2-1.7,38.1C837.1,985,827.2,990,817.2,990z M485.6,716.4c14.9,0,28.2,5,39.8,11.6l255.4,182.4L485.6,92.9l-267,814.2l223.9-177.4C454.1,721.4,469,716.4,485.6,716.4z">
+                                </path>
+                            </g>
                         </svg>
                     </div>
                 </td>
@@ -61,11 +84,11 @@
                                 font-size="1em" fill="var(--txt-color)">
                                 <tspan x="50%" dy="0.3em">Nombre d'impacts</tspan>
                             </text>
-                            <ellipse cx="75" cy="65" rx="74" ry="45" stroke="#3A5B8F" stroke-width="2"
-                                fill="none" />
+                            <ellipse cx="75" cy="65" rx="74" ry="45" stroke="#3A5B8F" stroke-width="2" fill="none" />
                             <text dominant-baseline="middle" text-anchor="middle" font-weight="normal" font-size="1.2em"
                                 fill="var(--txt-color)">
-                                <tspan id="ellipseTxtCounterEvolution-#id#" x="50%" y="50%" dy="0.3em">#counterevolution#</tspan>
+                                <tspan id="ellipseTxtCounterEvolution-#id#" x="50%" y="50%" dy="0.3em">
+                                    #counterevolution#</tspan>
                             </text>
                         </svg>
                     </div>
@@ -77,11 +100,11 @@
                             font-size="1em" fill="var(--txt-color)">
                             <tspan x="50%" dy="0.3em">Distance</tspan>
                         </text>
-                        <ellipse cx="75" cy="65" rx="74" ry="45" stroke="#3A5B8F" stroke-width="2"
-                            fill="none" />
+                        <ellipse cx="75" cy="65" rx="74" ry="45" stroke="#3A5B8F" stroke-width="2" fill="none" />
                         <text dominant-baseline="middle" text-anchor="middle" font-weight="normal" font-size="1.2em"
                             fill="var(--txt-color)">
-                            <tspan id="ellipseTxtDistanceEvolution-#id#" x="50%" y="50%" dy="0.3em">#distanceevolution#</tspan>
+                            <tspan id="ellipseTxtDistanceEvolution-#id#" x="50%" y="50%" dy="0.3em">#distanceevolution#
+                            </tspan>
                         </text>
                     </svg>
     </div>
@@ -151,11 +174,31 @@
     jeedom.cmd.refreshValue([{ cmd_id: '#cmdIdDistance#', display_value: '#stateDistance#', unit: '#uniteDistance#' }])
 
 
+    jeedom.cmd.addUpdateFunction('#cmdIdOrientation#', function (_options) {
+        let o = _options.display_value
+        document.getElementById("SvgOrientation-#id#").setAttribute("style", "transform: translate(-55px,-40px) rotate(" + o + "deg);")
+    });
+    jeedom.cmd.refreshValue([{ cmd_id: '#cmdIdOrientation#', display_value: '#orientationValue#' }])
+
+    /*
+    jeedom.cmd.addUpdateFunction('#cmdIdOrientation#', function (_options) {
+        let a = _options.display_value
+        let ca = Math.cos(a * Math.PI / 180)
+        let sa = Math.sin(a * Math.PI / 180)
+        x1 = 60 + 35 * sa
+        y1 = 65 - 35 * ca
+        x2 = 60 + 65 * sa
+        y2 = 65 - 65 * ca
+    });
+    jeedom.cmd.refreshValue([{ cmd_id: '#cmdIdOrientation#', display_value: '#Orientation#'}])
+    */
+
+
     jeedom.cmd.addUpdateFunction('#cmdIdcounterevolution#', function (_options) {
         $('#ellipseTxtCounterEvolution-#id#').text(_options.display_value);
     });
     jeedom.cmd.refreshValue([{ cmd_id: '#cmdIdcounterevolution#', display_value: '#counterevolution#' }])
-    
+
 
     jeedom.cmd.addUpdateFunction('#cmdIddistanceevolution#', function (_options) {
         $('#ellipseTxtDistanceEvolution-#id#').text(_options.display_value);
