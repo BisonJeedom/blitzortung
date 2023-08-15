@@ -492,7 +492,7 @@ class blitzortung extends eqLogic {
 
     // Gestion du nombre d'impact pour mise à jour du widget
     $cmd = $this->getCmd('info', 'counter');
-    $replace['#stateCounter#'] = $cmd->execCmd();;
+    $replace['#stateCounter#'] = $cmd->execCmd();
     $replace['#cmdIdCounter#'] = $cmd->getId();
 
     // Gestion de la distance pour mise à jour du widget
