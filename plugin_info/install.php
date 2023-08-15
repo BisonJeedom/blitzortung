@@ -25,7 +25,10 @@ function blitzortung_install() {
 // Fonction exécutée automatiquement après la mise à jour du plugin
 function blitzortung_update() {
     blitzortung::setupCron(1);
-    blitzortung::postSave();
+    foreach (eqLogic::byType('blitzortung') as $eqLogic) {
+        $eqLogic->save();
+        log::add('blitzortung', 'info', 'Mise à jour effectuée pour l\'équipement ' . $eqLogic->getHumanName());
+    }
 }
 
 // Fonction exécutée automatiquement après la suppression du plugin
