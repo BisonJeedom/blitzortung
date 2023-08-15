@@ -516,7 +516,9 @@ class blitzortung extends eqLogic {
 
     // Gestion de l'orientation du dernier impact (en degrés)
     $cmd = $this->getCmd('info', 'lastorientation');
-    $replace['#orientationValue#'] = $cmd->execCmd();;
+    $orientation = $cmd->execCmd();
+    $orientation = ($orientation == '') ? 0 : $orientation;
+    $replace['#orientationValue#'] = $orientation;
     $replace['#cmdIdOrientation#'] = $cmd->getId();
 
     // Gestion du compteur d'impacts pour evolution sur 15mn
