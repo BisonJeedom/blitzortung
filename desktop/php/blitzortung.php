@@ -182,10 +182,13 @@ $eqLogics = eqLogic::byType($plugin->getId());
 
 							<div class="form-group">
 								<label class="col-sm-4 control-label">{{Facteur de zoom en ouvrant la carte}}
-									<sup><i class="fas fa-question-circle tooltips" title="{{Choisir entre 8 (plan large) et 12 (plan serré)}}"></i></sup>
+									<sup><i class="fas fa-question-circle tooltips" title="{{Choisir entre 5 (vue pays) et 12 (vue ville)}}"></i></sup>
 								</label>
 								<div class="col-sm-6">
 									<select id="bt_select_Zoom" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="cfg_Zoom" placeholder="10">
+										<option value="5">{{5}}</option>
+										<option value="6">{{6}}</option>
+										<option value="7">{{7}}</option>
 										<option value="8">{{8}}</option>
 										<option value="9">{{9}}</option>
 										<option value="10">{{10}}</option>
