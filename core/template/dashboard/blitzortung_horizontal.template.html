@@ -136,6 +136,9 @@
 
     jeedom.cmd.addUpdateFunction('#cmdIdCounter#', function (_options) {
         let v = _options.display_value
+        if (v == '') {
+            v = '---'
+        }
         $('#circleTxtImpacts-#id#').text(v);
         if (v > 50) { // Au dela de 50 impacts, affichage de 2 cerles
             document.getElementById("circle2Impacts-#id#").setAttribute("stroke", '#3A5B8F')
