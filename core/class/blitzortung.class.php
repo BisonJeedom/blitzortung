@@ -162,7 +162,7 @@ class blitzortung extends eqLogic {
 
         // Analyse de l'évolution de l'orage //
         for ($i = 0; $i < 3; $i++) {
-          $average_arr[$i][0] = ($average_arr[$i][0] == '') ? 0 : $average_arr[$i][0];
+          $average_arr[$i][0] = (!isset($average_arr[$i][0]) || $average_arr[$i][0] == '') ? 0 : $average_arr[$i][0];
           $average_arr[$i][1] = ($average_arr[$i][0] == 0) ? 0 : round($average_arr[$i][1] / $average_arr[$i][0], 2);
         }
         log::add('blitzortung', 'info', '| [-15mn -> -10mn] : Moyenne de ' .  $average_arr[0][1] . ' km ' . '(' . $average_arr[0][0] . ' impacts)');
@@ -468,6 +468,7 @@ class blitzortung extends eqLogic {
 
     $arr = json_decode($json, true);
 
+    $replace['#data#'] = '';
     foreach ($arr as $key => $value) {
       $ts = time() + self::getUTCoffset('Europe/Paris') - $value["ts"]; // Délais depuis l'enregistrement en secondes
       //$replace['#data#'] .= '[' . $ts_mn . ',' . $value["distance"] . ',' . '"A"' . ',' . 'color:"43C3FF"' . ']' . ',';
@@ -482,6 +483,7 @@ class blitzortung extends eqLogic {
 
     // Passage d'un tableau pour définir les positions des ticks sur les abscisses
     $i = $LastImpactRetention * 6;
+    $replace['#tickPositions#'] = ''
     for ($j = 0; $j <= $i; $j++) {
       $k = $j * 600; // l'affichage est divisé par 60 pour afficher en minutes
       $replace['#tickPositions#'] .= $k . ',';
