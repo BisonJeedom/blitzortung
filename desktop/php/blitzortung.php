@@ -199,12 +199,16 @@ $eqLogics = eqLogic::byType($plugin->getId());
 							</div>
 
 							<div class="form-group">
-								<label class="col-sm-4 control-label">{{Utiliser le template du plugin}}</label>
+								<label class="col-sm-4 control-label">{{Sélection du template}}</label>
 								<div class="col-sm-6">
-									<input type="checkbox" class="eqLogicAttr" data-l1key="configuration" data-l2key="usePluginTemplate" checked>
+									<select id="bt_select_LastImpactRetention" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="cfg_TemplateName">
+										<option value="aucun">{{Aucun}}</option>
+										<option value="horizontal">{{Horizontal}}</option>
+										<option value="vertical">{{Vertical}}</option>
+									</select>
 								</div>
 							</div>
-
+							
 						</div>
 
 						<!-- Partie droite de l'onglet "Équipement" -->
