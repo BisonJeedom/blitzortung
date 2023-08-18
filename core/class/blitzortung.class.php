@@ -108,6 +108,30 @@ class blitzortung extends eqLogic {
     return $longitude;
   }
 
+  public static function isBeta($text = false) {
+    $plugin = plugin::byId('blitzortung');
+    $update = $plugin->getUpdate();
+    $isBeta = false;
+    if (is_object($update)) {
+        $version = $update->getConfiguration('version');
+        $isBeta = ($version && $version != 'stable');
+    }
+
+    if ($text) {
+        return $isBeta ? 'beta' : 'stable';
+    }
+    return $isBeta;
+  }
+
+  public static function getDocumentation() {
+    $plugin = plugin::byId('blitzortung');
+    if (self::isBeta()) {
+      return $plugin->getDocumentation_beta();
+    } else {
+      return $plugin->getDocumentation();
+    }
+  }
+
   public static function blitzortungCron() {
     foreach (eqLogic::byType('blitzortung', true) as $eqLogic) {
       if ($eqLogic->getIsEnable()) {

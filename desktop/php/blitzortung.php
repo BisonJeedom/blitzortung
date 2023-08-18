@@ -14,7 +14,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 		<legend><i class="fas fa-cog"></i> {{Gestion}}</legend>
 		<!-- Boutons de gestion du plugin -->
 		<div class="eqLogicThumbnailContainer">
-			<div class="cursor pluginAction logoSecondary" data-action="openLocation" data-location="<?= $plugin->getDocumentation() ?>">
+			<div class="cursor pluginAction logoSecondary" data-action="openLocation" data-location="<?= blitzortung::getDocumentation() ?>">
 				<i class="fas fa-book-open"></i>
 				<br>
 				<span>{{Documentation}}</span>
@@ -29,6 +29,21 @@ $eqLogics = eqLogic::byType($plugin->getId());
 				<br>
 				<span>{{Configuration}}</span>
 			</div>
+			<?php
+			// uniquement si on est en version 4.4 ou supérieur
+			$jeedomVersion  = jeedom::version() ?? '0';
+			$displayInfoValue = version_compare($jeedomVersion, '4.4.0', '>=');
+			if($displayInfoValue){
+			?>
+			<legend><i class=" fas fa-comments"></i> {{Community}}</legend>
+				<div class="cursor eqLogicAction logoSecondary" data-action="createCommunityPost" style="color:rgb(27,161,242);">
+					<i class="fas fa-ambulance"></i>
+					<br>
+					<span style="color:var(--txt-color)">{{Créer un post Community}}</span>
+				</div>				
+			<?php
+			}
+			?>
 		</div>
 		<legend><i class="fas fa-table"></i> {{Mes équipements}}</legend>
 		<?php
