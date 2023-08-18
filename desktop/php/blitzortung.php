@@ -6,8 +6,6 @@ if (!isConnect('admin')) {
 $plugin = plugin::byId('blitzortung');
 sendVarToJS('eqType', $plugin->getId());
 $eqLogics = eqLogic::byType($plugin->getId());
-
-
 ?>
 
 <div class="row row-overflow">
@@ -16,6 +14,11 @@ $eqLogics = eqLogic::byType($plugin->getId());
 		<legend><i class="fas fa-cog"></i> {{Gestion}}</legend>
 		<!-- Boutons de gestion du plugin -->
 		<div class="eqLogicThumbnailContainer">
+			<div class="cursor pluginAction logoSecondary" data-action="openLocation" data-location="<?= $plugin->getDocumentation() ?>">
+				<i class="fas fa-book-open"></i>
+				<br>
+				<span>{{Documentation}}</span>
+			</div>
 			<div class="cursor eqLogicAction logoPrimary" data-action="add">
 				<i class="fas fa-plus-circle"></i>
 				<br>
@@ -178,12 +181,34 @@ $eqLogics = eqLogic::byType($plugin->getId());
 							</div>
 
 							<div class="form-group">
-								<label class="col-sm-4 control-label">{{Utiliser le template du plugin}}</label>
+								<label class="col-sm-4 control-label">{{Facteur de zoom en ouvrant la carte}}
+									<sup><i class="fas fa-question-circle tooltips" title="{{Choisir entre 5 (vue pays) et 12 (vue ville)}}"></i></sup>
+								</label>
 								<div class="col-sm-6">
-									<input type="checkbox" class="eqLogicAttr" data-l1key="configuration" data-l2key="usePluginTemplate" checked>
+									<select id="bt_select_Zoom" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="cfg_Zoom" placeholder="10">
+										<option value="5">{{5}}</option>
+										<option value="6">{{6}}</option>
+										<option value="7">{{7}}</option>
+										<option value="8">{{8}}</option>
+										<option value="9">{{9}}</option>
+										<option value="10">{{10}}</option>
+										<option value="11">{{11}}</option>
+										<option value="12">{{12}}</option>
+									</select>
 								</div>
 							</div>
 
+							<div class="form-group">
+								<label class="col-sm-4 control-label">{{Sélection du template}}</label>
+								<div class="col-sm-6">
+									<select id="bt_select_LastImpactRetention" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="cfg_TemplateName">
+										<option value="aucun">{{Aucun}}</option>
+										<option value="horizontal">{{Horizontal}}</option>
+										<option value="vertical">{{Vertical}}</option>
+									</select>
+								</div>
+							</div>
+							
 						</div>
 
 						<!-- Partie droite de l'onglet "Équipement" -->

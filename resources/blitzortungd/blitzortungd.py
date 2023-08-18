@@ -14,13 +14,10 @@
 # along with Jeedom. If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-import string
 import sys
 import os
 import time
-import datetime
 import traceback
-import re
 import signal
 from optparse import OptionParser
 from os.path import join
@@ -113,7 +110,7 @@ async def run():
     while True:
         try:        
             logging.info("Sélection du serveur")
-            hosts = ["ws1", "ws7", "ws8"]
+            hosts = ["ws1", "ws3", "ws7", "ws8"]
             uri = "wss://{}.blitzortung.org:443/".format(random.choice(hosts))            
             logging.info("url : " + str(uri))
             time.sleep(3)

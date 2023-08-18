@@ -1,6 +1,8 @@
 {
   "pre-install": {},
-  "apt": {},
+  "apt": {
+    "python3-pyudev": {}
+  },
   "pip3": {
     "websockets": {}
   },

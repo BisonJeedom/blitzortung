@@ -1,0 +1,294 @@
+<div class="eqLogic eqLogic-widget allowResize allowReorderCmd #custom_layout# #eqLogic_class# #class#"
+    data-eqType="#eqType#" data-eqLogic_id="#id#" data-eqLogic_uid="#uid#" data-version="#version#"
+    data-translate-category="#translate_category#" data-category="#category#" data-tags="#tags#"
+    style="width: #width#;height: #height#;#style#">
+    <center class="widget-name">
+        <span class="warning" title="#alert_name#">
+            <i class='#alert_icon#'></i>
+        </span>
+        <span class="cmd refresh pull-right cursor" data-cmd_id="#refresh_id#">
+            <i class="fas fa-sync"></i>
+        </span>
+        <span class="reportModeVisible">#name_display# <span class="object_name">#object_name#</span></span>
+        <a href="#eqLink#" class="reportModeHidden">#name_display# <span class="object_name">#object_name#</span></a>
+    </center>
+
+    <center>
+        <div id="counter-#id#" class="cmd" style="margin-top: 10px; margin-bottom: 10px; font-size :14px;">Impacts de
+            foudre depuis #retention# heure(s) dans un rayon de #rayon# km</div>
+    </center>
+
+    <div style="width:100%">
+        <table style="text-align: center;width: 100%;">
+            <tr>
+                <td>
+                    <div style="padding-top: 10px;">
+                        <svg height="120" width="120">
+                            <text x="0" y="3" dominant-baseline="middle" text-anchor="middle" font-weight="normal"
+                                font-size="1em" fill="var(--txt-color)">
+                                <tspan x="50%" dy="0.3em">Nombre d'impacts</tspan>
+                            </text>
+                            <circle id="circle1Impacts-#id#" cx="60" cy="65" r="45" stroke="#3A5B8F" stroke-width="2"
+                                fill="none" />
+                            <circle id="circle2Impacts-#id#" cx="60" cy="65" r="40" stroke="none" stroke-width="2"
+                                fill="none" />
+                            <circle id="circle3Impacts-#id#" cx="60" cy="65" r="35" stroke="none" stroke-width="2"
+                                fill="none" />
+                            <text dominant-baseline="middle" text-anchor="middle" font-weight="normal" font-size="1.2em"
+                                fill="var(--txt-color)">
+                                <tspan id="circleTxtImpacts-#id#" x="50%" y="50%" dy="0.3em">#stateCounter#</tspan>
+                            </text>
+                        </svg>
+                    </div>
+                </td>
+                <td>
+                    <div>
+                        <br>
+                        <svg height="120" width="180">
+                            <text x="0" y="3" dominant-baseline="middle" text-anchor="middle" font-weight="normal"
+                                font-size="1em" fill="var(--txt-color)">
+                                <tspan x="50%" dy="0.3em">Dernier impact et direction</tspan>
+                            </text>
+                            <circle id="circleDistance-#id#" cx="60" cy="65" r="45" stroke="#CirclecolorValue#"
+                                stroke-width="2" fill="none" />
+                            <!-- <line id="lineDistance-#id#" x1="89.75" y1="46.6" x2="115.25" y2="31.2" stroke="blue" stroke-width="2" /> -->
+                            <text dominant-baseline="middle" text-anchor="middle" font-weight="normal" font-size="1.2em"
+                                fill="var(--txt-color)">
+                                <tspan id="circleTxtDistance-#id#" x="33%" y="50%" dy="0.3em">#stateDistance#</tspan>
+                            </text>
+                            <circle id="circleOrientation-#id#" cx="145" cy="65" r="30" stroke="#3A5B8F"
+                                stroke-width="2" fill="none" />
+                            <text font-weight="normal" font-size="1.2em" fill="var(--txt-color)">
+                                <tspan x="77%" y="23%" dy="0.3em">N</tspan>
+                            </text>
+                        </svg>
+                        <svg id="SvgOrientation-#id#" data-v-47880d39="" width="30" height="30" viewBox="0 0 1000 1000"
+                            enable-background="new 0 0 1000 1000" xml:space="preserve"
+                            style="transform: translate(-55px,-40px) rotate(#orientationValue#deg);">
+                            <g data-v-47880d39="" fill="#3C73A5">
+                                <path data-v-47880d39=""
+                                    d="M510.5,749.6c-14.9-9.9-38.1-9.9-53.1,1.7l-262,207.3c-14.9,11.6-21.6,6.6-14.9-11.6L474,48.1c5-16.6,14.9-18.2,21.6,0l325,898.7c6.6,16.6-1.7,23.2-14.9,11.6L510.5,749.6z">
+                                </path>
+                                <path data-v-47880d39=""
+                                    d="M817.2,990c-8.3,0-16.6-3.3-26.5-9.9L497.2,769.5c-5-3.3-18.2-3.3-23.2,0L210.3,976.7c-19.9,16.6-41.5,14.9-51.4,0c-6.6-9.9-8.3-21.6-3.3-38.1L449.1,39.8C459,13.3,477.3,10,483.9,10c6.6,0,24.9,3.3,34.8,29.8l325,898.7c5,14.9,5,28.2-1.7,38.1C837.1,985,827.2,990,817.2,990z M485.6,716.4c14.9,0,28.2,5,39.8,11.6l255.4,182.4L485.6,92.9l-267,814.2l223.9-177.4C454.1,721.4,469,716.4,485.6,716.4z">
+                                </path>
+                            </g>
+                        </svg>
+                    </div>
+                </td>
+                <td>
+                    <div>
+                        <br>
+                        <svg height="120" width="150">
+                            <text x="0" y="3" dominant-baseline="middle" text-anchor="middle" font-weight="normal"
+                                font-size="1em" fill="var(--txt-color)">
+                                <tspan x="50%" dy="0.3em">Nombre d'impacts</tspan>
+                            </text>
+                            <ellipse cx="75" cy="65" rx="74" ry="45" stroke="#3A5B8F" stroke-width="2" fill="none" />
+                            <text dominant-baseline="middle" text-anchor="middle" font-weight="normal" font-size="1.2em"
+                                fill="var(--txt-color)">
+                                <tspan id="ellipseTxtCounterEvolution-#id#" x="50%" y="50%" dy="0.3em">
+                                    #counterevolution#</tspan>
+                            </text>
+                        </svg>
+                    </div>
+                </td>
+                <td>
+                    <br>
+                    <svg height="120" width="150">
+                        <text x="0" y="3" dominant-baseline="middle" text-anchor="middle" font-weight="normal"
+                            font-size="1em" fill="var(--txt-color)">
+                            <tspan x="50%" dy="0.3em">Distance</tspan>
+                        </text>
+                        <ellipse cx="75" cy="65" rx="74" ry="45" stroke="#3A5B8F" stroke-width="2" fill="none" />
+                        <text dominant-baseline="middle" text-anchor="middle" font-weight="normal" font-size="1.2em"
+                            fill="var(--txt-color)">
+                            <tspan id="ellipseTxtDistanceEvolution-#id#" x="50%" y="50%" dy="0.3em">#distanceevolution#
+                            </tspan>
+                        </text>
+                    </svg>
+    </div>
+    </td>
+    </tr>
+    <tr>
+        <td style="background-color: var(--bg-modal-color);">&nbsp;</td>
+        <td style="background-color: var(--bg-modal-color);">&nbsp;</td>
+        <td style="background-color: var(--bg-modal-color);" colspan="2">Evolution continue sur 15 minutes</td>
+    </tr>
+    </table>
+</div>
+
+<div id="container-#id#" style="width: 100%; height: 350px;"></div>
+
+<div class="cursor pluginAction logoSecondary">
+    <i class="icon kiko-marker-map"></i>
+    <span><a href="#mapurl#" target="_blank">Ouvrir la carte sur Blitzortung</a></span>
+</div>
+
+<script>
+    if ('#refresh_id#' != '') {
+        $('.eqLogic[data-eqLogic_uid=#uid#] .refresh').on('click', function () {
+            jeedom.cmd.execute({ id: '#refresh_id#' });
+        });
+    } else {
+        $('.eqLogic[data-eqLogic_uid=#uid#] .refresh').remove();
+    }
+
+    jeedom.cmd.addUpdateFunction('#cmdIdCounter#', function (_options) {
+        let v = _options.display_value
+        if (v == '') {
+            v = '---'
+        }
+        $('#circleTxtImpacts-#id#').text(v);
+        if (v > 50) { // Au dela de 50 impacts, affichage de 2 cerles
+            document.getElementById("circle2Impacts-#id#").setAttribute("stroke", '#3A5B8F')
+            if (v > 200) { // Au dela de 200 impacts, affichage de 3 cerles
+                document.getElementById("circle3Impacts-#id#").setAttribute("stroke", '#3A5B8F')
+            } else {
+                document.getElementById("circle3Impacts-#id#").setAttribute("stroke", 'none')
+            }
+        } else {
+            document.getElementById("circle2Impacts-#id#").setAttribute("stroke", 'none')
+        }
+    });
+    jeedom.cmd.refreshValue([{ cmd_id: '#cmdIdCounter#', display_value: '#stateCounter#' }])
+
+
+    jeedom.cmd.addUpdateFunction('#cmdIdDistance#', function (_options) {
+        let d = _options.display_value
+        if (d == '') {
+            $('#circleTxtDistance-#id#').text('---');
+        } else {
+            $('#circleTxtDistance-#id#').empty().append(d)
+        }
+        if (d != 0) {
+            $('#circleTxtDistance-#id#').append(' ' + _options.unit)
+            if (d <= 10) {
+                document.getElementById("circleDistance-#id#").setAttribute("stroke", '#EA251F') // Cercle en Rouge
+            } else if (d <= 30) {
+                document.getElementById("circleDistance-#id#").setAttribute("stroke", '#EA6E1E') // Cercle en Orange
+            } else {
+                document.getElementById("circleDistance-#id#").setAttribute("stroke", '#DFE150') // Cercle en Jaune
+            }
+        } else {
+            document.getElementById("circleDistance-#id#").setAttribute("stroke", '#3A5B8F')
+        }
+    });
+    jeedom.cmd.refreshValue([{ cmd_id: '#cmdIdDistance#', display_value: '#stateDistance#', unit: '#uniteDistance#' }])
+
+
+    jeedom.cmd.addUpdateFunction('#cmdIdOrientation#', function (_options) {
+        let o = _options.display_value
+        document.getElementById("SvgOrientation-#id#").setAttribute("style", "transform: translate(-55px,-40px) rotate(" + o + "deg);")
+    });
+    jeedom.cmd.refreshValue([{ cmd_id: '#cmdIdOrientation#', display_value: '#orientationValue#' }])
+
+    /*
+    jeedom.cmd.addUpdateFunction('#cmdIdOrientation#', function (_options) {
+        let a = _options.display_value
+        let ca = Math.cos(a * Math.PI / 180)
+        let sa = Math.sin(a * Math.PI / 180)
+        x1 = 60 + 35 * sa
+        y1 = 65 - 35 * ca
+        x2 = 60 + 65 * sa
+        y2 = 65 - 65 * ca
+    });
+    jeedom.cmd.refreshValue([{ cmd_id: '#cmdIdOrientation#', display_value: '#Orientation#'}])
+    */
+
+
+    jeedom.cmd.addUpdateFunction('#cmdIdcounterevolution#', function (_options) {
+        $('#ellipseTxtCounterEvolution-#id#').text(_options.display_value);
+    });
+    jeedom.cmd.refreshValue([{ cmd_id: '#cmdIdcounterevolution#', display_value: '#counterevolution#' }])
+
+
+    jeedom.cmd.addUpdateFunction('#cmdIddistanceevolution#', function (_options) {
+        $('#ellipseTxtDistanceEvolution-#id#').text(_options.display_value);
+    });
+    jeedom.cmd.refreshValue([{ cmd_id: '#cmdIddistanceevolution#', display_value: '#distanceevolution#' }])
+
+    Highcharts.chart('container-#id#', {
+        chart: {
+            type: 'scatter',
+            zoomType: 'xy'
+        },
+
+        title: {
+            style: { "color": "var(--txt-color)" },
+            text: ''
+        },
+
+        subtitle: {
+            useHTML: true,
+            text: ''
+        },
+
+        credits: {
+            enabled: false
+        },
+
+        yAxis: {
+            title: {
+                text: 'Distance (km)'
+            },
+            min: 0,
+            max: #rayon#
+            },
+
+        xAxis: {
+            title: {
+                text: 'Minutes'
+            },
+            min: 0,
+            max: #tsmax#,
+            tickPositions: [#tickPositions#],
+            labels: {
+                formatter: function () {
+                    var time = this.value;
+                    var min = parseInt(time / 60);
+                    return min;
+                }
+            }
+        },
+
+        tooltip: {
+            useHTML: true,
+            headerFormat: null,
+            pointFormatter: function () {
+                return this.y + ' km il y a ' + Math.round(this.x / 60, 0) + ' minutes'
+            }
+        },
+
+        legend: {
+            enabled: false
+        },
+
+        plotOptions: {
+            scatter: {
+                marker: {
+                    radius: 2.5,
+                    symbol: 'circle',
+
+                }
+            }
+        },
+
+        series: [{
+            keys: ['x', 'y'],
+            data: [#data#],
+            zoneAxis: 'y',
+            zones: [{
+                value: 10,
+                color: '#EA251F'
+            }, {
+                value: 30,
+                color: '#EA6E1E'
+            },
+            {
+                color: '#DFE150'
+            }]
+        }]
+    });
+</script>
+</div>

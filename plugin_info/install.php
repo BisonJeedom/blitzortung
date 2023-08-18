@@ -19,12 +19,27 @@ require_once dirname(__FILE__) . '/../../../core/php/core.inc.php';
 
 // Fonction exécutée automatiquement après l'installation du plugin
 function blitzortung_install() {
+    blitzortung::setupCron(1);
 }
 
 // Fonction exécutée automatiquement après la mise à jour du plugin
 function blitzortung_update() {
+    blitzortung::setupCron(1);
+    foreach (eqLogic::byType('blitzortung') as $eqLogic) {
+        if ($eqLogic->getConfiguration("cfg_TemplateName", "") == '') {
+            if ($eqLogic->getConfiguration('usePluginTemplate') == 1) { //Changement de méthode pour proposer le template : passage d'une checkbox à un select
+                $eqLogic->setConfiguration("cfg_TemplateName", "horizontal");
+                $eqLogic->setConfiguration("usePluginTemplate", "");
+            } else {                
+                $eqLogic->setConfiguration("cfg_TemplateName", "aucun");
+            }
+            $eqLogic->save();
+            log::add('blitzortung', 'info', 'Mise à jour effectuée pour l\'équipement ' . $eqLogic->getHumanName());
+        }
+    }
 }
 
 // Fonction exécutée automatiquement après la suppression du plugin
 function blitzortung_remove() {
+    blitzortung::setupCron(0);
 }
