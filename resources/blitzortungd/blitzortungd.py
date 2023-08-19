@@ -115,7 +115,10 @@ async def run():
             logging.info("url : " + str(uri))
             time.sleep(3)
             async with websockets.connect(uri, ssl=ssl_context) as websocket:
-                logging.info("Connecté")                
+                logging.info("Connecté")
+                logging.info("Cycle de mise à jour vers Jeedom : " + str(_cycle) + ' seconde(s)' )
+                dataconcat = ''
+                send_time = datetime.datetime.now()
                 await websocket.send('{"a": 111}')
                 while True:
                     msg = await websocket.recv()
@@ -132,7 +135,21 @@ async def run():
                     #logging.info("latitude : " + str(args.latitude))
                     #logging.info("longitude : " + str(args.longitude))                    
                     #data["distance"] = getDistanceBetweenPoints(float(args.latitude), float(args.longitude), data["lat"], data["lon"], "kilometers")
-                    jeedom_com.send_change_immediate(data)
+                    #jeedom_com.send_change_immediate(data)
+                    #jeedom_com.add_changes('blitzortung::impacts', data)
+                    if _cycle > 0:
+                        time_delta = datetime.datetime.now() - send_time
+                        diff_secondes = ((time_delta.days * 24 * 60 * 60 + time_delta.seconds) * 1000 + time_delta.microseconds / 1000.0) / 1000
+                        if diff_secondes > _cycle and dataconcat != '':
+                            logging.info("dataconcat : " + str(dataconcat))
+                            jeedom_com.send_change_immediate(dataconcat)
+                            dataconcat = ''
+                            send_time = datetime.datetime.now()
+                        else:
+                            dataconcat = dataconcat + str(data) + ','
+                    else:
+                          jeedom_com.send_change_immediate(data)
+                    
         except websockets.ConnectionClosed:
             pass
         time.sleep(5)
@@ -187,6 +204,7 @@ logging.info('Socket port : '+str(_socket_port))
 logging.info('Socket host : '+str(_socket_host))
 logging.info('PID file : '+str(_pidfile))
 logging.info('Apikey : '+str(_apikey))
+logging.info('Cycle : '+str(_cycle))
 
 signal.signal(signal.SIGINT, handler)
 signal.signal(signal.SIGTERM, handler)	
