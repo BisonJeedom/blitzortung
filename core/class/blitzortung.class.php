@@ -510,9 +510,11 @@ class blitzortung extends eqLogic {
 
     // Passage d'un tableau pour définir les positions des ticks sur les abscisses
     $i = $LastImpactRetention * 6;
+    $m = ($i == 18)?2:(($i == 24)?3:1); // Tick toutes les 10mn si 1h ou 2h, 20mn si 3h et 30mn si 4h pour continuer de voir les ticks si fenêtre réduite au maximum
+
     $replace['#tickPositions#'] = '';
     for ($j = 0; $j <= $i; $j++) {
-      $k = $j * 600; // l'affichage est divisé par 60 pour afficher en minutes
+      $k = ($j * 600) * $m; // l'affichage est divisé par 60 pour afficher en minutes
       $replace['#tickPositions#'] .= $k . ',';
     }
     $replace['#tickPositions#'] = substr($replace['#tickPositions#'], 0, -1);
