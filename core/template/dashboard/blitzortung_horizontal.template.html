@@ -22,7 +22,7 @@
         <table style="text-align: center;width: 100%;">
             <tr>
                 <td>
-                    <div style="padding-top: 10px;">
+                    <div style="padding-top: 20px;">
                         <svg height="120" width="120">
                             <text x="0" y="3" dominant-baseline="middle" text-anchor="middle" font-weight="normal"
                                 font-size="1em" fill="var(--txt-color)">
@@ -65,7 +65,7 @@
                         <svg id="SvgOrientation-#id#" data-v-47880d39="" width="30" height="30" viewBox="0 0 1000 1000"
                             enable-background="new 0 0 1000 1000" xml:space="preserve"
                             style="transform: translate(-55px,-40px) rotate(#orientationValue#deg);">
-                            <g data-v-47880d39="" fill="#3C73A5">
+                            <g id="gOrientation-#id#" data-v-47880d39="" fill="#3C73A5">
                                 <path data-v-47880d39=""
                                     d="M510.5,749.6c-14.9-9.9-38.1-9.9-53.1,1.7l-262,207.3c-14.9,11.6-21.6,6.6-14.9-11.6L474,48.1c5-16.6,14.9-18.2,21.6,0l325,898.7c6.6,16.6-1.7,23.2-14.9,11.6L510.5,749.6z">
                                 </path>
@@ -136,8 +136,11 @@
 
     jeedom.cmd.addUpdateFunction('#cmdIdCounter#', function (_options) {
         let v = _options.display_value
-        if (v == '') {
+        if (v == '' || v == 0) {
             v = '---'
+            document.getElementById("gOrientation-#id#").setAttribute("visibility", 'hidden')
+        } else {
+            document.getElementById("gOrientation-#id#").setAttribute("visibility", 'visible')
         }
         $('#circleTxtImpacts-#id#').text(v);
         if (v > 50) { // Au dela de 50 impacts, affichage de 2 cerles
@@ -157,9 +160,9 @@
     jeedom.cmd.addUpdateFunction('#cmdIdDistance#', function (_options) {
         let d = _options.display_value
         if (d == '') {
-            $('#circleTxtDistance-#id#').text('---');
+            $('#circleTxtDistance-#id#').text('---');            
         } else {
-            $('#circleTxtDistance-#id#').empty().append(d)
+            $('#circleTxtDistance-#id#').empty().append(d)          
         }
         if (d != 0) {
             $('#circleTxtDistance-#id#').append(' ' + _options.unit)
