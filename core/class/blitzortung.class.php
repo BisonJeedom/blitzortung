@@ -113,12 +113,12 @@ class blitzortung extends eqLogic {
     $update = $plugin->getUpdate();
     $isBeta = false;
     if (is_object($update)) {
-        $version = $update->getConfiguration('version');
-        $isBeta = ($version && $version != 'stable');
+      $version = $update->getConfiguration('version');
+      $isBeta = ($version && $version != 'stable');
     }
 
     if ($text) {
-        return $isBeta ? 'beta' : 'stable';
+      return $isBeta ? 'beta' : 'stable';
     }
     return $isBeta;
   }
@@ -135,7 +135,9 @@ class blitzortung extends eqLogic {
   public static function blitzortungCron() {
     foreach (eqLogic::byType('blitzortung', true) as $eqLogic) {
       if ($eqLogic->getIsEnable()) {
-        $json = $eqLogic->getConfiguration("json_impacts");
+        //$json = $eqLogic->getConfiguration("json_impacts");
+        $keyName = 'json_impacts';
+        $json = cache::byKey('blitzortung::' . $eqLogic->getId() . '::' . $keyName)->getValue('');
         $LastImpactRetention = $eqLogic->getConfiguration("cfg_LastImpactRetention", 1);
 
         log::add('blitzortung', 'info', '| [Start] Nettoyage des enregistrements de ' . $eqLogic->getName());
@@ -234,13 +236,11 @@ class blitzortung extends eqLogic {
         log::add('blitzortung', 'info', '| [End] Nettoyage des enregistrements de ' . $eqLogic->getName());
 
         $json = json_encode($new_arr);
-        $eqLogic->setConfiguration("json_impacts", $json);
+        //$eqLogic->setConfiguration("json_impacts", $json);
+        cache::set('blitzortung::' . $eqLogic->getId() . '::' . $keyName, $json);
         $eqLogic->checkAndUpdateCmd('counter', $count_end);
-
         $eqLogic->setConfiguration("evolution", 'Evolution sur 15 minutes : ' . $evolution_impacts . ' --- ' . $evolution_distance);
-
         $eqLogic->save();
-
         $eqLogic->refreshWidget();
       }
     }
@@ -337,6 +337,7 @@ class blitzortung extends eqLogic {
     $this->CreateCmd('distanceevolution', 'Evolution de la distance sur 15mn', '', '1', '', 'none', '-1 month', '', '', 'info', 'numeric', '', '1');
     $this->CreateCmd('counter', 'Compteur des impacts', '', '0', '', '', '', '', '', 'info', 'numeric', '', '1');
     $this->CreateCmd('counterevolution', 'Evolution des impacts sur 15mn', '', '1', '', 'none', '-1 month', '', '', 'info', 'numeric', '', '1');
+    $this->CreateCmd('timetoprocessexceeded', 'Délai de traitement trop important', '', '', '', '', '', '', '', 'info', 'numeric', '', '1');
     $this->CreateCmd('mapurl', 'URL de la carte', '', '0', '', '', '', '', '', 'info', 'string', '', '1');
     $this->checkAndUpdateCmd('mapurl', 'https://map.blitzortung.org/#' . $this->getConfiguration("cfg_Zoom", 10) . '/' . self::getLatitude($this) . '/' . self::getLongitude($this));
   }
@@ -489,7 +490,9 @@ class blitzortung extends eqLogic {
     $eqLogicName = $this->getName();
     log::add('blitzortung', 'debug', '[template] Affichage du template pour ' . $eqLogicName . ' [START]');
 
-    $json = $this->getConfiguration("json_impacts");
+    //$json = $this->getConfiguration("json_impacts");
+    $keyName = 'json_impacts';
+    $json = cache::byKey('blitzortung::' . $this->getId() . '::' . $keyName)->getValue('');
     $rayon = $this->getConfiguration('cfg_rayon', 50);
     $LastImpactRetention = $this->getConfiguration("cfg_LastImpactRetention", 1);
     $tsmax = $LastImpactRetention * 3600; // Valeur maximum sur le graphique (en secondes)
@@ -510,7 +513,7 @@ class blitzortung extends eqLogic {
 
     // Passage d'un tableau pour définir les positions des ticks sur les abscisses
     $i = $LastImpactRetention * 6;
-    $m = ($i == 18)?2:(($i == 24)?3:1); // Tick toutes les 10mn si 1h ou 2h, 20mn si 3h et 30mn si 4h pour continuer de voir les ticks si fenêtre réduite au maximum
+    $m = ($i == 18) ? 2 : (($i == 24) ? 3 : 1); // Tick toutes les 10mn si 1h ou 2h, 20mn si 3h et 30mn si 4h pour continuer de voir les ticks si fenêtre réduite au maximum
 
     $replace['#tickPositions#'] = '';
     for ($j = 0; $j <= $i; $j++) {
@@ -525,33 +528,37 @@ class blitzortung extends eqLogic {
       $replace['#mapurl#'] = $this->getCmd('info', 'mapurl')->execCmd();
     } else {
       $replace['#mapurl#'] = '';
-      log::add(__CLASS__, 'error', 'Commande manquante sur l\'équipement '. $eqLogicName . ' : mapurl -> Merci de vérifier puis sauvegarder pour générer la commande');
+      log::add(__CLASS__, 'error', 'Commande manquante sur l\'équipement ' . $eqLogicName . ' : mapurl -> Merci de vérifier puis sauvegarder pour générer la commande');
     }
-   
+
 
     // Gestion du nombre d'impact pour mise à jour du widget
-    if (is_object($this->getCmd('info', 'counter'))) {   
+    if (is_object($this->getCmd('info', 'counter'))) {
       $cmd = $this->getCmd('info', 'counter');
-      $replace['#stateCounter#'] = $cmd->execCmd();
-      $replace['#cmdIdCounter#'] = $cmd->getId();
+      $replace['#counter_id#'] = $cmd->getId();
+      $replace['#counter_value#'] = $cmd->execCmd();      
+      $replace['#counter_valueDate#'] = $cmd->getValueDate();
+      $replace['#counter_collectDate#'] = $cmd->getCollectDate();
     } else {
-      $replace['#stateCounter#'] = '';
-      $replace['#cmdIdCounter#'] = '';
-      log::add(__CLASS__, 'error', 'Commande manquante sur l\'équipement '. $eqLogicName . ' : counter -> Merci de vérifier puis sauvegarder pour générer la commande');
+      $replace['#counter_id#'] = '';
+      $replace['#counter_value#'] = '';      
+      log::add(__CLASS__, 'error', 'Commande manquante sur l\'équipement ' . $eqLogicName . ' : counter -> Merci de vérifier puis sauvegarder pour générer la commande');
     }
 
     // Gestion de la distance pour mise à jour du widget
-    if (is_object($this->getCmd('info', 'lastdistance'))) {   
+    if (is_object($this->getCmd('info', 'lastdistance'))) {
       $cmd = $this->getCmd('info', 'lastdistance');
-      $distance = $cmd->execCmd();            
-      $replace['#cmdIdDistance#'] = $cmd->getId();
+      $distance = $cmd->execCmd();
+      $replace['#distance_id#'] = $cmd->getId();
     } else {
-      $distance = '';    
-      $replace['#cmdIdDistance#'] = '';
-      log::add(__CLASS__, 'error', 'Commande manquante sur l\'équipement '. $eqLogicName . ' : lastdistance -> Merci de vérifier puis sauvegarder pour générer la commande');
+      $distance = '';
+      $replace['#distance_id#'] = '';
+      log::add(__CLASS__, 'error', 'Commande manquante sur l\'équipement ' . $eqLogicName . ' : lastdistance -> Merci de vérifier puis sauvegarder pour générer la commande');
     }
-    $replace['#stateDistance#'] = $distance;
-    $replace['#uniteDistance#'] = 'km';
+    $replace['#distance_value#'] = $distance;
+    $replace['#distance_unit#'] = 'km';
+    $replace['#distance_valueDate#'] = $cmd->getValueDate();
+    $replace['#distance_collectDate#'] = $cmd->getCollectDate();
     if ($distance != '') {
       if ($distance <= 10) {
         $replace['#circlecolorValue#'] = '#EA251F'; // Cercle en rouge
@@ -565,52 +572,52 @@ class blitzortung extends eqLogic {
     }
 
     // Gestion de l'orientation du dernier impact (en degrés)
-    if (is_object($this->getCmd('info', 'lastorientation'))) {   
+    if (is_object($this->getCmd('info', 'lastorientation'))) {
       $cmd = $this->getCmd('info', 'lastorientation');
       $orientation = $cmd->execCmd();
-      $replace['#cmdIdOrientation#'] = $cmd->getId();
+      $replace['#lastorientation_id#'] = $cmd->getId();
     } else {
-      $replace['#cmdIdOrientation#'] = '';
-      log::add(__CLASS__, 'error', 'Commande manquante sur l\'équipement '. $eqLogicName . ' : lastorientation -> Merci de vérifier puis sauvegarder pour générer la commande');
+      $replace['#lastorientation_id#'] = '';
+      log::add(__CLASS__, 'error', 'Commande manquante sur l\'équipement ' . $eqLogicName . ' : lastorientation -> Merci de vérifier puis sauvegarder pour générer la commande');
     }
     $orientation = ($orientation == '') ? 0 : $orientation;
-    $replace['#orientationValue#'] = $orientation;
+    $replace['#lastorientation_value#'] = $orientation;
 
     // Gestion du compteur d'impacts pour evolution sur 15mn
-    if (is_object($this->getCmd('info', 'counterevolution'))) {   
+    if (is_object($this->getCmd('info', 'counterevolution'))) {
       $cmd = $this->getCmd('info', 'counterevolution');
       $counterevolution = $cmd->execCmd();
     } else {
       $counterevolution = '';
-      log::add(__CLASS__, 'error', 'Commande manquante sur l\'équipement '. $eqLogicName . ' : counterevolution -> Merci de vérifier puis sauvegarder pour générer la commande');
+      log::add(__CLASS__, 'error', 'Commande manquante sur l\'équipement ' . $eqLogicName . ' : counterevolution -> Merci de vérifier puis sauvegarder pour générer la commande');
     }
     if ($counterevolution == -1) {
-      $replace['#counterevolution#'] = 'Diminution';
+      $replace['#counterevolution_value#'] = 'Diminution';
     } elseif ($counterevolution == 1) {
-      $replace['#counterevolution#'] = 'Augmentation';
+      $replace['#counterevolution_value#'] = 'Augmentation';
     } else {
-      $replace['#counterevolution#'] = '---';
+      $replace['#counterevolution_value#'] = '---';
     }
-    $replace['#cmdIdcounterevolution#'] = $cmd->getId();
+    $replace['#counterevolution_id#'] = $cmd->getId();
 
     // Gestion de la distance pour evolution sur 15mn
-    if (is_object($this->getCmd('info', 'distanceevolution'))) { 
+    if (is_object($this->getCmd('info', 'distanceevolution'))) {
       $cmd = $this->getCmd('info', 'distanceevolution');
       $distanceevolution = $cmd->execCmd();
-      $replace['#cmdIddistanceevolution#'] = $cmd->getId();
+      $replace['#distanceevolution_id#'] = $cmd->getId();
     } else {
       $distanceevolution = '';
-      $replace['#cmdIddistanceevolution#'] = '';
-      log::add(__CLASS__, 'error', 'Commande manquante sur l\'équipement '. $eqLogicName . ' : distanceevolution -> Merci de vérifier puis sauvegarder pour générer la commande');
+      $replace['#distanceevolution_id#'] = '';
+      log::add(__CLASS__, 'error', 'Commande manquante sur l\'équipement ' . $eqLogicName . ' : distanceevolution -> Merci de vérifier puis sauvegarder pour générer la commande');
     }
     if ($distanceevolution == -1) {
-      $replace['#distanceevolution#'] = 'Eloignement';
+      $replace['#distanceevolution_value#'] = 'Eloignement';
     } elseif ($distanceevolution == 1) {
-      $replace['#distanceevolution#'] = 'Rapprochement';
+      $replace['#distanceevolution_value#'] = 'Rapprochement';
     } else {
-      $replace['#distanceevolution#'] = '---';
+      $replace['#distanceevolution_value#'] = '---';
     }
-    
+
 
     $getTemplate = getTemplate('core', $version, 'blitzortung_' . $TemplateName . '.template', __CLASS__); // on récupère le template du plugin.
     $template_replace = template_replace($replace, $getTemplate); // on remplace les tags

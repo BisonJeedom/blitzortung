@@ -53,13 +53,13 @@ try {
   }
 
   $result = file_get_contents("php://input");
-  if ($result == '"error serveur"' || $result == '') {    
+  if ($result == '"error serveur"' || $result == '') {
     die();
   }
 
   log::add('blitzortung', 'debug', ' > json : ' . $result);
   if ($result[0] != '{') {
-    $result = '['.substr($result, 1, -2).']';
+    $result = '[' . substr($result, 1, -2) . ']';
     $result = str_replace('\'', '"', $result);
   }
   log::add('blitzortung', 'debug', ' > json after cleaning: ' . $result);
@@ -82,20 +82,22 @@ try {
   }
 
   if (isset($result_array[0]['time'])) { // Vérification du bon format de la chaine en regardant si time existe    
-    $time_start = microtime(true);    
+    $time_start = microtime(true);
     foreach (eqLogic::byType('blitzortung', true) as $eqLogic) {
       $latitude = blitzortung::getLatitude($eqLogic);
       $longitude = blitzortung::getLongitude($eqLogic);
       $rayon = $eqLogic->getConfiguration('cfg_rayon', 50);
       //log::add('blitzortung', 'info', 'latitude configurée : '.$latitude);
       //log::add('blitzortung', 'info', 'longitude configurée : '.$longitude);          
-      if ($latitude != '' && $longitude != '') {        
+      if ($latitude != '' && $longitude != '') {
         foreach ($result_array as $a) { // Parcours des enregistrements
           $distance = getDistanceBetweenPoints($latitude, $longitude, $a['lat'], $a['lon'], 'kilometres'); // Anbalyse de la distance de l'impact
           if ($distance <= $rayon) {
             $ts_local = round($a['time'] / 1000000000) + getUTCoffset('Europe/Paris'); // Convert nano to secondes with UTC offset            
 
-            $json = $eqLogic->getConfiguration("json_impacts");
+            //$json = $eqLogic->getConfiguration("json_impacts");
+            $keyName = 'json_impacts';
+            $json = cache::byKey('blitzortung::' . $eqLogic->getId() . '::' . $keyName)->getValue('');
             $arr = json_decode($json, true);
             $new_record = ['ts' => $ts_local, 'lat' => $a['lat'], 'lon' => $a['lon'], 'distance' => $distance];
 
@@ -106,7 +108,8 @@ try {
               log::add('blitzortung', 'info', '[' . $eqLogic->getName() . ']' . ' ' . '[' . $ts_local . ']' . ' ' . '[' . $counter . ']' . ' distance impact : ' . $distance . ' km' . ' | ' . 'lat: ' . $result_array['lat'] . ' lon: ' . $result_array['lon'] . ' (' . $Azimuth . '°)');
               $json = json_encode($arr);
               log::add('blitzortung', 'debug', ' > json_impacts : ' . $json);
-              $eqLogic->setConfiguration("json_impacts", $json);
+              //$eqLogic->setConfiguration("json_impacts", $json);
+              cache::set('blitzortung::' . $eqLogic->getId() . '::' . $keyName, $json);
               $eqLogic->save();
 
               $eqLogic->checkAndUpdateCmd('lastlat', $a['lat']);
@@ -125,10 +128,14 @@ try {
     }
     $time_end = microtime(true);
     $time = round($time_end - $time_start, 4);
-    $cycle = config::byKey('cycle', 'blitzortung', '5');    
-    log::add('blitzortung', 'debug', 'Temps de traitement pour ' . $count_impacts . ' impacts : ' . $time . ' seconde(s)' );
+    $cycle = config::byKey('cycle', 'blitzortung', '5');
+    log::add('blitzortung', 'debug', 'Temps de traitement pour ' . $count_impacts . ' impacts : ' . $time . ' seconde(s)');
     if ($cycle > 0 && $time > $cycle) {
-      log::add('blitzortung', 'info', 'Attention, le délais de traitement pour ' . $count_impacts . ' impacts est de ' . $time . ' seconde(s) et dépasse la durée du cycle de '. $cycle . ' seconde(s) -> Augmentez la durée et redémarrez le démon');  
+      if (is_object($this->getCmd('info', 'timetoprocessexceeded'))) {
+        $newtimetoprocessexceeded =  $eqLogic->getCmd('info', 'counter') + 1;
+        $eqLogic->checkAndUpdateCmd('timetoprocessexceeded', $newtimetoprocessexceeded);
+      }
+      log::add('blitzortung', 'info', 'Attention, le délais de traitement pour ' . $count_impacts . ' impacts est de ' . $time . ' seconde(s) et dépasse la durée du cycle de ' . $cycle . ' seconde(s) -> Augmentez la durée et redémarrez le démon');
     }
   } else {
     log::add('blitzortung', 'error', 'unknown message received from daemon');
