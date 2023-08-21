@@ -14,6 +14,10 @@
 * along with Jeedom. If not, see <http://www.gnu.org/licenses/>.
 */
 
+$('.pluginAction[data-action=openLocation]').on('click', function () {
+  window.open($(this).attr("data-location"), "_blank", null);
+});
+
 /* Permet la réorganisation des commandes dans l'équipement */
 $("#table_cmd").sortable({
   axis: "y",

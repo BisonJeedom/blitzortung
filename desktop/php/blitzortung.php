@@ -11,24 +11,48 @@ $eqLogics = eqLogic::byType($plugin->getId());
 <div class="row row-overflow">
 	<!-- Page d'accueil du plugin -->
 	<div class="col-xs-12 eqLogicThumbnailDisplay">
-		<legend><i class="fas fa-cog"></i> {{Gestion}}</legend>
-		<!-- Boutons de gestion du plugin -->
-		<div class="eqLogicThumbnailContainer">
-			<div class="cursor pluginAction logoSecondary" data-action="openLocation" data-location="<?= $plugin->getDocumentation() ?>">
-				<i class="fas fa-book-open"></i>
-				<br>
-				<span>{{Documentation}}</span>
+		<div class="row">
+			<div class="col-sm-10">
+				<legend><i class="fas fa-cog"></i> {{Gestion}}</legend>
+				<!-- Boutons de gestion du plugin -->
+				<div class="eqLogicThumbnailContainer">
+					<div class="cursor pluginAction logoSecondary" data-action="openLocation" data-location="<?= blitzortung::getDocumentation() ?>">
+						<i class="fas fa-book-open"></i>
+						<br>
+						<span>{{Documentation}}</span>
+					</div>
+					<div class="cursor eqLogicAction logoPrimary" data-action="add">
+						<i class="fas fa-plus-circle"></i>
+						<br>
+						<span>{{Ajouter}}</span>
+					</div>
+					<div class="cursor eqLogicAction logoSecondary" data-action="gotoPluginConf">
+						<i class="fas fa-wrench"></i>
+						<br>
+						<span>{{Configuration}}</span>
+					</div>
+				</div>
 			</div>
-			<div class="cursor eqLogicAction logoPrimary" data-action="add">
-				<i class="fas fa-plus-circle"></i>
-				<br>
-				<span>{{Ajouter}}</span>
-			</div>
-			<div class="cursor eqLogicAction logoSecondary" data-action="gotoPluginConf">
-				<i class="fas fa-wrench"></i>
-				<br>
-				<span>{{Configuration}}</span>
-			</div>
+			<?php
+			// à conserver
+			// sera afficher uniquement si l'utilisateur est en version 4.4 ou supérieur
+			$jeedomVersion  = jeedom::version() ?? '0';
+			$displayInfoValue = version_compare($jeedomVersion, '4.4.0', '>=');
+			if ($displayInfoValue) {
+			?>
+				<div class="col-sm-2">
+					<legend><i class=" fas fa-comments"></i> {{Community}}</legend>
+					<div class="eqLogicThumbnailContainer">
+						<div class="cursor eqLogicAction logoSecondary" data-action="createCommunityPost" style="width: 180px;">
+							<i class="fas fa-ambulance"></i>
+							<br>
+							<span style="color:var(--txt-color)">{{Créer un post Community}}</span>
+						</div>
+					</div>
+				</div>
+			<?php
+			}
+			?>
 		</div>
 		<legend><i class="fas fa-table"></i> {{Mes équipements}}</legend>
 		<?php
@@ -205,10 +229,11 @@ $eqLogics = eqLogic::byType($plugin->getId());
 										<option value="aucun">{{Aucun}}</option>
 										<option value="horizontal">{{Horizontal}}</option>
 										<option value="vertical">{{Vertical}}</option>
+										<option value="minimal">{{Minimal}}</option>
 									</select>
 								</div>
 							</div>
-							
+
 						</div>
 
 						<!-- Partie droite de l'onglet "Équipement" -->

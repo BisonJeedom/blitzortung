@@ -32,5 +32,13 @@ if (!isConnect()) {
         <input class="configKey form-control" data-l1key="socketport" placeholder="56023">
       </div>
     </div>
+    <div class="form-group">
+      <label class="col-md-4 control-label">{{Cycle (en secondes)}}
+        <sup><i class="fas fa-question-circle tooltips" title="{{Cycle de mise à jour des données vers Jeedom}}"></i></sup>
+      </label>
+      <div class="col-md-4">
+        <input class="configKey form-control" data-l1key="cycle" placeholder="5">
+      </div>
+    </div>
   </fieldset>
 </form>

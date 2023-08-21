@@ -41,7 +41,7 @@ class jeedom_com():
 		self.changes = {}
 		if cycle > 0 :
 			self.send_changes_async()
-		logging.info('Init request module v%s' % (str(requests.__version__),))
+		logging.info('Init request module v%s' % (str(requests.__version__),))		
 
 	def send_changes_async(self):
 		try:
@@ -52,7 +52,7 @@ class jeedom_com():
 			start_time = datetime.datetime.now()
 			changes = self.changes
 			self.changes = {}
-			logging.info('Send to jeedom : '+str(changes))
+			logging.info('Send to jeedom async : '+str(changes))
 			i=0
 			while i < self.retry:
 				try:
@@ -64,7 +64,7 @@ class jeedom_com():
 				i = i + 1
 			if r.status_code != requests.codes.ok:
 				logging.error('Error on send request to jeedom, return code %s' % (str(r.status_code),))
-			dt = datetime.datetime.now() - start_time
+			dt = datetime.datetime.now() - start_time			
 			ms = (dt.days * 24 * 60 * 60 + dt.seconds) * 1000 + dt.microseconds / 1000.0
 			timer_duration = self.cycle - ms
 			if timer_duration < 0.1 :
@@ -78,7 +78,7 @@ class jeedom_com():
 			resend_changes = threading.Timer(self.cycle, self.send_changes_async)
 			resend_changes.start()
 
-	def add_changes(self,key,value):
+	def add_changes(self,key,value):		
 		if key.find('::') != -1:
 			tmp_changes = {}
 			changes = value
