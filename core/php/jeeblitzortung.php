@@ -16,6 +16,24 @@ function getDistanceBetweenPoints($latitude1, $longitude1, $latitude2, $longitud
   return (round($distance, 2));
 }
 
+function distance($lat1, $lng1, $lat2, $lng2, $unit = 'k') {
+  // https://numa-bord.com/miniblog/php-calcul-de-distance-entre-2-coordonnees-gps-latitude-longitude/
+  $earth_radius = 6378137;   // Terre = sphère de 6378km de rayon
+  $rlo1 = deg2rad($lng1);
+  $rla1 = deg2rad($lat1);
+  $rlo2 = deg2rad($lng2);
+  $rla2 = deg2rad($lat2);
+  $dlo = ($rlo2 - $rlo1) / 2;
+  $dla = ($rla2 - $rla1) / 2;
+  $a = (sin($dla) * sin($dla)) + cos($rla1) * cos($rla2) * (sin($dlo) * sin($dlo));
+  $d = 2 * atan2(sqrt($a), sqrt(1 - $a));
+  $meter = ($earth_radius * $d);
+  if ($unit == 'k') {
+      return round($meter / 1000,2);
+  }
+  return round($meter,2);
+}
+
 function getAzimuth($_latitude1, $_longitude1, $_latitude2, $_longitude2) {
   $theta = $_longitude2 - $_longitude1;
   $x = cos(deg2rad($_latitude1)) * sin(deg2rad($_latitude2)) - sin(deg2rad($_latitude1)) * cos(deg2rad($_latitude2)) * cos(deg2rad($theta));
@@ -87,11 +105,11 @@ try {
       $latitude = blitzortung::getLatitude($eqLogic);
       $longitude = blitzortung::getLongitude($eqLogic);
       $rayon = $eqLogic->getConfiguration('cfg_rayon', 50);
-      //log::add('blitzortung', 'info', 'latitude configurée : '.$latitude);
-      //log::add('blitzortung', 'info', 'longitude configurée : '.$longitude);          
+
       if ($latitude != '' && $longitude != '') {
         foreach ($result_array as $a) { // Parcours des enregistrements
-          $distance = getDistanceBetweenPoints($latitude, $longitude, $a['lat'], $a['lon'], 'kilometres'); // Anbalyse de la distance de l'impact
+          #$distance = getDistanceBetweenPoints($latitude, $longitude, $a['lat'], $a['lon'], 'kilometres'); // Analyse de la distance de l'impact
+          $distance = distance($latitude, $longitude, $a['lat'], $a['lon'], 'k'); // Analyse de la distance de l'impact (autre calcul)
           if ($distance <= $rayon) {
             $ts_local = round($a['time'] / 1000000000) + getUTCoffset('Europe/Paris'); // Convert nano to secondes with UTC offset            
 
@@ -105,7 +123,7 @@ try {
               $arr[] = $new_record;
               $counter = count($arr);
               $Azimuth = getAzimuth($latitude, $longitude, $a['lat'], $a['lon']); // Récupération de l'azimuth pour indiquer sur la boussole
-              log::add('blitzortung', 'info', '[' . $eqLogic->getName() . ']' . ' ' . '[' . $ts_local . ']' . ' ' . '[' . $counter . ']' . ' distance impact : ' . $distance . ' km' . ' | ' . 'lat: ' . $result_array['lat'] . ' lon: ' . $result_array['lon'] . ' (' . $Azimuth . '°)');
+              log::add('blitzortung', 'info', '[' . $eqLogic->getName() . ']' . ' ' . '[' . $ts_local . ']' . ' ' . '[' . $counter . ']' . ' distance impact : ' . $distance . ' km' . ' | ' . 'lat: ' . $a['lat'] . ' lon: ' . $a['lon'] . ' (' . $Azimuth . '°)');    
               $json = json_encode($arr);
               log::add('blitzortung', 'debug', ' > json_impacts : ' . $json);
               //$eqLogic->setConfiguration("json_impacts", $json);

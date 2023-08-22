@@ -132,6 +132,42 @@ class blitzortung extends eqLogic {
     }
   }
 
+  public static function getFurthestPointsWithPointsAndDistance() {
+    $R = 6371;
+
+    foreach (eqLogic::byType('blitzortung', true) as $eqLogic) {
+      $latitude1 = blitzortung::getLatitude($eqLogic);
+      $longitude1 = blitzortung::getLongitude($eqLogic);
+      $rayon = $eqLogic->getConfiguration('cfg_rayon', 50);
+      $rayon = $rayon + 10; // marge de 10km supplémentaire à transmettre au daemon python
+
+      $lat1 = deg2rad($latitude1);
+      $lon1 = deg2rad($longitude1);
+
+      $a = deg2rad(0);
+      $lat2 = asin(sin($lat1) * cos($rayon / $R) + cos($lat1) * sin($rayon / $R) * cos($a));
+      $lon2 = $lon1 + atan2(sin($a) * sin($rayon / $R) * cos($lat1), cos($rayon / $R) - sin($lat1) * sin($lat2));
+      $arr['"' . $eqLogic->getId() . '"']['"lat_max"'] = rad2deg($lat2);
+
+      $a = deg2rad(90);
+      $lat2 = asin(sin($lat1) * cos($rayon / $R) + cos($lat1) * sin($rayon / $R) * cos($a));
+      $lon2 = $lon1 + atan2(sin($a) * sin($rayon / $R) * cos($lat1), cos($rayon / $R) - sin($lat1) * sin($lat2));
+      $arr['"' . $eqLogic->getId() . '"']['"lon_max"'] = rad2deg($lon2);
+
+      $a = deg2rad(180);
+      $lat2 = asin(sin($lat1) * cos($rayon / $R) + cos($lat1) * sin($rayon / $R) * cos($a));
+      $lon2 = $lon1 + atan2(sin($a) * sin($rayon / $R) * cos($lat1), cos($rayon / $R) - sin($lat1) * sin($lat2));
+      $arr['"' . $eqLogic->getId() . '"']['"lat_min"'] = rad2deg($lat2);
+
+      $a = deg2rad(270);
+      $lat2 = asin(sin($lat1) * cos($rayon / $R) + cos($lat1) * sin($rayon / $R) * cos($a));
+      $lon2 = $lon1 + atan2(sin($a) * sin($rayon / $R) * cos($lat1), cos($rayon / $R) - sin($lat1) * sin($lat2));
+      $arr['"' . $eqLogic->getId() . '"']['"lon_min"'] = rad2deg($lon2);
+    }
+
+    return json_encode($arr);
+  }
+
   public static function blitzortungCron() {
     foreach (eqLogic::byType('blitzortung', true) as $eqLogic) {
       if ($eqLogic->getIsEnable()) {
@@ -420,6 +456,8 @@ class blitzortung extends eqLogic {
     log::add(__CLASS__, 'info', 'GPS : '.$latitude.' / '. $longitude);
     */
 
+    $MinAndMaxGPS = self::getFurthestPointsWithPointsAndDistance();
+
     $path = realpath(dirname(__FILE__) . '/../../resources/blitzortungd'); // répertoire du démon
     $cmd = 'python3 ' . $path . '/blitzortungd.py'; // nom du démon
     $cmd .= ' --loglevel ' . log::convertLogLevel(log::getLogLevel(__CLASS__));
@@ -427,6 +465,7 @@ class blitzortung extends eqLogic {
     $cmd .= ' --callback ' . network::getNetworkAccess('internal', 'proto:127.0.0.1:port:comp') . '/plugins/blitzortung/core/php/jeeblitzortung.php'; // chemin de la callback url à modifier (voir ci-dessous)
     //$cmd .= ' --latitude "' . $latitude .'"';
     //$cmd .= ' --longitude "' . $longitude .'"';
+    $cmd .= ' --MinAndMaxGPS "' . $MinAndMaxGPS . '"';
     $cmd .= ' --apikey ' . jeedom::getApiKey(__CLASS__); // l'apikey pour authentifier les échanges suivants
     $cmd .= ' --cycle ' . config::byKey('cycle', __CLASS__, '5'); // cycle d'envoi des données vers Jeedom
     $cmd .= ' --pid ' . jeedom::getTmpFolder(__CLASS__) . '/deamon.pid'; // chemin vers le pid file
@@ -536,12 +575,12 @@ class blitzortung extends eqLogic {
     if (is_object($this->getCmd('info', 'counter'))) {
       $cmd = $this->getCmd('info', 'counter');
       $replace['#counter_id#'] = $cmd->getId();
-      $replace['#counter_value#'] = $cmd->execCmd();      
+      $replace['#counter_value#'] = $cmd->execCmd();
       $replace['#counter_valueDate#'] = $cmd->getValueDate();
       $replace['#counter_collectDate#'] = $cmd->getCollectDate();
     } else {
       $replace['#counter_id#'] = '';
-      $replace['#counter_value#'] = '';      
+      $replace['#counter_value#'] = '';
       log::add(__CLASS__, 'error', 'Commande manquante sur l\'équipement ' . $eqLogicName . ' : counter -> Merci de vérifier puis sauvegarder pour générer la commande');
     }
 

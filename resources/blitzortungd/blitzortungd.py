@@ -102,10 +102,24 @@ def decode(b):
         f = a
 
     return "".join(g)
-    
+
+def in_gps(gps, lat, lon):
+    #logging.info("check : " + str(lat) + ' ' + str(lon))       
+    for key, value in gps.items():
+        #logging.info("Json GPS : " + str(key) + ' ' + str(value))        
+        if lat > value["lat_min"] and lat < value["lat_max"] and lon > value["lon_min"] and lon < value["lon_max"]:
+              #logging.info(str(lat) + ' ' + str(lon) + ' in gps' + str(key))
+              return 1
+    return 0
+
 async def run():    
     class userdata:
         is_connected = True
+
+    logging.info("Cycle de mise à jour vers Jeedom : " + str(_cycle) + ' seconde(s)' )
+    logging.info("Json GPS : " + str(_MinAndMaxGPS) )
+    gps = json.loads(decode(_MinAndMaxGPS))    
+
 
     while True:
         try:        
@@ -115,40 +129,44 @@ async def run():
             logging.info("url : " + str(uri))
             time.sleep(3)
             async with websockets.connect(uri, ssl=ssl_context) as websocket:
-                logging.info("Connecté")
-                logging.info("Cycle de mise à jour vers Jeedom : " + str(_cycle) + ' seconde(s)' )
+                logging.info("Connection réussie sur un serveur blitzortung")
                 dataconcat = ''
                 send_time = datetime.datetime.now()
                 await websocket.send('{"a": 111}')
                 while True:
                     msg = await websocket.recv()
                     data = json.loads(decode(msg))
-                    sig = data.pop("sig", ())
-                    data["sig_num"] = len(sig)
-                    data.pop("alt")
-                    data.pop("pol")
-                    data.pop("mds")
-                    data.pop("mcg")
-                    data.pop("lonc")
-                    data.pop("latc")
-                    #logging.info("data : " + str(data))
-                    #logging.info("latitude : " + str(args.latitude))
-                    #logging.info("longitude : " + str(args.longitude))                    
-                    #data["distance"] = getDistanceBetweenPoints(float(args.latitude), float(args.longitude), data["lat"], data["lon"], "kilometers")
-                    #jeedom_com.send_change_immediate(data)
-                    #jeedom_com.add_changes('blitzortung::impacts', data)
-                    if _cycle > 0:
+                    if in_gps(gps, data["lat"], data["lon"]) == 0:
+                          tosend = 0
+                    else:
+                          tosend = 1
+
+                    if tosend == 1:
+                        sig = data.pop("sig", ())
+                        data["sig_num"] = len(sig)
+                        data.pop("alt")
+                        data.pop("pol")
+                        data.pop("mds")
+                        data.pop("mcg")
+                        data.pop("lonc")
+                        data.pop("latc")
+                        dataconcat = dataconcat + str(data) + ','
+                        #logging.info("dataconcat : " + str(dataconcat))
+
+                    if _cycle > 0 and dataconcat != '':                        
                         time_delta = datetime.datetime.now() - send_time
                         diff_secondes = ((time_delta.days * 24 * 60 * 60 + time_delta.seconds) * 1000 + time_delta.microseconds / 1000.0) / 1000
-                        if diff_secondes > _cycle and dataconcat != '':
+                        if diff_secondes > _cycle:
+                            logging.info("Send dataconcat to Jeedom")
                             logging.info("dataconcat : " + str(dataconcat))
                             jeedom_com.send_change_immediate(dataconcat)
                             dataconcat = ''
-                            send_time = datetime.datetime.now()
-                        else:
-                            dataconcat = dataconcat + str(data) + ','
-                    else:
-                          jeedom_com.send_change_immediate(data)
+                            send_time = datetime.datetime.now()                     
+                    elif dataconcat != '':                          
+                          logging.info("Send dataconcat to Jeedom")
+                          logging.info("dataconcat : " + str(dataconcat))
+                          jeedom_com.send_change_immediate(dataconcat)
+                          dataconcat = ''
                     
         except websockets.ConnectionClosed:
             pass
@@ -164,6 +182,7 @@ _log_level = "error"
 _socket_port = 56023
 _socket_host = 'localhost'
 _pidfile = '/tmp/demond.pid'
+_MinAndMaxGPS = ''
 _apikey = ''
 _callback = ''
 _cycle = 0.3
@@ -173,6 +192,7 @@ parser = argparse.ArgumentParser(
 parser.add_argument("--device", help="Device", type=str)
 parser.add_argument("--loglevel", help="Log Level for the daemon", type=str)
 parser.add_argument("--callback", help="Callback", type=str)
+parser.add_argument("--MinAndMaxGPS", help="MinAndMaxGPS", type=str)
 parser.add_argument("--apikey", help="Apikey", type=str)
 parser.add_argument("--cycle", help="Cycle to send event", type=str)
 parser.add_argument("--pid", help="Pid file", type=str)
@@ -185,6 +205,8 @@ if args.loglevel:
     _log_level = args.loglevel
 if args.callback:
     _callback = args.callback
+if args.MinAndMaxGPS:
+    _MinAndMaxGPS = args.MinAndMaxGPS
 if args.apikey:
     _apikey = args.apikey
 if args.pid:
@@ -203,6 +225,7 @@ logging.info('Log level : '+str(_log_level))
 logging.info('Socket port : '+str(_socket_port))
 logging.info('Socket host : '+str(_socket_host))
 logging.info('PID file : '+str(_pidfile))
+logging.info('MinAndMaxGPS : '+str(_MinAndMaxGPS))
 logging.info('Apikey : '+str(_apikey))
 logging.info('Cycle : '+str(_cycle))
 
