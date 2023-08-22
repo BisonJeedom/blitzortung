@@ -22,21 +22,23 @@
         <a href="#eqLink#" class="reportModeHidden">#name_display# <span class="object_name">#object_name#</span></a>
     </center>
 
-    <div class="cmds">
-        <div class="cmd cmd-widget history cursor" data-type="info" data-subtype="numeric" data-template="tile" data-cmd_id="#counter_id#">
+    <div class="cmds" style="text-align: center;">
+        <div class="cmd cmd-widget history cursor" data-type="info" data-subtype="numeric" data-template="tile"
+            data-cmd_id="#counter_id#">
             <div class="title">
                 <div class="cmdName" style="max-width:none;">Impacts</div>
             </div>
-            <div class="content-sm" style="align-items: start; flex-direction: row; padding-top: 5px;">
+            <div class="content-sm" style="display: flex; align-items: start; flex-direction: row; padding-top: 5px;">
                 <span class="pull-right evolstate"></span>
                 <span class="pull-right state"></span>
             </div>
         </div>
-        <div class="cmd cmd-widget history cursor" data-type="info" data-subtype="numeric" data-template="tile" data-cmd_id="#distance_id#">
+        <div class="cmd cmd-widget history cursor" data-type="info" data-subtype="numeric" data-template="tile"
+            data-cmd_id="#distance_id#">
             <div class="title ">
                 <div class="cmdName" style="max-width:none;">Distance</div>
             </div>
-            <div class="content-sm" style="align-items: start; flex-direction: row; padding-top: 5px;">
+            <div class="content-sm" style="display: flex; align-items: start; flex-direction: row; padding-top: 5px;">
                 <span class="pull-right evoldistance"></span>
                 <span class="pull-right state"></span>
             </div>
@@ -46,7 +48,7 @@
             <div class="title ">
                 <div class="cmdName" style="max-width:none;">Direction</div>
             </div>
-            <div class="content-sm">
+            <div class="content-sm" style="display: flex;justify-content: center;">
                 <svg id="SvgOrientation-#id#" data-v-47880d39="" width="30" height="30" viewBox="0 0 1000 1000"
                     enable-background="new 0 0 1000 1000" xml:space="preserve"
                     style="transform: scale(0.9) rotate(#orientationValue#deg);">
@@ -95,9 +97,14 @@
         if ('#counter_id#' != '') {
             jeedom.cmd.addUpdateFunction('#counter_id#', function (_options) {
                 var _target = document.querySelector('.cmd[data-cmd_id="#counter_id#"]')
-                if (!_target) return;                
+                if (!_target) return;
                 let v = _options.display_value
-                if (v == '' || v == 0) v = '---'
+                if (v == '' || v == 0) {
+                    v = '---'
+                    document.getElementById("gOrientation-#id#").setAttribute("visibility", 'hidden')
+                } else {
+                    document.getElementById("gOrientation-#id#").setAttribute("visibility", 'visible')
+                }
                 if (v > 200) {
                     color = 'color: #EA251F'
                 } else if (v > 50) {
@@ -105,7 +112,7 @@
                 } else {
                     color = ''
                 }
-                _target.setAttribute('title', 'Date de valeur : '+_options.valueDate+'<br/>Date de collecte : '+_options.collectDate);
+                _target.setAttribute('title', 'Date de valeur : ' + _options.valueDate + '<br/>Date de collecte : ' + _options.collectDate);
                 _target.querySelector('.state').innerHTML = '<i style="font-size: 0.8em;' + color + '">' + v + '</i>';
             });
             jeedom.cmd.refreshValue([{ cmd_id: '#counter_id#', display_value: '#counter_value#', valueDate: '#counter_valueDate#', collectDate: '#counter_collectDate#' }]);
@@ -148,9 +155,9 @@
                     }
                 }
                 _target.querySelector('.state').innerHTML = '<i style="font-size: 0.8em;' + color + '">' + v + unit + '</i>';
-                _target.setAttribute('title', 'Date de valeur : '+_options.valueDate+'<br/>Date de collecte : '+_options.collectDate);
+                _target.setAttribute('title', 'Date de valeur : ' + _options.valueDate + '<br/>Date de collecte : ' + _options.collectDate);
             });
-            jeedom.cmd.refreshValue([{ cmd_id: '#distance_id#', display_value: '#distance_value#', unit: '#distance_unit#', valueDate: '#distance_valueDate#', collectDate: '#distance_collectDate#'}]);
+            jeedom.cmd.refreshValue([{ cmd_id: '#distance_id#', display_value: '#distance_value#', unit: '#distance_unit#', valueDate: '#distance_valueDate#', collectDate: '#distance_collectDate#' }]);
         }
 
         jeedom.cmd.addUpdateFunction('#lastorientation_id#', function (_options) {
@@ -171,7 +178,7 @@
             navigation: {
                 buttonOptions: {
                     enabled: false
-                 }
+                }
             },
 
             title: {
