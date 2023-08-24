@@ -108,6 +108,22 @@ class blitzortung extends eqLogic {
     return $longitude;
   }
 
+  public static function isValidLatitude($latitude) {
+    if (preg_match("/^[-]?(([0-8]?[0-9])\.(\d+))|(90(\.0+)?)$/", $latitude)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  public static function isValidLongitude($longitude) {
+    if (preg_match("/^[-]?((((1[0-7][0-9])|([0-9]?[0-9]))\.(\d+))|180(\.0+)?)$/", $longitude)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   public static function isBeta($text = false) {
     $plugin = plugin::byId('blitzortung');
     $update = $plugin->getUpdate();
@@ -361,6 +377,9 @@ class blitzortung extends eqLogic {
 
   // Fonction exécutée automatiquement avant la sauvegarde (création ou mise à jour) de l'équipement
   public function preSave() {
+    //$_savedconfiguration = json_decode($this->getConfiguration('_savedconfiguration'), true);
+    //log::add(__CLASS__, 'info', 'old latitude : ' . $_savedconfiguration['latitude']);
+    //log::add(__CLASS__, 'info', 'old longitude : ' . $_savedconfiguration['longitude']);
   }
 
   // Fonction exécutée automatiquement après la sauvegarde (création ou mise à jour) de l'équipement
@@ -376,6 +395,11 @@ class blitzortung extends eqLogic {
     $this->CreateCmd('timetoprocessexceeded', 'Délai de traitement trop important', '', '', '', '', '', '', '', 'info', 'numeric', '', '1');
     $this->CreateCmd('mapurl', 'URL de la carte', '', '0', '', '', '', '', '', 'info', 'string', '', '1');
     $this->checkAndUpdateCmd('mapurl', 'https://map.blitzortung.org/#' . $this->getConfiguration("cfg_Zoom", 10) . '/' . self::getLatitude($this) . '/' . self::getLongitude($this));
+
+    if ($this->getConfiguration('latChanged') == 'true' || $this->getConfiguration('lonChanged') == 'true' || $this->getConfiguration('rayonChanged') == 'true') {
+      log::add('blitzortung', 'info', 'Changement de la configuration -> Redémarrage du démon');
+      self::deamon_start();
+    }
   }
 
   // Fonction exécutée automatiquement avant la suppression de l'équipement
@@ -416,25 +440,26 @@ class blitzortung extends eqLogic {
         shell_exec(system::getCmdSudo() . 'rm -rf ' . $pid_file . ' 2>&1 > /dev/null');
       }
     }
+    foreach (eqLogic::byType('blitzortung', true) as $eqLogic) {
+      if (!self::isValidLatitude(self::getLatitude($eqLogic))) {
+        $return['launchable'] = 'nok';
+        $return['launchable_message'] = __('Latitude de ' . $eqLogic->getName() . ' incorrecte', __FILE__);
+        return $return;
+      }
+      if (!self::isValidLongitude(self::getLongitude($eqLogic))) {
+        $return['launchable'] = 'nok';
+        $return['launchable_message'] = __('Longitude de ' . $eqLogic->getName() . ' incorrecte', __FILE__);
+        return $return;
+      }
+      $rayon = $eqLogic->getConfiguration('cfg_rayon', '50');
+      if ($rayon < 1 || $rayon > 200) {
+        $return['launchable'] = 'nok';
+        $return['launchable_message'] = __('Rayon de ' . $eqLogic->getName() . ' non accepté', __FILE__);
+        return $return;
+      }
+    }
     $return['launchable'] = 'ok';
     $return['last_launch'] = config::byKey('lastDeamonLaunchTime', __CLASS__, __('Inconnue', __FILE__));
-
-    /*
-    $latitude = $this->getConfiguration('cfg_latitude', '');
-    $longitude = $this->getConfiguration('cfg_longitude', '');
-    
-    $latitude = ($latitude == '')?config::bykey('info::latitude'):$latitude;
-    $longitude = ($longitude == '')?config::bykey('info::longitude'):$longitude;
-
-    if ($latitude == '') {
-      $return['launchable'] = 'nok';
-      $return['launchable_message'] = __('La latitude n\'est pas configurée', __FILE__);
-    } elseif ($longitude == '') {
-      $return['launchable'] = 'nok';
-      $return['launchable_message'] = __('La longitude n\'est pas configurée', __FILE__);
-    }
-    */
-
     return $return;
   }
 
@@ -445,16 +470,6 @@ class blitzortung extends eqLogic {
     if ($deamon_info['launchable'] != 'ok') {
       throw new Exception(__('Veuillez vérifier la configuration', __FILE__));
     }
-
-    /*
-    $latitude = $this->getConfiguration('cfg_latitude', '');
-    $longitude = $this->getConfiguration('cfg_longitude', '');
-    
-    $latitude = ($latitude == '')?config::bykey('info::latitude'):$latitude;
-    $longitude = ($longitude == '')?config::bykey('info::longitude'):$longitude;
-    
-    log::add(__CLASS__, 'info', 'GPS : '.$latitude.' / '. $longitude);
-    */
 
     $MinAndMaxGPS = self::getFurthestPointsWithPointsAndDistance();
 
