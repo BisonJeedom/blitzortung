@@ -113,13 +113,9 @@ def in_gps(gps, lat, lon):
     return 0
 
 async def run():    
-    class userdata:
-        is_connected = True
-
     logging.info("Cycle de mise à jour vers Jeedom : " + str(_cycle) + ' seconde(s)' )
     logging.info("Json GPS : " + str(_MinAndMaxGPS) )
-    gps = json.loads(decode(_MinAndMaxGPS))    
-
+    gps = json.loads(decode(_MinAndMaxGPS))
 
     while True:
         try:        
@@ -127,9 +123,9 @@ async def run():
             hosts = ["ws1", "ws3", "ws7", "ws8"]
             uri = "wss://{}.blitzortung.org:443/".format(random.choice(hosts))            
             logging.info("url : " + str(uri))
-            time.sleep(3)
+            time.sleep(1)
             async with websockets.connect(uri, ssl=ssl_context) as websocket:
-                logging.info("Connection réussie sur un serveur blitzortung")
+                logging.info("Connection réussie sur ce serveur blitzortung")
                 dataconcat = ''
                 send_time = datetime.datetime.now()
                 await websocket.send('{"a": 111}')

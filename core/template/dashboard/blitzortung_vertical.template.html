@@ -6,11 +6,11 @@
         <span class="warning" title="#alert_name#">
             <i class='#alert_icon#'></i>
         </span>
-        <span class="cmd pull-left cursor" style="margin-left: 3px;margin-top: 3px">
+        <span class="cmd pull-left cursor" style="margin-left: 3px;margin-top: 3px; color: var(--link-color) !important;">
             <a href="#mapurl#" target="_blank"><i class="icon kiko-marker-map tooltips"
                     title="Ouvrir la carte sur Blitzortung"></i></a>
         </span>
-        <span class="cmd pull-right cursor" style="margin-left: 3px;margin-top: 3px">
+        <span class="cmd pull-right cursor" style="margin-left: 3px;margin-top: 3px; color: var(--link-color) !important;">
             <a href="#info#"><i class="fas fa-info tooltips" style="font-size: small;"
                     title="Impacts de foudre depuis #retention# heure(s) dans un rayon de #rayon# km"></i></a>
         </span>
@@ -52,12 +52,12 @@
                                 font-size="1em" fill="var(--txt-color)">
                                 <tspan x="50%" dy="0.3em">Dernier impact et direction</tspan>
                             </text>
-                            <circle id="circleDistance-#id#" cx="60" cy="65" r="45" stroke="#CirclecolorValue#" stroke-width="2" fill="none" />                          
+                            <circle id="circleDistance-#id#" cx="60" cy="66" r="45" stroke="#CirclecolorValue#" stroke-width="2" fill="none" />                          
                             <text dominant-baseline="middle" text-anchor="middle" font-weight="normal" font-size="1.2em"
                                 fill="var(--txt-color)">
                                 <tspan id="circleTxtDistance-#id#" x="33%" y="50%" dy="0.3em"></tspan>
                             </text>
-                            <circle id="circleOrientation-#id#" cx="145" cy="65" r="30" stroke="#3A5B8F"
+                            <circle id="circleOrientation-#id#" cx="145" cy="66" r="30" stroke="#3A5B8F"
                                 stroke-width="2" fill="none" />
                             <text font-weight="normal" font-size="1.2em" fill="var(--txt-color)">
                                 <tspan x="77%" y="23%" dy="0.3em">N</tspan>
@@ -65,7 +65,7 @@
                         </svg>
                         <svg id="SvgOrientation-#id#" data-v-47880d39="" width="30" height="30" viewBox="0 0 1000 1000"
                         enable-background="new 0 0 1000 1000" xml:space="preserve"
-                        style="transform: translate(123px,61px) rotate(#lastorientation_value#ddeg);">
+                        style="transform-box: fill-box; transform: translate(-54px,-40px) rotate(#lastorientation_value#ddeg);">
                             <g id="gOrientation-#id#" data-v-47880d39="" fill="#3C73A5">
                                 <path data-v-47880d39=""
                                 d="M510.5,749.6c-14.9-9.9-38.1-9.9-53.1,1.7l-262,207.3c-14.9,11.6-21.6,6.6-14.9-11.6L474,48.1c5-16.6,14.9-18.2,21.6,0l325,898.7c6.6,16.6-1.7,23.2-14.9,11.6L510.5,749.6z">
@@ -178,7 +178,7 @@
     // Gestion de l'affichage de l'orientation du dernier impact
     jeedom.cmd.addUpdateFunction('#lastorientation_id#', function (_options) {
         let o = _options.display_value
-        document.getElementById("SvgOrientation-#id#").setAttribute("style", "transform: translate(-50px,-41px) rotate(" + o + "deg);")
+        document.getElementById("SvgOrientation-#id#").setAttribute("style", "transform-box: fill-box; transform: translate(-54px,-40px) rotate(" + o + "deg);")
     });
     jeedom.cmd.refreshValue([{ cmd_id: '#lastorientation_id#', display_value: '#lastorientation_value#' }])
 
