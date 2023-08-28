@@ -163,7 +163,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 								</label>
 								<div class="col-sm-6">
 									<div class="input-group">
-										<input type="number" class="eqLogicAttr" data-l1key="configuration" data-l2key="cfg_latitude" placeholder="<?= config::bykey('info::latitude') ?>">
+										<input id="lat" type=" number" class="eqLogicAttr" data-l1key="configuration" data-l2key="cfg_latitude" placeholder="<?= config::bykey('info::latitude') ?>">
 									</div>
 								</div>
 							</div>
@@ -174,18 +174,18 @@ $eqLogics = eqLogic::byType($plugin->getId());
 								</label>
 								<div class="col-sm-6">
 									<div class="input-group">
-										<input type="number" class="eqLogicAttr" data-l1key="configuration" data-l2key="cfg_longitude" placeholder="<?= config::bykey('info::longitude') ?>">
+										<input id="lon" type="number" class="eqLogicAttr" data-l1key="configuration" data-l2key="cfg_longitude" placeholder="<?= config::bykey('info::longitude') ?>">
 									</div>
 								</div>
 							</div>
 
 							<div class="form-group">
-								<label class="col-sm-4 control-label">{{Rayon (km)}}
+								<label class="col-sm-4 control-label">{{Rayon (entre 1 et 200 km)}}
 									<sup><i class="fas fa-question-circle tooltips" title="{{Renseigner le rayon autour de vos coordonnées GPS}}"></i></sup>
 								</label>
 								<div class="col-sm-6">
 									<div class="input-group">
-										<input type="number" class="eqLogicAttr" data-l1key="configuration" data-l2key="cfg_rayon" placeholder="50">
+										<input id="rayon" type="number" class="eqLogicAttr" data-l1key="configuration" data-l2key="cfg_rayon" placeholder="50">
 									</div>
 								</div>
 							</div>
@@ -231,6 +231,22 @@ $eqLogics = eqLogic::byType($plugin->getId());
 										<option value="vertical">{{Vertical}}</option>
 										<option value="minimal">{{Minimal}}</option>
 									</select>
+								</div>
+							</div>
+
+							<div class="form-group">
+								<label class="col-sm-4 control-label">{{Commande binaire déclenchant l'écoute des évènements}}
+									<sup><i class="fa fa-question-circle tooltips" title="{{Commande binaire qui déclenche l'écoute des évènements si vrai}}"></i></sup>
+								</label>
+								<div class="col-sm-6">
+									<div class="input-group">
+										<input type="text" id="select_CmdtoListen" class="eqLogicAttr form-control CmdAction" data-l1key="configuration" data-l2key="cfg_CmdtoListen" placeholder="{{Séléctionnez la commande binaire}}">
+										<span class="input-group-btn">
+											<a id="bt_selectCmdtoListen" class="btn btn-success btn-sm listCmdAction" data-type="action">
+												<i class="fa fa-list-alt"></i>
+											</a>
+										</span>
+									</div>
 								</div>
 							</div>
 

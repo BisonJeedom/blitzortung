@@ -14,6 +14,64 @@
 * along with Jeedom. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/* Permet de repérer un changement dans les valeurs latitude, longitute ou rayon et d'enregistrer l'information pour prise en charge dans postSave() */
+var original_lat = null;
+$("#lat").focusin(function () {
+  if (original_lat === null) {
+    original_lat = $(this).val();
+  }
+});
+
+var original_lon = null;
+$("#lon").focusin(function () {
+  if (original_lon === null) {
+    original_lon = $(this).val();
+  }
+});
+
+var original_rayon = null;
+$("#rayon").focusin(function () {
+  if (original_rayon === null) {
+    original_rayon = $(this).val();
+  }
+});
+
+function saveEqLogic(_eqLogic) {
+  //console.log("saveEqLogic");
+  if (!isset(_eqLogic.configuration)) {
+    _eqLogic.configuration = {};
+  }
+
+  _eqLogic.configuration.latChanged = '';
+  _eqLogic.configuration.lonChanged = '';
+  _eqLogic.configuration.rayonChanged = '';
+
+  current_lat = $("#lat").val();
+  if (original_lat !== null && original_lat != current_lat) {
+    _eqLogic.configuration.latChanged = 'true';
+  }
+
+  current_lon = $("#lon").val();
+  if (original_lon !== null && original_lon != current_lon) {
+    _eqLogic.configuration.lonChanged = 'true';
+  }
+
+  current_rayon = $("#rayon").val();
+  if (original_rayon !== null && original_rayon != current_rayon) {
+    _eqLogic.configuration.rayonChanged = 'true';
+  }
+
+  return _eqLogic;
+}
+/*  */
+
+// Fonction pour ajouter la sélection des commandes du select bt_selectCmdtoListen
+$("#bt_selectCmdtoListen").on('click', function () {
+  jeedom.cmd.getSelectModal({ cmd: { type: 'info', subType: 'binary' } }, function (result) {
+    $('.eqLogicAttr[data-l1key=configuration][data-l2key=cfg_CmdtoListen]').value(result.human);
+  });
+});
+
 $('.pluginAction[data-action=openLocation]').on('click', function () {
   window.open($(this).attr("data-location"), "_blank", null);
 });

@@ -108,6 +108,22 @@ class blitzortung extends eqLogic {
     return $longitude;
   }
 
+  public static function isValidLatitude($latitude) {
+    if (preg_match("/^[-]?(([0-8]?[0-9])\.(\d+))|(90(\.0+)?)$/", $latitude)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  public static function isValidLongitude($longitude) {
+    if (preg_match("/^[-]?((((1[0-7][0-9])|([0-9]?[0-9]))\.(\d+))|180(\.0+)?)$/", $longitude)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   public static function isBeta($text = false) {
     $plugin = plugin::byId('blitzortung');
     $update = $plugin->getUpdate();
@@ -168,7 +184,20 @@ class blitzortung extends eqLogic {
     return json_encode($arr);
   }
 
+  public static function ReadCmdBlitzProba($_cmd) {
+    try {
+      $cmd = cmd::byString($_cmd);
+      if (is_object($cmd)) {        
+        $BlitzProba = $cmd->execCmd();
+      }
+    }  catch (Exception $e) {
+      log::add(__CLASS__, 'error', 'Commande de gestion de la probabilité d\'orage introuvable');      
+    }    
+    return $BlitzProba;
+  }
+
   public static function blitzortungCron() {
+    $event_to_send = 'stop';
     foreach (eqLogic::byType('blitzortung', true) as $eqLogic) {
       if ($eqLogic->getIsEnable()) {
         //$json = $eqLogic->getConfiguration("json_impacts");
@@ -176,7 +205,7 @@ class blitzortung extends eqLogic {
         $json = cache::byKey('blitzortung::' . $eqLogic->getId() . '::' . $keyName)->getValue('');
         $LastImpactRetention = $eqLogic->getConfiguration("cfg_LastImpactRetention", 1);
 
-        log::add('blitzortung', 'info', '| [Start] Nettoyage des enregistrements de ' . $eqLogic->getName());
+        log::add('blitzortung', 'info', '[Start] Nettoyage des enregistrements de ' . $eqLogic->getName());
         log::add('blitzortung', 'info', '| Durée de conservation : ' . $LastImpactRetention . ' h');
 
         $arr = json_decode($json, true);
@@ -277,8 +306,38 @@ class blitzortung extends eqLogic {
         $eqLogic->checkAndUpdateCmd('counter', $count_end);
         $eqLogic->setConfiguration("evolution", 'Evolution sur 15 minutes : ' . $evolution_impacts . ' --- ' . $evolution_distance);
         $eqLogic->save();
+
+        // Vérification de la probabilité d'un orage pour activer l'écoute coté démon
+        log::add('blitzortung', 'info', '[Start] Récupération  de la probabilité d\'orage pour ' . $eqLogic->getName());
+        $cfg_CmdtoListen = $eqLogic->getConfiguration("cfg_CmdtoListen");        
+        if ($cfg_CmdtoListen != '') {
+          $isBlitz = $eqLogic->ReadCmdBlitzProba($cfg_CmdtoListen); // Récupération de la probabilité d'un Orage          
+          log::add('blitzortung', 'info','| Probabilité d\'orage : ' . $isBlitz);
+          if ($isBlitz == 1) {
+            $event_to_send = 'start';
+          }
+        } else {
+          log::add('blitzortung', 'info','| Aucune commande de probabilité d\'orage');
+          $event_to_send = 'start';
+        }       
+        log::add('blitzortung', 'info', '[End] Récupération  de la probabilité d\'orage pour ' . $eqLogic->getName());
+
         $eqLogic->refreshWidget();
       }
+    }
+
+    $event_running = cache::byKey('blitzortung::blitzortung::event')->getValue('');
+    if ($event_to_send == 'start' && ($event_running == 'stop' || $event_running == '')) {
+      $params['cmd']  = 'start';
+      $eqLogic->sendToDaemon($params);
+      log::add('blitzortung', 'info', 'Démarrage de l\'écoute envoyée au démon');            
+      cache::set('blitzortung::blitzortung::event', 'start');
+    }
+    if ($event_to_send == 'stop' && $event_running == 'start') {
+      $params['cmd']  = 'stop';
+      $eqLogic->sendToDaemon($params);
+      log::add('blitzortung', 'info', 'Arrêt de l\'écoute envoyée au démon');            
+      cache::set('blitzortung::blitzortung::event', 'stop');
     }
   }
 
@@ -361,6 +420,9 @@ class blitzortung extends eqLogic {
 
   // Fonction exécutée automatiquement avant la sauvegarde (création ou mise à jour) de l'équipement
   public function preSave() {
+    //$_savedconfiguration = json_decode($this->getConfiguration('_savedconfiguration'), true);
+    //log::add(__CLASS__, 'info', 'old latitude : ' . $_savedconfiguration['latitude']);
+    //log::add(__CLASS__, 'info', 'old longitude : ' . $_savedconfiguration['longitude']);
   }
 
   // Fonction exécutée automatiquement après la sauvegarde (création ou mise à jour) de l'équipement
@@ -376,6 +438,11 @@ class blitzortung extends eqLogic {
     $this->CreateCmd('timetoprocessexceeded', 'Délai de traitement trop important', '', '', '', '', '', '', '', 'info', 'numeric', '', '1');
     $this->CreateCmd('mapurl', 'URL de la carte', '', '0', '', '', '', '', '', 'info', 'string', '', '1');
     $this->checkAndUpdateCmd('mapurl', 'https://map.blitzortung.org/#' . $this->getConfiguration("cfg_Zoom", 10) . '/' . self::getLatitude($this) . '/' . self::getLongitude($this));
+
+    if ($this->getConfiguration('latChanged') == 'true' || $this->getConfiguration('lonChanged') == 'true' || $this->getConfiguration('rayonChanged') == 'true') {
+      log::add('blitzortung', 'info', 'Changement de la configuration -> Redémarrage du démon');
+      self::deamon_start();
+    }
   }
 
   // Fonction exécutée automatiquement avant la suppression de l'équipement
@@ -416,25 +483,26 @@ class blitzortung extends eqLogic {
         shell_exec(system::getCmdSudo() . 'rm -rf ' . $pid_file . ' 2>&1 > /dev/null');
       }
     }
+    foreach (eqLogic::byType('blitzortung', true) as $eqLogic) {
+      if (!self::isValidLatitude(self::getLatitude($eqLogic))) {
+        $return['launchable'] = 'nok';
+        $return['launchable_message'] = __('Latitude de ' . $eqLogic->getName() . ' incorrecte', __FILE__);
+        return $return;
+      }
+      if (!self::isValidLongitude(self::getLongitude($eqLogic))) {
+        $return['launchable'] = 'nok';
+        $return['launchable_message'] = __('Longitude de ' . $eqLogic->getName() . ' incorrecte', __FILE__);
+        return $return;
+      }
+      $rayon = $eqLogic->getConfiguration('cfg_rayon', '50');
+      if ($rayon < 1 || $rayon > 200) {
+        $return['launchable'] = 'nok';
+        $return['launchable_message'] = __('Rayon de ' . $eqLogic->getName() . ' non accepté', __FILE__);
+        return $return;
+      }
+    }
     $return['launchable'] = 'ok';
     $return['last_launch'] = config::byKey('lastDeamonLaunchTime', __CLASS__, __('Inconnue', __FILE__));
-
-    /*
-    $latitude = $this->getConfiguration('cfg_latitude', '');
-    $longitude = $this->getConfiguration('cfg_longitude', '');
-    
-    $latitude = ($latitude == '')?config::bykey('info::latitude'):$latitude;
-    $longitude = ($longitude == '')?config::bykey('info::longitude'):$longitude;
-
-    if ($latitude == '') {
-      $return['launchable'] = 'nok';
-      $return['launchable_message'] = __('La latitude n\'est pas configurée', __FILE__);
-    } elseif ($longitude == '') {
-      $return['launchable'] = 'nok';
-      $return['launchable_message'] = __('La longitude n\'est pas configurée', __FILE__);
-    }
-    */
-
     return $return;
   }
 
@@ -445,16 +513,6 @@ class blitzortung extends eqLogic {
     if ($deamon_info['launchable'] != 'ok') {
       throw new Exception(__('Veuillez vérifier la configuration', __FILE__));
     }
-
-    /*
-    $latitude = $this->getConfiguration('cfg_latitude', '');
-    $longitude = $this->getConfiguration('cfg_longitude', '');
-    
-    $latitude = ($latitude == '')?config::bykey('info::latitude'):$latitude;
-    $longitude = ($longitude == '')?config::bykey('info::longitude'):$longitude;
-    
-    log::add(__CLASS__, 'info', 'GPS : '.$latitude.' / '. $longitude);
-    */
 
     $MinAndMaxGPS = self::getFurthestPointsWithPointsAndDistance();
 
@@ -496,6 +554,19 @@ class blitzortung extends eqLogic {
     }
     system::kill('blitzortungd.py'); // nom du démon
     sleep(1);
+  }
+
+  public static function sendToDaemon($params) {
+    $deamon_info = self::deamon_info();
+    if ($deamon_info['state'] != 'ok') {
+      throw new Exception("Le démon n'est pas démarré");
+    }
+    $params['apikey'] = jeedom::getApiKey(__CLASS__);
+    $payLoad = json_encode($params);
+    $socket = socket_create(AF_INET, SOCK_STREAM, 0);
+    socket_connect($socket, '127.0.0.1', config::byKey('socketport', __CLASS__, '56023'));
+    socket_write($socket, $payLoad, strlen($payLoad));
+    socket_close($socket);
   }
 
   /*
@@ -657,6 +728,12 @@ class blitzortung extends eqLogic {
       $replace['#distanceevolution_value#'] = '---';
     }
 
+    $cfg_CmdtoListen = $this->getConfiguration("cfg_CmdtoListen");        
+    if ($cfg_CmdtoListen != '' && $this->ReadCmdBlitzProba($cfg_CmdtoListen) == 1) {
+      $replace['#proba-blitz_id#'] = '1';
+    } else {
+      $replace['#proba-blitz_id#'] = '';
+    }
 
     $getTemplate = getTemplate('core', $version, 'blitzortung_' . $TemplateName . '.template', __CLASS__); // on récupère le template du plugin.
     $template_replace = template_replace($replace, $getTemplate); // on remplace les tags
@@ -708,9 +785,9 @@ class blitzortungCmd extends cmd {
 
   // Exécution d'une commande
   public function execute($_options = array()) {
-    $eqLogic = $this->getEqLogic(); //récupère l'éqlogic de la commande $this
-    switch ($this->getLogicalId()) { //vérifie le logicalid de la commande      
-      case 'refresh': // LogicalId de la commande rafraîchir que l’on a créé dans la méthode Postsave
+    $eqLogic = $this->getEqLogic(); // récupère l'éqlogic de la commande $this
+    switch ($this->getLogicalId()) { // vérifie le logicalid de la commande      
+      case 'refresh': // LogicalId de la commande rafraîchir
         $eqLogic->blitzortungCron();
         break;
       default:
