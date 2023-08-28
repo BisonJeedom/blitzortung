@@ -184,7 +184,20 @@ class blitzortung extends eqLogic {
     return json_encode($arr);
   }
 
+  public static function ReadCmdBlitzProba($_cmd) {
+    try {
+      $cmd = cmd::byString($_cmd);
+      if (is_object($cmd)) {        
+        $BlitzProba = $cmd->execCmd();
+      }
+    }  catch (Exception $e) {
+      log::add(__CLASS__, 'error', 'Commande de gestion de la probabilité d\'orage introuvable');      
+    }    
+    return $BlitzProba;
+  }
+
   public static function blitzortungCron() {
+    $event_to_send = 'stop';
     foreach (eqLogic::byType('blitzortung', true) as $eqLogic) {
       if ($eqLogic->getIsEnable()) {
         //$json = $eqLogic->getConfiguration("json_impacts");
@@ -192,7 +205,7 @@ class blitzortung extends eqLogic {
         $json = cache::byKey('blitzortung::' . $eqLogic->getId() . '::' . $keyName)->getValue('');
         $LastImpactRetention = $eqLogic->getConfiguration("cfg_LastImpactRetention", 1);
 
-        log::add('blitzortung', 'info', '| [Start] Nettoyage des enregistrements de ' . $eqLogic->getName());
+        log::add('blitzortung', 'info', '[Start] Nettoyage des enregistrements de ' . $eqLogic->getName());
         log::add('blitzortung', 'info', '| Durée de conservation : ' . $LastImpactRetention . ' h');
 
         $arr = json_decode($json, true);
@@ -293,8 +306,38 @@ class blitzortung extends eqLogic {
         $eqLogic->checkAndUpdateCmd('counter', $count_end);
         $eqLogic->setConfiguration("evolution", 'Evolution sur 15 minutes : ' . $evolution_impacts . ' --- ' . $evolution_distance);
         $eqLogic->save();
+
+        // Vérification de la probabilité d'un orage pour activer l'écoute coté démon
+        log::add('blitzortung', 'info', '[Start] Récupération  de la probabilité d\'orage pour ' . $eqLogic->getName());
+        $cfg_CmdtoListen = $eqLogic->getConfiguration("cfg_CmdtoListen");        
+        if ($cfg_CmdtoListen != '') {
+          $isBlitz = $eqLogic->ReadCmdBlitzProba($cfg_CmdtoListen); // Récupération de la probabilité d'un Orage          
+          log::add('blitzortung', 'info','| Probabilité d\'orage : ' . $isBlitz);
+          if ($isBlitz == 1) {
+            $event_to_send = 'start';
+          }
+        } else {
+          log::add('blitzortung', 'info','| Aucune commande de probabilité d\'orage');
+          $event_to_send = 'start';
+        }       
+        log::add('blitzortung', 'info', '[End] Récupération  de la probabilité d\'orage pour ' . $eqLogic->getName());
+
         $eqLogic->refreshWidget();
       }
+    }
+
+    $event_running = cache::byKey('blitzortung::blitzortung::event')->getValue('');
+    if ($event_to_send == 'start' && ($event_running == 'stop' || $event_running == '')) {
+      $params['cmd']  = 'start';
+      $eqLogic->sendToDaemon($params);
+      log::add('blitzortung', 'info', 'Démarrage de l\'écoute envoyée au démon');            
+      cache::set('blitzortung::blitzortung::event', 'start');
+    }
+    if ($event_to_send == 'stop' && $event_running == 'start') {
+      $params['cmd']  = 'stop';
+      $eqLogic->sendToDaemon($params);
+      log::add('blitzortung', 'info', 'Arrêt de l\'écoute envoyée au démon');            
+      cache::set('blitzortung::blitzortung::event', 'stop');
     }
   }
 
@@ -513,6 +556,19 @@ class blitzortung extends eqLogic {
     sleep(1);
   }
 
+  public static function sendToDaemon($params) {
+    $deamon_info = self::deamon_info();
+    if ($deamon_info['state'] != 'ok') {
+      throw new Exception("Le démon n'est pas démarré");
+    }
+    $params['apikey'] = jeedom::getApiKey(__CLASS__);
+    $payLoad = json_encode($params);
+    $socket = socket_create(AF_INET, SOCK_STREAM, 0);
+    socket_connect($socket, '127.0.0.1', config::byKey('socketport', __CLASS__, '56023'));
+    socket_write($socket, $payLoad, strlen($payLoad));
+    socket_close($socket);
+  }
+
   /*
   * Permet de crypter/décrypter automatiquement des champs de configuration des équipements
   * Exemple avec le champ "Mot de passe" (password)
@@ -672,7 +728,6 @@ class blitzortung extends eqLogic {
       $replace['#distanceevolution_value#'] = '---';
     }
 
-
     $getTemplate = getTemplate('core', $version, 'blitzortung_' . $TemplateName . '.template', __CLASS__); // on récupère le template du plugin.
     $template_replace = template_replace($replace, $getTemplate); // on remplace les tags
     $postToHtml = $this->postToHtml($_version, $template_replace); // on met en cache le widget, si la config de l'user le permet.  
@@ -723,9 +778,9 @@ class blitzortungCmd extends cmd {
 
   // Exécution d'une commande
   public function execute($_options = array()) {
-    $eqLogic = $this->getEqLogic(); //récupère l'éqlogic de la commande $this
-    switch ($this->getLogicalId()) { //vérifie le logicalid de la commande      
-      case 'refresh': // LogicalId de la commande rafraîchir que l’on a créé dans la méthode Postsave
+    $eqLogic = $this->getEqLogic(); // récupère l'éqlogic de la commande $this
+    switch ($this->getLogicalId()) { // vérifie le logicalid de la commande      
+      case 'refresh': // LogicalId de la commande rafraîchir
         $eqLogic->blitzortungCron();
         break;
       default:

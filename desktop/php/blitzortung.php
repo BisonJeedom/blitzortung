@@ -234,6 +234,22 @@ $eqLogics = eqLogic::byType($plugin->getId());
 								</div>
 							</div>
 
+							<div class="form-group">
+								<label class="col-sm-4 control-label">{{Commande binaire déclenchant l'écoute des évènements}}
+									<sup><i class="fa fa-question-circle tooltips" title="{{Commande binaire qui déclenche l'écoute des évènements si vrai}}"></i></sup>
+								</label>
+								<div class="col-sm-6">
+									<div class="input-group">
+										<input type="text" id="select_CmdtoListen" class="eqLogicAttr form-control CmdAction" data-l1key="configuration" data-l2key="cfg_CmdtoListen" placeholder="{{Séléctionnez la commande binaire}}">
+										<span class="input-group-btn">
+											<a id="bt_selectCmdtoListen" class="btn btn-success btn-sm listCmdAction" data-type="action">
+												<i class="fa fa-list-alt"></i>
+											</a>
+										</span>
+									</div>
+								</div>
+							</div>
+
 						</div>
 
 						<!-- Partie droite de l'onglet "Équipement" -->

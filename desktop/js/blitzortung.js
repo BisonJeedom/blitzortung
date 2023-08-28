@@ -65,6 +65,13 @@ function saveEqLogic(_eqLogic) {
 }
 /*  */
 
+// Fonction pour ajouter la sélection des commandes du select bt_selectCmdtoListen
+$("#bt_selectCmdtoListen").on('click', function () {
+  jeedom.cmd.getSelectModal({ cmd: { type: 'info', subType: 'binary' } }, function (result) {
+    $('.eqLogicAttr[data-l1key=configuration][data-l2key=cfg_CmdtoListen]').value(result.human);
+  });
+});
+
 $('.pluginAction[data-action=openLocation]').on('click', function () {
   window.open($(this).attr("data-location"), "_blank", null);
 });
