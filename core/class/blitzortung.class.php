@@ -728,6 +728,13 @@ class blitzortung extends eqLogic {
       $replace['#distanceevolution_value#'] = '---';
     }
 
+    $cfg_CmdtoListen = $this->getConfiguration("cfg_CmdtoListen");        
+    if ($cfg_CmdtoListen != '' && $this->ReadCmdBlitzProba($cfg_CmdtoListen) == 1) {
+      $replace['#proba-blitz_id#'] = '1';
+    } else {
+      $replace['#proba-blitz_id#'] = '';
+    }
+
     $getTemplate = getTemplate('core', $version, 'blitzortung_' . $TemplateName . '.template', __CLASS__); // on récupère le template du plugin.
     $template_replace = template_replace($replace, $getTemplate); // on remplace les tags
     $postToHtml = $this->postToHtml($_version, $template_replace); // on met en cache le widget, si la config de l'user le permet.  

@@ -10,6 +10,9 @@
             <a href="#mapurl#" target="_blank"><i class="icon kiko-marker-map tooltips"
                     title="Ouvrir la carte sur Blitzortung"></i></a>
         </span>
+        <span id="#icon-blitz_id#" class="cmd pull-right cursor" style="margin-left: 3px;margin-top: 3px; color: var(--link-color) !important;">
+            <a href="#probablitz#"><i class="icon meteo-orage tooltips" title="Probabilité d'orage"></i></a>
+        </span>
         <span class="cmd pull-right cursor" style="margin-left: 3px;margin-top: 3px; color: var(--link-color) !important;">
             <a href="#info#"><i class="fas fa-info tooltips" style="font-size: small;"
                     title="Impacts de foudre depuis #retention# heure(s) dans un rayon de #rayon# km"></i></a>
@@ -125,6 +128,13 @@
         });
     } else {
         $('.eqLogic[data-eqLogic_uid=#uid#] .refresh').remove();
+    }
+
+    // Gestion de l'affichage de l'icône orage        
+    if ('#proba-blitz_id#' != '') {
+        document.getElementById("#icon-blitz_id#").style.display='block';
+    } else {
+        document.getElementById("#icon-blitz_id#").style.display='none';
     }
 
     // Gestion de l'affichage du compteur d'impacts
