@@ -184,16 +184,13 @@ class blitzortung extends eqLogic {
     return json_encode($arr);
   }
 
-  public static function ReadCmdBlitzProba($_cmd) {
+  public static function evalExpr($_expr) {
     try {
-      $cmd = cmd::byString($_cmd);
-      if (is_object($cmd)) {        
-        $BlitzProba = $cmd->execCmd();
-      }
-    }  catch (Exception $e) {
-      log::add(__CLASS__, 'error', 'Commande de gestion de la probabilité d\'orage introuvable');      
-    }    
-    return $BlitzProba;
+      return jeedom::evaluateExpression($_expr) == 1 ? 1 : 0;
+    } catch (Exception $e) {
+      log::add('blitzortung', 'error', 'Impossible d\'évaluer le paramètre Expression "déclenchant l\'écoute des évènements"');
+      return 0;
+    }
   }
 
   public static function blitzortungCron() {
@@ -308,20 +305,22 @@ class blitzortung extends eqLogic {
         $eqLogic->save();
 
         // Vérification de la probabilité d'un orage pour activer l'écoute coté démon
-        log::add('blitzortung', 'info', '[Start] Récupération  de la probabilité d\'orage pour ' . $eqLogic->getName());
-        $cfg_CmdtoListen = $eqLogic->getConfiguration("cfg_CmdtoListen");        
+        log::add('blitzortung', 'info', '[Start] Récupération de la probabilité d\'un orage pour ' . $eqLogic->getName());
+        $cfg_CmdtoListen = $eqLogic->getConfiguration("cfg_CmdtoListen");
+        $proba = 0;
         if ($cfg_CmdtoListen != '') {
-          $isBlitz = $eqLogic->ReadCmdBlitzProba($cfg_CmdtoListen); // Récupération de la probabilité d'un Orage          
-          log::add('blitzortung', 'info','| Probabilité d\'orage : ' . $isBlitz);
-          if ($isBlitz == 1) {
+          $expr = $eqLogic->evalExpr($cfg_CmdtoListen); // Evaluation de la condition sur la probabilité d'un orage
+          log::add('blitzortung', 'info', '| Probabilité d\'un orage : ' . $expr);
+          if ($expr == 1) {
             $event_to_send = 'start';
+            $proba = 1;
           }
         } else {
-          log::add('blitzortung', 'info','| Aucune commande de probabilité d\'orage');
+          log::add('blitzortung', 'info', '| Aucune commande liée à la probabilité d\'un orage');
           $event_to_send = 'start';
-        }       
-        log::add('blitzortung', 'info', '[End] Récupération  de la probabilité d\'orage pour ' . $eqLogic->getName());
-
+        }
+        log::add('blitzortung', 'info', '[End] Récupération de la probabilité d\'un orage pour ' . $eqLogic->getName());
+        cache::set('blitzortung::' . $eqLogic->getName() . '::event', $proba);
         $eqLogic->refreshWidget();
       }
     }
@@ -330,13 +329,13 @@ class blitzortung extends eqLogic {
     if ($event_to_send == 'start' && ($event_running == 'stop' || $event_running == '')) {
       $params['cmd']  = 'start';
       $eqLogic->sendToDaemon($params);
-      log::add('blitzortung', 'info', 'Démarrage de l\'écoute envoyée au démon');            
+      log::add('blitzortung', 'info', 'Démarrage de l\'écoute envoyée au démon');
       cache::set('blitzortung::blitzortung::event', 'start');
     }
     if ($event_to_send == 'stop' && $event_running == 'start') {
       $params['cmd']  = 'stop';
       $eqLogic->sendToDaemon($params);
-      log::add('blitzortung', 'info', 'Arrêt de l\'écoute envoyée au démon');            
+      log::add('blitzortung', 'info', 'Arrêt de l\'écoute envoyée au démon');
       cache::set('blitzortung::blitzortung::event', 'stop');
     }
   }
@@ -728,12 +727,9 @@ class blitzortung extends eqLogic {
       $replace['#distanceevolution_value#'] = '---';
     }
 
-    $cfg_CmdtoListen = $this->getConfiguration("cfg_CmdtoListen");        
-    if ($cfg_CmdtoListen != '' && $this->ReadCmdBlitzProba($cfg_CmdtoListen) == 1) {
-      $replace['#proba-blitz_id#'] = '1';
-    } else {
-      $replace['#proba-blitz_id#'] = '';
-    }
+    //$b = cache::byKey('blitzortung::' . $this->getName() . '::event')->getValue('');
+    //log::add(__CLASS__, 'info', $this->getName() . ' : ' . $b);
+    $replace['#proba-blitz_id#'] = cache::byKey('blitzortung::' . $this->getName() . '::event')->getValue('');
 
     $getTemplate = getTemplate('core', $version, 'blitzortung_' . $TemplateName . '.template', __CLASS__); // on récupère le template du plugin.
     $template_replace = template_replace($replace, $getTemplate); // on remplace les tags

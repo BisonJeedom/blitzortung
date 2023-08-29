@@ -7,14 +7,19 @@
         <span class="warning" title="#alert_name#">
             <i class='#alert_icon#'></i>
         </span>
-        <span class="cmd pull-left cursor" style="margin-left: 3px;margin-top: 3px; color: var(--link-color) !important;">
-            <a href="#mapurl#" target="_blank"><i class="icon kiko-marker-map tooltips" title="Ouvrir la carte sur Blitzortung"></i></a>
+        <span class="cmd pull-left cursor"
+            style="margin-left: 3px;margin-top: 3px; color: var(--link-color) !important;">
+            <a href="#mapurl#" target="_blank"><i class="icon kiko-marker-map tooltips"
+                    title="Ouvrir la carte sur Blitzortung"></i></a>
         </span>
-        <span id="#icon-blitz_id#" class="cmd pull-right cursor" style="margin-left: 3px;margin-top: 3px; color: var(--link-color) !important;">
+        <span id="#icon-blitz_#id#" class="cmd pull-right cursor"
+            style="margin-left: 3px;margin-top: 3px; color: var(--link-color) !important;">
             <a href="#probablitz#"><i class="icon meteo-orage tooltips" title="Probabilité d'orage"></i></a>
         </span>
-        <span class="cmd pull-right cursor" style="margin-left: 3px;margin-top: 3px; color: var(--link-color) !important;">
-            <a href="#info#"><i class="fas fa-info tooltips" style="font-size: small;" title="Impacts de foudre depuis #retention# heure(s) dans un rayon de #rayon# km"></i></a>
+        <span class="cmd pull-right cursor"
+            style="margin-left: 3px;margin-top: 3px; color: var(--link-color) !important;">
+            <a href="#info#"><i class="fas fa-info tooltips" style="font-size: small;"
+                    title="Impacts de foudre depuis #retention# heure(s) dans un rayon de #rayon# km"></i></a>
         </span>
         <span class="cmd refresh pull-right cursor" data-cmd_id="#refresh_id#">
             <i class="fas fa-sync"></i>
@@ -77,11 +82,11 @@
             $('.eqLogic[data-eqLogic_uid=#uid#] .refresh').remove();
         }
 
-        // Gestion de l'affichage de l'icône orage        
-        if ('#proba-blitz_id#' != '') {
-            document.getElementById("#icon-blitz_id#").style.display='block';
+        // Gestion de l'affichage de l'icône orage
+        if ('#proba-blitz_id#' == 1) {
+            document.getElementById("#icon-blitz_#id#").style.display = 'block'; // Affichage
         } else {
-            document.getElementById("#icon-blitz_id#").style.display='none';
+            document.getElementById("#icon-blitz_#id#").style.display = 'none'; // Non affichage
         }
 
         // Gestion de l'affichage de l'évolution des impacts sur 15mn

@@ -135,9 +135,9 @@ async def run(my_event):
     gps = json.loads(decode(_MinAndMaxGPS))
 
     while True:
-        logging.info("En attente de l'ordre d'écoute des évènements...")
-        await my_event.wait()
-        logging.info("... Réception de l'ordre d'écoute des évènements")        
+        if not my_event.is_set():
+            logging.info("En attente de l'ordre d'écoute des évènements...")
+        await my_event.wait()    
         try:            
             logging.info("Sélection du serveur")
             hosts = ["ws1", "ws3", "ws7", "ws8"]
