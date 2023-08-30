@@ -304,12 +304,18 @@
             polar: true
         },
 
-        title: {
-            text: 'Highcharts Polar Chart'
+        credits: {
+          text: 'données blitzortung.org'
         },
 
-        subtitle: {
-            text: 'Also known as Radar Chart'
+        navigation: {
+            buttonOptions: {
+                enabled: false
+            }
+        },
+
+        title: {
+            text: ''
         },
 
         pane: {
@@ -322,8 +328,7 @@
             min: 0,
             max: 360,
             labels: {
-                formatter: function() {
-                
+                formatter: function() {                
                     let label;
                     switch (this.value) {
                     case 0:
@@ -350,8 +355,7 @@
                     case 315:
                         label = 'NO';
                         break;
-                    }
-                    
+                    }                    
                     return label;
                 }
             }
@@ -361,7 +365,22 @@
             min: 0
         },
 
+        tooltip: {
+            useHTML: true,
+            headerFormat: null,
+            pointFormatter: function () {
+                return this.y + ' km à ' + this.x + '°'
+            }
+        },
+
         plotOptions: {
+            scatter: {
+                marker: {
+                    radius: 2.5,
+                    symbol: 'circle',
+
+                }
+            },
             series: {
                 pointStart: 0,
                 pointInterval: 1
@@ -369,8 +388,15 @@
         },
 
         series: [{
-            type: 'scatter',           
-            data: [[0,5], [0,2], [15,2], [45,15], [55,18]]
+            type: 'scatter',
+            name: 'Moins récents',   
+            data: [#datapolar_lessrecent#], // Impacts les moins récents [[angle1, km1], [angle2, km2]]
+            color: '#ffb366' // couleur moins foncée
+        }, {
+            type: 'scatter',
+            name: 'Récents',     
+            data: [#datapolar_recent#], // Impacts les plus récents [[angle1, km1], [angle2, km2]]
+            color: '#b35900' // Couleur plus foncée
         }]
     });
 

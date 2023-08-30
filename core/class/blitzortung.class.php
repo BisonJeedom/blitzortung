@@ -439,7 +439,10 @@ class blitzortung extends eqLogic {
     $this->checkAndUpdateCmd('mapurl', 'https://map.blitzortung.org/#' . $this->getConfiguration("cfg_Zoom", 10) . '/' . self::getLatitude($this) . '/' . self::getLongitude($this));
 
     if ($this->getConfiguration('latChanged') == 'true' || $this->getConfiguration('lonChanged') == 'true' || $this->getConfiguration('rayonChanged') == 'true') {
-      log::add('blitzortung', 'info', 'Changement de la configuration -> Redémarrage du démon');
+      log::add('blitzortung', 'debug', 'latChanged : ' . $this->getConfiguration('latChanged'));
+      log::add('blitzortung', 'debug', 'lonChanged : ' . $this->getConfiguration('lonChanged'));
+      log::add('blitzortung', 'debug', 'rayonChanged : ' . $this->getConfiguration('rayonChanged'));
+      log::add('blitzortung', 'info', 'Changement de la configuration -> Redémarrage du démon');      
       self::deamon_start();
     }
   }
@@ -514,6 +517,7 @@ class blitzortung extends eqLogic {
     }
 
     $MinAndMaxGPS = self::getFurthestPointsWithPointsAndDistance();
+    cache::set('blitzortung::blitzortung::event', 'stop');
 
     $path = realpath(dirname(__FILE__) . '/../../resources/blitzortungd'); // répertoire du démon
     $cmd = 'python3 ' . $path . '/blitzortungd.py'; // nom du démon
@@ -609,12 +613,29 @@ class blitzortung extends eqLogic {
     $arr = json_decode($json, true);
 
     $replace['#data#'] = '';
+    $replace['#datapolar_recent#'] = '';
+    $replace['#datapolar_lessrecent#'] = '';
+    $ts_limit = time() + self::getUTCoffset('Europe/Paris') - 300; // pour avoir les impacts des 5 dernieres minutes
+    //log::add('blitzortung', 'info', 'ts_limit : ' . $ts_limit);
     foreach ($arr as $key => $value) {
       $ts = time() + self::getUTCoffset('Europe/Paris') - $value["ts"]; // Délais depuis l'enregistrement en secondes      
       $replace['#data#'] .= '[' . $ts . ',' . $value["distance"] . ']' . ',';
+      if ($value["azimuth"] < 0) {
+        $azimuth = 360 + $value["azimuth"]; // Transforme un azimuth négatif en valeur comprise entre 0 et 360° pour l'affichage
+      }
+      if ($value["ts"] > $ts_limit) {
+        $replace['#datapolar_recent#'] .= '[' . $azimuth . ',' . $value["distance"] . ']' . ','; // dans les 5 dernières minutes
+      } else {
+        $replace['#datapolar_lessrecent#'] .= '[' . $azimuth . ',' . $value["distance"] . ']' . ',';
+      }     
     }
-    //log::add('blitzortung', 'info', $replace['#data#']);    
+    log::add('blitzortung', 'info', 'data : ' . $replace['#data#']);    
     $replace['#data#'] = substr($replace['#data#'], 0, -1);
+    $replace['#datapolar_recent#'] = substr($replace['#datapolar_recent#'], 0, -1);
+    $replace['#datapolar_lessrecent#'] = substr($replace['#datapolar_lessrecent#'], 0, -1);
+    
+    //log::add('blitzortung', 'info', 'recent : ' . $replace['#datapolar_recent#']);
+    //log::add('blitzortung', 'info', 'lessrecent : ' . $replace['#datapolar_lessrecent#']);   
 
     $replace['#rayon#'] = $rayon;
     $replace['#retention#'] = $LastImpactRetention;
