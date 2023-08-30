@@ -117,12 +117,13 @@ try {
             $keyName = 'json_impacts';
             $json = cache::byKey('blitzortung::' . $eqLogic->getId() . '::' . $keyName)->getValue('');
             $arr = json_decode($json, true);
-            $new_record = ['ts' => $ts_local, 'lat' => $a['lat'], 'lon' => $a['lon'], 'distance' => $distance];
+            $Azimuth = getAzimuth($latitude, $longitude, $a['lat'], $a['lon']); // Récupération de l'azimuth pour indiquer sur la boussole
+            $new_record = ['ts' => $ts_local, 'lat' => $a['lat'], 'lon' => $a['lon'], 'distance' => $distance, 'azimuth' => $Azimuth];
 
             if (checkExist($arr, $new_record) == 0) { // Vérification pour savoir si l'impact a déjà été transmis parmis les 10 derniers pour écarter des enregistrements identiques
               $arr[] = $new_record;
               $counter = count($arr);
-              $Azimuth = getAzimuth($latitude, $longitude, $a['lat'], $a['lon']); // Récupération de l'azimuth pour indiquer sur la boussole
+              
               log::add('blitzortung', 'info', '[' . $eqLogic->getName() . ']' . ' ' . '[' . $ts_local . ']' . ' ' . '[' . $counter . ']' . ' distance impact : ' . $distance . ' km' . ' | ' . 'lat: ' . $a['lat'] . ' lon: ' . $a['lon'] . ' (' . $Azimuth . '°)');    
               $json = json_encode($arr);
               log::add('blitzortung', 'debug', ' > json_impacts : ' . $json);
@@ -149,7 +150,7 @@ try {
     $cycle = config::byKey('cycle', 'blitzortung', '5');
     log::add('blitzortung', 'debug', 'Temps de traitement pour ' . $count_impacts . ' impacts : ' . $time . ' seconde(s)');
     if ($cycle > 0 && $time > $cycle) {
-      if (is_object($this->getCmd('info', 'timetoprocessexceeded'))) {
+      if (is_object($eqLogic->getCmd('info', 'timetoprocessexceeded'))) {
         $newtimetoprocessexceeded =  $eqLogic->getCmd('info', 'counter') + 1;
         $eqLogic->checkAndUpdateCmd('timetoprocessexceeded', $newtimetoprocessexceeded);
       }
