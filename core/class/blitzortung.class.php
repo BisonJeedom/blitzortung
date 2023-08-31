@@ -401,8 +401,10 @@ class blitzortung extends eqLogic {
   // Fonction exécutée automatiquement avant la création de l'équipement
   public function preInsert() {
     $this->setConfiguration('cfg_LastImpactRetention', '1');
+    $this->setConfiguration('cfg_ImpactsRecents', '1');
     $this->setConfiguration('cfg_Zoom', '10');
     $this->setConfiguration('cfg_TemplateName', 'horizontal');
+    $this->setConfiguration('cfg_DefaultChart', '1');
   }
 
   // Fonction exécutée automatiquement après la création de l'équipement
@@ -442,7 +444,11 @@ class blitzortung extends eqLogic {
       log::add('blitzortung', 'debug', 'latChanged : ' . $this->getConfiguration('latChanged'));
       log::add('blitzortung', 'debug', 'lonChanged : ' . $this->getConfiguration('lonChanged'));
       log::add('blitzortung', 'debug', 'rayonChanged : ' . $this->getConfiguration('rayonChanged'));
-      log::add('blitzortung', 'info', 'Changement de la configuration -> Redémarrage du démon');      
+      $this->setConfiguration('latChanged', '');
+      $this->setConfiguration('lonChanged', '');
+      $this->setConfiguration('rayonChanged', '');
+      $this->save(true); // Save pour enregister les données brutes sans repasser par PRE & POST sinon ça boucle sur postSave()
+      log::add('blitzortung', 'info', 'Changement de la configuration -> Redémarrage du démon');
       self::deamon_start();
     }
   }
@@ -615,27 +621,26 @@ class blitzortung extends eqLogic {
     $replace['#data#'] = '';
     $replace['#datapolar_recent#'] = '';
     $replace['#datapolar_lessrecent#'] = '';
-    $ts_limit = time() + self::getUTCoffset('Europe/Paris') - 300; // pour avoir les impacts des 5 dernieres minutes
+    $cfg_ImpactsRecents = $this->getConfiguration("cfg_ImpactsRecents", 1);
+    $ts_limit = time() + self::getUTCoffset('Europe/Paris') - $cfg_ImpactsRecents * 300; // pour avoir les impacts des 5, 10 ou 15 dernieres minutes suivant la configuration
     //log::add('blitzortung', 'info', 'ts_limit : ' . $ts_limit);
     foreach ($arr as $key => $value) {
       $ts = time() + self::getUTCoffset('Europe/Paris') - $value["ts"]; // Délais depuis l'enregistrement en secondes      
       $replace['#data#'] .= '[' . $ts . ',' . $value["distance"] . ']' . ',';
-      if ($value["azimuth"] < 0) {
-        $azimuth = 360 + $value["azimuth"]; // Transforme un azimuth négatif en valeur comprise entre 0 et 360° pour l'affichage
-      }
+      $azimuth = $value["azimuth"] < 0 ? 360 + $value["azimuth"] : $value["azimuth"]; // Transforme un azimuth négatif en valeur comprise entre 0 et 360° pour l'affichage
       if ($value["ts"] > $ts_limit) {
         $replace['#datapolar_recent#'] .= '[' . $azimuth . ',' . $value["distance"] . ']' . ','; // dans les 5 dernières minutes
       } else {
         $replace['#datapolar_lessrecent#'] .= '[' . $azimuth . ',' . $value["distance"] . ']' . ',';
-      }     
+      }
     }
     //log::add('blitzortung', 'info', 'data : ' . $replace['#data#']);    
     $replace['#data#'] = substr($replace['#data#'], 0, -1);
     $replace['#datapolar_recent#'] = substr($replace['#datapolar_recent#'], 0, -1);
     $replace['#datapolar_lessrecent#'] = substr($replace['#datapolar_lessrecent#'], 0, -1);
-    
+
     //log::add('blitzortung', 'info', 'recent : ' . $replace['#datapolar_recent#']);
-    //log::add('blitzortung', 'info', 'lessrecent : ' . $replace['#datapolar_lessrecent#']);   
+    //log::add('blitzortung', 'info', 'lessrecent : ' . $replace['#datapolar_lessrecent#']);
 
     $replace['#rayon#'] = $rayon;
     $replace['#retention#'] = $LastImpactRetention;
@@ -747,6 +752,17 @@ class blitzortung extends eqLogic {
     } else {
       $replace['#distanceevolution_value#'] = '---';
     }
+
+    // Graphique actif
+    $cfg_DefaultChart = $this->getConfiguration("cfg_DefaultChart", 1);
+    if ($cfg_DefaultChart == 1) {
+      $replace['#item1active#'] = 'active';
+      $replace['#item2active#'] = '';
+    } else {
+      $replace['#item1active#'] = '';
+      $replace['#item2active#'] = 'active';
+    }
+
 
     //$b = cache::byKey('blitzortung::' . $this->getName() . '::event')->getValue('');
     //log::add(__CLASS__, 'info', $this->getName() . ' : ' . $b);
