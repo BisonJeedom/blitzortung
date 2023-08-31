@@ -629,7 +629,7 @@ class blitzortung extends eqLogic {
         $replace['#datapolar_lessrecent#'] .= '[' . $azimuth . ',' . $value["distance"] . ']' . ',';
       }     
     }
-    log::add('blitzortung', 'info', 'data : ' . $replace['#data#']);    
+    //log::add('blitzortung', 'info', 'data : ' . $replace['#data#']);    
     $replace['#data#'] = substr($replace['#data#'], 0, -1);
     $replace['#datapolar_recent#'] = substr($replace['#datapolar_recent#'], 0, -1);
     $replace['#datapolar_lessrecent#'] = substr($replace['#datapolar_lessrecent#'], 0, -1);
