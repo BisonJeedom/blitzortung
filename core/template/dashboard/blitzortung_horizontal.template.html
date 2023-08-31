@@ -6,14 +6,17 @@
         <span class="warning" title="#alert_name#">
             <i class='#alert_icon#'></i>
         </span>
-        <span class="cmd pull-left cursor" style="margin-left: 3px;margin-top: 3px; color: var(--link-color) !important;">
+        <span class="cmd pull-left cursor"
+            style="margin-left: 3px;margin-top: 3px; color: var(--link-color) !important;">
             <a href="#mapurl#" target="_blank"><i class="icon kiko-marker-map tooltips"
                     title="Ouvrir la carte sur Blitzortung"></i></a>
         </span>
-        <span id="#icon-blitz_id#" class="cmd pull-right cursor" style="margin-left: 3px;margin-top: 3px; color: var(--link-color) !important;">
+        <span id="#icon-blitz_id#" class="cmd pull-right cursor"
+            style="margin-left: 3px;margin-top: 3px; color: var(--link-color) !important;">
             <a href="#probablitz#"><i class="icon meteo-orage tooltips" title="Probabilité d'orage"></i></a>
         </span>
-        <span class="cmd pull-right cursor" style="margin-left: 3px;margin-top: 3px; color: var(--link-color) !important;">
+        <span class="cmd pull-right cursor"
+            style="margin-left: 3px;margin-top: 3px; color: var(--link-color) !important;">
             <a href="#info#"><i class="fas fa-info tooltips" style="font-size: small;"
                     title="Impacts de foudre depuis #retention# heure(s) dans un rayon de #rayon# km"></i></a>
         </span>
@@ -55,7 +58,8 @@
                                 font-size="1em" fill="var(--txt-color)">
                                 <tspan x="50%" dy="0.3em">Dernier impact et direction</tspan>
                             </text>
-                            <circle id="circleDistance-#id#" cx="60" cy="66" r="45" stroke="#CirclecolorValue#" stroke-width="2" fill="none" />                            
+                            <circle id="circleDistance-#id#" cx="60" cy="66" r="45" stroke="#CirclecolorValue#"
+                                stroke-width="2" fill="none" />
                             <text dominant-baseline="middle" text-anchor="middle" font-weight="normal" font-size="1.2em"
                                 fill="var(--txt-color)">
                                 <tspan id="circleTxtDistance-#id#" x="33%" y="50%" dy="0.3em"></tspan>
@@ -67,14 +71,14 @@
                             </text>
                         </svg>
                         <svg id="SvgOrientation-#id#" data-v-47880d39="" width="30" height="30" viewBox="0 0 1000 1000"
-                        enable-background="new 0 0 1000 1000" xml:space="preserve"
-                        style="transform-box: fill-box; transform: translate(-53px,-40px) rotate(#lastorientation_value#deg);">
+                            enable-background="new 0 0 1000 1000" xml:space="preserve"
+                            style="transform-box: fill-box; transform: translate(-53px,-40px) rotate(#lastorientation_value#deg);">
                             <g id="gOrientation-#id#" data-v-47880d39="" fill="#3C73A5">
                                 <path data-v-47880d39=""
-                                d="M510.5,749.6c-14.9-9.9-38.1-9.9-53.1,1.7l-262,207.3c-14.9,11.6-21.6,6.6-14.9-11.6L474,48.1c5-16.6,14.9-18.2,21.6,0l325,898.7c6.6,16.6-1.7,23.2-14.9,11.6L510.5,749.6z">
+                                    d="M510.5,749.6c-14.9-9.9-38.1-9.9-53.1,1.7l-262,207.3c-14.9,11.6-21.6,6.6-14.9-11.6L474,48.1c5-16.6,14.9-18.2,21.6,0l325,898.7c6.6,16.6-1.7,23.2-14.9,11.6L510.5,749.6z">
                                 </path>
                                 <path data-v-47880d39=""
-                                d="M817.2,990c-8.3,0-16.6-3.3-26.5-9.9L497.2,769.5c-5-3.3-18.2-3.3-23.2,0L210.3,976.7c-19.9,16.6-41.5,14.9-51.4,0c-6.6-9.9-8.3-21.6-3.3-38.1L449.1,39.8C459,13.3,477.3,10,483.9,10c6.6,0,24.9,3.3,34.8,29.8l325,898.7c5,14.9,5,28.2-1.7,38.1C837.1,985,827.2,990,817.2,990z M485.6,716.4c14.9,0,28.2,5,39.8,11.6l255.4,182.4L485.6,92.9l-267,814.2l223.9-177.4C454.1,721.4,469,716.4,485.6,716.4z">
+                                    d="M817.2,990c-8.3,0-16.6-3.3-26.5-9.9L497.2,769.5c-5-3.3-18.2-3.3-23.2,0L210.3,976.7c-19.9,16.6-41.5,14.9-51.4,0c-6.6-9.9-8.3-21.6-3.3-38.1L449.1,39.8C459,13.3,477.3,10,483.9,10c6.6,0,24.9,3.3,34.8,29.8l325,898.7c5,14.9,5,28.2-1.7,38.1C837.1,985,827.2,990,817.2,990z M485.6,716.4c14.9,0,28.2,5,39.8,11.6l255.4,182.4L485.6,92.9l-267,814.2l223.9-177.4C454.1,721.4,469,716.4,485.6,716.4z">
                                 </path>
                             </g>
                         </svg>
@@ -120,7 +124,40 @@
     </table>
 </div>
 
-<div id="container-#id#" style="width: 100%; height: 350px;"></div>
+<div id="highcharts-#id#">
+    <figure id="figure-#id#" class="highcharts-figure" style="margin: 0px" ;>
+        <div class="container" style="width: 100%;">
+            <div id="CarouselBlitzortung-#id#" class="carousel slide" data-ride="carousel" data-interval="false">
+                <!-- Indicators -->
+
+
+                <!-- Wrapper for slides -->
+                <div class="carousel-inner">
+                    <div class="item #item1active#">
+                        <div class="chart" id="container-#id#" style="height: 300px;"></div>
+                    </div>
+
+                    <div class="item #item2active#">
+                        <div class="chart" id="containerpolar-#id#" style="height: 300px;"></div>
+                    </div>
+                </div>
+
+                <!-- Left and right controls -->
+                <a class="left carousel-control" href="#CarouselBlitzortung-#id#" data-slide="prev" role="button">
+                    <span class="fa fa-chevron-left"
+                        style="position: absolute; left: 15%; bottom: 80px; border-left-style: solid;"></span>
+                    <span class="sr-only">Previous</span>
+                </a>
+                <a class="right carousel-control" href="#CarouselBlitzortung-#id#" data-slide="next">
+                    <span class="fa fa-chevron-right"
+                        style="position: absolute; right: 15%; bottom: 80px; border-right-style: solid;"></span>
+                    <span class="sr-only">Next</span>
+                </a>
+
+            </div>
+        </div>
+    </figure>
+</div>
 
 <script>
     if ('#refresh_id#' != '') {
@@ -131,11 +168,11 @@
         $('.eqLogic[data-eqLogic_uid=#uid#] .refresh').remove();
     }
 
-    // Gestion de l'affichage de l'icône orage        
-    if ('#proba-blitz_id#' != '') {
-        document.getElementById("#icon-blitz_id#").style.display='block';
+    // Gestion de l'affichage de l'icône orage
+    if ('#proba-blitz_id#' == 1) {
+        document.getElementById("#icon-blitz_id#").style.display = 'block'; // Affichage
     } else {
-        document.getElementById("#icon-blitz_id#").style.display='none';
+        document.getElementById("#icon-blitz_id#").style.display = 'none'; // Non affichage
     }
 
     // Gestion de l'affichage du compteur d'impacts
@@ -210,6 +247,10 @@
             zoomType: 'xy'
         },
 
+        credits: {
+            text: 'Source : blitzortung.org'
+        },
+
         navigation: {
             buttonOptions: {
                 enabled: false
@@ -224,10 +265,6 @@
         subtitle: {
             useHTML: true,
             text: ''
-        },
-
-        credits: {
-            enabled: false
         },
 
         yAxis: {
@@ -292,5 +329,117 @@
             }]
         }]
     });
+
+
+    Highcharts.chart('containerpolar-#id#', {
+        chart: {
+            polar: true
+        },
+
+        credits: {
+            text: 'Source : blitzortung.org'
+        },
+
+        navigation: {
+            buttonOptions: {
+                enabled: false
+            }
+        },
+
+        title: {
+            text: ''
+        },
+
+        pane: {
+            startAngle: 0,
+            endAngle: 360
+        },
+
+        xAxis: {
+            tickInterval: 45,
+            min: 0,
+            max: 360,
+            labels: {
+                formatter: function () {
+                    let label;
+                    switch (this.value) {
+                        case 0:
+                            label = 'N';
+                            break;
+                        case 45:
+                            label = 'NE';
+                            break;
+                        case 90:
+                            label = 'E';
+                            break;
+                        case 135:
+                            label = 'SE';
+                            break;
+                        case 180:
+                            label = 'S';
+                            break;
+                        case 225:
+                            label = 'SO';
+                            break;
+                        case 270:
+                            label = 'O';
+                            break;
+                        case 315:
+                            label = 'NO';
+                            break;
+                    }
+                    return label;
+                }
+            }
+        },
+
+        yAxis: {
+            min: 0
+        },
+
+        tooltip: {
+            useHTML: true,
+            headerFormat: null,
+            pointFormatter: function () {
+                return this.y + ' km à ' + this.x + '°'
+            }
+        },
+
+        plotOptions: {
+            scatter: {
+                marker: {
+                    radius: 2.5,
+                    symbol: 'circle',
+
+                }
+            },
+            series: {
+                pointStart: 0,
+                pointInterval: 1
+            }
+        },
+
+        series: [{
+            type: 'scatter',
+            name: 'Moins récents',
+            data: [#datapolar_lessrecent#], // Impacts les moins récents [[angle1, km1], [angle2, km2]]
+            color: '#ffb366' // couleur moins foncée
+        }, {
+            type: 'scatter',
+            name: 'Récents',
+            data: [#datapolar_recent#], // Impacts les plus récents [[angle1, km1], [angle2, km2]]
+            color: '#b35900' // Couleur plus foncée
+        }]
+    });
+
 </script>
+
+<style>
+    .carousel-control {
+        width: 5%;
+        margin-left: -20px;
+        margin-right: -20px;
+    }
+</style>
+
 </div>

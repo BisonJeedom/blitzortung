@@ -194,7 +194,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 								<label class="col-sm-4 control-label">{{Conservation des derniers impacts}}
 									<sup><i class="fas fa-question-circle tooltips" title="{{Renseigner la durée de conservation des derniers impacts}}"></i></sup>
 								</label>
-								<div class="col-sm-6">
+								<div class="col-sm-8">
 									<select id="bt_select_LastImpactRetention" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="cfg_LastImpactRetention">
 										<option value="1">{{1 heure}}</option>
 										<option value="2">{{2 heures}}</option>
@@ -205,10 +205,39 @@ $eqLogics = eqLogic::byType($plugin->getId());
 							</div>
 
 							<div class="form-group">
+								<label class="col-sm-4 control-label">{{Visualiser les impacts récents sur}}
+									<sup><i class="fas fa-question-circle tooltips" title="{{Renseigner la durée pour voir les impacts récents sur le graph polar}}"></i></sup>
+								</label>
+								<div class="col-sm-8">
+									<select id="bt_select_ImpactsRecents" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="cfg_ImpactsRecents">
+										<option value="1">{{les 5 dernières minutes}}</option>
+										<option value="2">{{les 10 dernières minutes}}</option>
+										<option value="3">{{les 15 dernières minutes}}</option>
+									</select>
+								</div>
+							</div>
+
+							<div class="form-group">
+								<label class="col-sm-4 control-label">{{Expression déclenchant l'écoute}}
+									<sup><i class="fa fa-question-circle tooltips" title="{{Expression qui déclenche l'écoute des évènements si elle est vrai}}"></i></sup>
+								</label>
+								<div class="col-sm-8">
+									<div class="input-group">
+										<input type="text" id="select_CmdtoListen" class="eqLogicAttr form-control CmdAction" data-l1key="configuration" data-l2key="cfg_CmdtoListen">
+										<span class="input-group-btn">
+											<a id="bt_selectCmdtoListen" class="btn btn-success btn-sm listCmdAction" data-type="action">
+												<i class="fa fa-list-alt"></i>
+											</a>
+										</span>
+									</div>
+								</div>
+							</div>
+
+							<div class="form-group">
 								<label class="col-sm-4 control-label">{{Facteur de zoom en ouvrant la carte}}
 									<sup><i class="fas fa-question-circle tooltips" title="{{Choisir entre 5 (vue pays) et 12 (vue ville)}}"></i></sup>
 								</label>
-								<div class="col-sm-6">
+								<div class="col-sm-8">
 									<select id="bt_select_Zoom" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="cfg_Zoom" placeholder="10">
 										<option value="5">{{5}}</option>
 										<option value="6">{{6}}</option>
@@ -224,7 +253,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 
 							<div class="form-group">
 								<label class="col-sm-4 control-label">{{Sélection du template}}</label>
-								<div class="col-sm-6">
+								<div class="col-sm-8">
 									<select id="bt_select_LastImpactRetention" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="cfg_TemplateName">
 										<option value="aucun">{{Aucun}}</option>
 										<option value="horizontal">{{Horizontal}}</option>
@@ -235,18 +264,12 @@ $eqLogics = eqLogic::byType($plugin->getId());
 							</div>
 
 							<div class="form-group">
-								<label class="col-sm-4 control-label">{{Commande binaire déclenchant l'écoute des évènements}}
-									<sup><i class="fa fa-question-circle tooltips" title="{{Commande binaire qui déclenche l'écoute des évènements si vrai}}"></i></sup>
-								</label>
-								<div class="col-sm-6">
-									<div class="input-group">
-										<input type="text" id="select_CmdtoListen" class="eqLogicAttr form-control CmdAction" data-l1key="configuration" data-l2key="cfg_CmdtoListen" placeholder="{{Séléctionnez la commande binaire}}">
-										<span class="input-group-btn">
-											<a id="bt_selectCmdtoListen" class="btn btn-success btn-sm listCmdAction" data-type="action">
-												<i class="fa fa-list-alt"></i>
-											</a>
-										</span>
-									</div>
+								<label class="col-sm-4 control-label">{{Graphique par défaut}}</label>
+								<div class="col-sm-8">
+									<select id="bt_select_DefaultChart" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="cfg_DefaultChart">
+										<option value="1">{{Distance en fonction de la durée}}</option>
+										<option value="2">{{Distance en fonction de l'angle (mode radar)}}</option>
+									</select>
 								</div>
 							</div>
 
