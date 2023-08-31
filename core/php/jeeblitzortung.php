@@ -150,9 +150,9 @@ try {
     $cycle = config::byKey('cycle', 'blitzortung', '5');
     log::add('blitzortung', 'debug', 'Temps de traitement pour ' . $count_impacts . ' impacts : ' . $time . ' seconde(s)');
     if ($cycle > 0 && $time > $cycle) {
-      if (is_object($eqLogic->getCmd('info', 'timetoprocessexceeded'))) {
-        $newtimetoprocessexceeded =  $eqLogic->getCmd('info', 'counter') + 1;
-        $eqLogic->checkAndUpdateCmd('timetoprocessexceeded', $newtimetoprocessexceeded);
+      if (is_object($eqLogic->getCmd('info', 'timetoprocessexceeded'))) {        
+        $new_timetoprocessexceeded =  $eqLogic->getCmd('info', 'timetoprocessexceeded') + 1;
+        $eqLogic->checkAndUpdateCmd('timetoprocessexceeded', $new_timetoprocessexceeded);
       }
       log::add('blitzortung', 'info', 'Attention, le délais de traitement pour ' . $count_impacts . ' impacts est de ' . $time . ' seconde(s) et dépasse la durée du cycle de ' . $cycle . ' seconde(s) -> Augmentez la durée et redémarrez le démon');
     }
