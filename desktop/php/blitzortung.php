@@ -163,7 +163,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 								</label>
 								<div class="col-sm-6">
 									<div class="input-group">
-										<input id="lat" type=" number" class="eqLogicAttr" data-l1key="configuration" data-l2key="cfg_latitude" placeholder="<?= config::bykey('info::latitude') ?>">
+										<input id="lat" type="text" class="eqLogicAttr" data-l1key="configuration" data-l2key="cfg_latitude" placeholder="<?= config::bykey('info::latitude') ?>">
 									</div>
 								</div>
 							</div>
@@ -174,7 +174,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 								</label>
 								<div class="col-sm-6">
 									<div class="input-group">
-										<input id="lon" type="number" class="eqLogicAttr" data-l1key="configuration" data-l2key="cfg_longitude" placeholder="<?= config::bykey('info::longitude') ?>">
+										<input id="lon" type="text" class="eqLogicAttr" data-l1key="configuration" data-l2key="cfg_longitude" placeholder="<?= config::bykey('info::longitude') ?>">
 									</div>
 								</div>
 							</div>
