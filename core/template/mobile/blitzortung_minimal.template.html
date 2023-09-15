@@ -6,11 +6,12 @@
 		<i class="fas fa-sync"></i>
 	</span>
 	<span class="cmd pull-right cursor" style="margin-right: 20px; position: absolute; right: 0;">
-		<a href="#info#"><i class="fas fa-info tooltips" style="font-size: small; color: var(--link-color) !important;"
+		<a href="#info#"><i class="fas fa-info tooltips"
+				style="font-size: small; color: var(--sc-lightTxt-color) !important;"
 				title="Impacts de foudre depuis #retention# heure(s) dans un rayon de #rayon# km"></i></a>
 	</span>
 	<span class="cmd pull-left cursor" style="margin-left: 3px; margin-top: 4px; position: absolute;">
-		<a href="#mapurl#" target="_blank" style="color: var(--link-color) !important;">
+		<a href="#mapurl#" target="_blank" style="color: var(--sc-lightTxt-color) !important;">
 			<i class="icon kiko-marker-map tooltips" title="Ouvrir la carte sur Blitzortung"></i>
 		</a>
 	</span>
@@ -20,7 +21,7 @@
 			<span class="warning" title="#alert_name#">
 				<i class='#alert_icon#'></i>
 			</span>
-			<span>#name_display# <span class="object_name">#object_name#</span></span><br />
+			<span>#name_display#<span class="object_name">#object_name#</span></span><br />
 		</span>
 		<div style="padding: 5px; display: flex; flex-wrap: wrap; justify-content: center;">
 			<div class="cmd cmd-widget history cursor" data-type="info" data-subtype="numeric" data-template="tile"
@@ -35,7 +36,6 @@
 				<span class="evoldistance"></span>
 				<span class="state"></span>
 			</div>
-			<br>
 			<div class="cmd cmd-widget history cursor" data-type="info" data-subtype="numeric" data-template="tile"
 				data-cmd_id="#cmdIdOrientation#" style="width: 100%;">
 				<div class="cmdName">Direction</div>
@@ -57,9 +57,18 @@
 		</div>
 	</center>
 
+	<div class="item #item1active#">
+		<div class="chart" id="container-#id#" style="height: 220px; width: 210px;"></div>
+	</div>
 
+	<span class="cursor">
+		<a href="#mapurl#" target="_blank"
+			style="margin-left: 5px; font-size: 10px !important; font-style: italic; color: var(--link-color) !important;">Source
+			: blitzortung.org</a>
+	</span>
 
 	#divGraphInfo#
+
 	<script>
 		if ('#refresh_id#' != '') {
 			$('.eqLogic[data-eqLogic_uid=#uid#] .refresh').on('click', function () {
@@ -161,7 +170,129 @@
 		});
 		jeedom.cmd.refreshValue([{ cmd_id: '#lastorientation_id#', display_value: '#lastorientation_value#' }])
 
+		Highcharts.chart('container-#id#', {
+			chart: {
+				type: 'scatter',
+				zoomType: 'xy'
+			},
 
+			credits: {
+				enabled: false
+			},
+
+			navigation: {
+				buttonOptions: {
+					enabled: false
+				}
+			},
+
+			title: {
+				text: ''
+			},
+
+			subtitle: {
+				useHTML: true,
+				text: ''
+			},
+
+			yAxis: {
+				title: {
+					enabled: false
+				},
+				min: 0,
+				max: #rayon#,
+				tickInterval: 10,
+				labels: {
+					style: {
+						color: 'var(--link-color)'
+					},
+					x: -8
+				},
+			},
+
+			xAxis: {
+				title: {
+					text: 'Minutes',
+					style: {
+						color: 'var(--link-color)'
+					}
+				},
+				min: 0,
+				max: #tsmax#,
+				tickPositions: [#tickPositions#],
+				labels: {
+					formatter: function () {
+						var time = this.value;
+						var min = parseInt(time / 60);
+						return min;
+					},
+					style: {
+						color: 'var(--link-color)'
+					}
+				},
+				lineColor: 'var(--link-color)',
+				tickColor: 'var(--link-color)'
+			},
+
+			tooltip: {
+				useHTML: true,
+				headerFormat: null,
+				pointFormatter: function () {
+					return this.y + ' km il y a ' + Math.round(this.x / 60, 0) + ' minutes'
+				}
+			},
+
+			legend: {
+				enabled: false
+			},
+
+			plotOptions: {
+				scatter: {
+					marker: {
+						radius: 2.5,
+						symbol: 'circle',
+
+					}
+				}
+			},
+
+			series: [{
+				keys: ['x', 'y'],
+				data: [#data#],
+				zoneAxis: 'y',
+				// zones: [{
+				// 	value: 10,
+				// 	color: '#EA251F'
+				// }, {
+				// 	value: 30,
+				// 	color: '#EA6E1E'
+				// },
+				// {
+				// 	color: '#DFE150'
+				// }]
+			}]
+		});
 
 	</script>
+	<style>
+		[data-theme="core2019_Dark"] .blitzortung {
+			--blitzortung-color: rgba(160, 160, 160, 0.5);
+		}
+
+		[data-theme="core2019_Light"] .blitzortung {
+			--blitzortung-color: rgba(100, 100, 100, 0.5);
+		}
+
+		.blitzortung .highcharts-yaxis-grid .highcharts-grid-line {
+			stroke: var(--blitzortung-color);
+		}
+
+		.blitzortung .highcharts-xaxis-grid>path:nth-child(1) {
+			stroke: var(--link-color);
+		}
+
+		.blitzortung .highcharts-color-0 {
+			fill: #EA6E1E;
+		}
+	</style>
 </div>
