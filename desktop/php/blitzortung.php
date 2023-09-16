@@ -216,7 +216,8 @@ $eqLogics = eqLogic::byType($plugin->getId());
 									</select>
 								</div>
 							</div>
-
+							
+							<!--
 							<div class="form-group">
 								<label class="col-sm-4 control-label">{{Expression déclenchant l'écoute}}
 									<sup><i class="fa fa-question-circle tooltips" title="{{Expression qui déclenche l'écoute des évènements si elle est vrai}}"></i></sup>
@@ -232,6 +233,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 									</div>
 								</div>
 							</div>
+							-->
 
 							<div class="form-group">
 								<label class="col-sm-4 control-label">{{Facteur de zoom en ouvrant la carte}}

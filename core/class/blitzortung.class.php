@@ -72,6 +72,7 @@ class blitzortung extends eqLogic {
 
   public static function setupCron($creation) {
     if ($creation == 1) {
+      // Cron toutes les minutes pour récupérer les impacts sur le serveur et les enregistrer
       $oCron = cron::byClassAndFunction(__CLASS__, 'blitzortungCron');
       if (!is_object($oCron)) {
         $oCron = new cron();
@@ -81,7 +82,10 @@ class blitzortung extends eqLogic {
         $oCron->setSchedule('*/5 * * * *');
         $oCron->setTimeout('2');
         $oCron->save();
-      }
+      } else {
+        $oCron->setSchedule('* * * * *');
+        $oCron->save();
+      }      
     } else {
       $oCron = cron::byClassAndFunction(__CLASS__, 'blitzortungCron');
       if (is_object($oCron)) {
@@ -90,6 +94,16 @@ class blitzortung extends eqLogic {
     }
   }
 
+  public static function blitzortungCron() {
+    if (date("i")%5 == 0) { // toutes les 5mn
+      self::CleanAndAnalyzeImpacts();
+    }
+    sleep(rand(0, 4)); // Pause aléatoire de 0 à 4 secondes pour ne pas flooder le serveur
+    $json = self::Fetch();
+    self::RecordNewImpacts($json);  
+  }
+
+  
   public static function getUTCoffset($_city) {
     $dtz = new DateTimeZone($_city);
     $timeCity = new DateTime('now', $dtz);
@@ -155,7 +169,7 @@ class blitzortung extends eqLogic {
       $latitude1 = blitzortung::getLatitude($eqLogic);
       $longitude1 = blitzortung::getLongitude($eqLogic);
       $rayon = $eqLogic->getConfiguration('cfg_rayon', 50);
-      $rayon = $rayon + 10; // marge de 10km supplémentaire à transmettre au daemon python
+      $rayon = $rayon + 10; // marge de 10km supplémentaire à transmettre
 
       $lat1 = deg2rad($latitude1);
       $lon1 = deg2rad($longitude1);
@@ -184,6 +198,43 @@ class blitzortung extends eqLogic {
     return json_encode($arr);
   }
 
+  public static function getMinAndMaxGPS() {
+    // Retourne un json contenant les latitudes minimum/maximum ainsi que les longitudes minimum/maximum pour l'équipement en fonction du rayon
+    $R = 6371;
+
+    foreach (eqLogic::byType('blitzortung', true) as $eqLogic) {
+      $latitude1 = blitzortung::getLatitude($eqLogic);
+      $longitude1 = blitzortung::getLongitude($eqLogic);
+      $rayon = $eqLogic->getConfiguration('cfg_rayon', 50);
+      $rayon = $rayon + 10; // marge de 10km supplémentaire à transmettre au daemon python
+
+      $lat1 = deg2rad($latitude1);
+      $lon1 = deg2rad($longitude1);
+
+      $a = deg2rad(0);
+      $lat2 = asin(sin($lat1) * cos($rayon / $R) + cos($lat1) * sin($rayon / $R) * cos($a));
+      $lon2 = $lon1 + atan2(sin($a) * sin($rayon / $R) * cos($lat1), cos($rayon / $R) - sin($lat1) * sin($lat2));
+      $arr[$eqLogic->getId()]['lat_max'] = rad2deg($lat2);
+
+      $a = deg2rad(90);
+      $lat2 = asin(sin($lat1) * cos($rayon / $R) + cos($lat1) * sin($rayon / $R) * cos($a));
+      $lon2 = $lon1 + atan2(sin($a) * sin($rayon / $R) * cos($lat1), cos($rayon / $R) - sin($lat1) * sin($lat2));
+      $arr[$eqLogic->getId()]['lon_max'] = rad2deg($lon2);
+
+      $a = deg2rad(180);
+      $lat2 = asin(sin($lat1) * cos($rayon / $R) + cos($lat1) * sin($rayon / $R) * cos($a));
+      $lon2 = $lon1 + atan2(sin($a) * sin($rayon / $R) * cos($lat1), cos($rayon / $R) - sin($lat1) * sin($lat2));
+      $arr[$eqLogic->getId()]['lat_min'] = rad2deg($lat2);
+
+      $a = deg2rad(270);
+      $lat2 = asin(sin($lat1) * cos($rayon / $R) + cos($lat1) * sin($rayon / $R) * cos($a));
+      $lon2 = $lon1 + atan2(sin($a) * sin($rayon / $R) * cos($lat1), cos($rayon / $R) - sin($lat1) * sin($lat2));
+      $arr[$eqLogic->getId()]['lon_min'] = rad2deg($lon2);
+    }
+
+    return json_encode($arr);
+  }
+
   public static function evalExpr($_expr) {
     try {
       return jeedom::evaluateExpression($_expr) == 1 ? 1 : 0;
@@ -193,24 +244,158 @@ class blitzortung extends eqLogic {
     }
   }
 
-  public static function blitzortungCron() {
-    $event_to_send = 'stop';
+
+
+  public static function distance($lat1, $lng1, $lat2, $lng2, $unit = 'k') {
+    // https://numa-bord.com/miniblog/php-calcul-de-distance-entre-2-coordonnees-gps-latitude-longitude/
+    $earth_radius = 6378137;   // Terre = sphère de 6378km de rayon
+    $rlo1 = deg2rad($lng1);
+    $rla1 = deg2rad($lat1);
+    $rlo2 = deg2rad($lng2);
+    $rla2 = deg2rad($lat2);
+    $dlo = ($rlo2 - $rlo1) / 2;
+    $dla = ($rla2 - $rla1) / 2;
+    $a = (sin($dla) * sin($dla)) + cos($rla1) * cos($rla2) * (sin($dlo) * sin($dlo));
+    $d = 2 * atan2(sqrt($a), sqrt(1 - $a));
+    $meter = ($earth_radius * $d);
+    if ($unit == 'k') {
+      return round($meter / 1000, 2);
+    }
+    return round($meter, 2);
+  }
+
+  public static function getAzimuth($_latitude1, $_longitude1, $_latitude2, $_longitude2) {
+    $theta = $_longitude2 - $_longitude1;
+    $x = cos(deg2rad($_latitude1)) * sin(deg2rad($_latitude2)) - sin(deg2rad($_latitude1)) * cos(deg2rad($_latitude2)) * cos(deg2rad($theta));
+    $y = sin(deg2rad($theta)) * cos(deg2rad($_latitude2));
+    $Azimuth = 2 * atan($y / (sqrt($x ** 2 + $y ** 2) + $x));
+    return round(rad2deg($Azimuth), 0);
+  }
+
+
+  public static function RecordNewImpacts($_json) {
+    log::add('blitzortung', 'info', '>> Début du traitement des données : ' . $_json . ' <<');
+    $result_array = json_decode($_json, true);
+
+    foreach ($result_array as $tabEq) {      
+      $eqId = $tabEq["id"];
+      $eqLogic = eqLogic::byId($eqId);
+      $count_impacts = count($tabEq["impacts"]);
+      if ($count_impacts == 0) {
+        log::add('blitzortung', 'info', '[' . $eqLogic->getName() . ']' . ' Id n°' . $eqId . ' >> Aucun impact');
+        continue;
+      }
+
+      $eqLogic = eqLogic::byId($eqId);
+
+      $latitude = blitzortung::getLatitude($eqLogic);
+      $longitude = blitzortung::getLongitude($eqLogic);
+      $rayon = $eqLogic->getConfiguration('cfg_rayon', 50);
+
+      if ($latitude != '' && $longitude != '') {
+        log::add('blitzortung', 'info', '[' . $eqLogic->getName() . ']' . ' Id n°' . $eqId);
+        log::add('blitzortung', 'info', '[' . $eqLogic->getName() . ']' . ' Nombre d\'impacts à analyser : ' . $count_impacts);
+
+        $json_recordedimpacts = cache::byKey('blitzortung::' . $eqId . '::' . 'json_recordedimpacts')->getValue('');
+        $arr_recordedimpacts = json_decode($json_recordedimpacts, true);
+        $counter = count($arr_recordedimpacts);
+        log::add('blitzortung', 'info', '[' . $eqLogic->getName() . ']' . ' Nombre d\'enregistrements actuels  : ' . $counter);
+
+        $lastTSreceived = $eqLogic->getCmd('info', 'lastTSreceived')->execCmd();
+        $cmd_lastdistance = $eqLogic->getCmd('info', 'lastdistance');
+        $cmd_lastorientation = $eqLogic->getCmd('info', 'lastorientation');
+
+        $lat_torecord = '';
+        $lon_torecord = '';
+        $distance_torecord = '';
+        $azimuth_torecord = '';
+
+        foreach ($tabEq["impacts"] as $tabImpacts) {
+          $lastTS = $tabImpacts["time"];
+          if ($lastTS > $lastTSreceived) {
+            $distance = self::distance($latitude, $longitude, $tabImpacts["lat"], $tabImpacts["lon"], 'k'); // Analyse de la distance de l'impact
+          } else {
+            //log::add('blitzortung', 'info', '>> IGNORE : ' . round($tabImpacts["time"] / 1000000000) . ' ' . $tabImpacts["lat"] . ' ' . $tabImpacts["lon"]);
+            continue;
+          }
+          if ($distance <= $rayon) {
+            //$ts_local = round($tabImpacts["time"] / 1000000000) + self::getUTCoffset('Europe/Paris'); // Convert nano to secondes with UTC offset
+            $ts_local = round($tabImpacts["time"] / 1000000000); // Convert nano to secondes with UTC offset          
+            $azimuth = self::getAzimuth($latitude, $longitude, $tabImpacts["lat"], $tabImpacts["lon"]); // Récupération de l'azimuth pour indiquer sur la boussole                
+            $new_record = ['ts' => $ts_local, 'lat' => $tabImpacts["lat"], 'lon' => $tabImpacts["lon"], 'distance' => $distance, 'azimuth' => $azimuth];
+            $arr_recordedimpacts[] = $new_record;
+            $counter++;
+
+            $ts_local_date = date('Y-m-d H:i:s', $ts_local);
+            log::add('blitzortung', 'info', '[' . $eqLogic->getName() . ']' . ' ' . '[' . $ts_local_date . ']' . ' ' . '[' . $ts_local . ']' . ' ' . '[' . $counter . ']' . ' distance impact : ' . $distance . ' km' . ' | ' . 'lat: ' . $tabImpacts["lat"] . ' lon: ' . $tabImpacts["lon"] . ' (' . $azimuth . '°)');
+            $cmd_lastdistance->addHistoryValue($distance, $ts_local_date); // Enregistrement de la distance dans l'historique directement
+            $cmd_lastorientation->addHistoryValue($azimuth, $ts_local_date); // Enregistrement de l'azimuth dans l'historique directement
+            $distance_torecord = $distance; // Pour enregistrer la dernière distance en sortie de boucle
+            $azimuth_torecord = $azimuth; // Pour enregistrer le dernier azimuth en sortie de boucle
+            $lat_torecord = $tabImpacts["lat"]; // Pour enregistrer la dernière latitude en sortie de boucle
+            $lon_torecord = $tabImpacts["lon"]; // Pour enregistrer la dernière longitude en sortie de boucle
+          } else {
+            log::add('blitzortung', 'debug', '[' . $eqLogic->getName() . ']' . ' ' . 'Enregistrement rejeté -> distance impact : ' . $distance . ' km' . ' | ' . 'lat: ' . $tabImpacts["lat"] . ' lon: ' . $tabImpacts["lon"]);
+          }
+        }
+
+        //log::add('blitzortung', 'info', '[' . $eqLogic->getName() . ']' . ' ' . '[' . $ts_local_date . ']' . ' LAST ' . '[' . $ts_local . ']' . ' ' . '[' . $counter . ']' . ' distance impact : ' . $distance_torecord . ' km' . ' | ' . 'lat: ' . $lat_torecord . ' lon: ' . $lon_torecord . ' (' . $azimuth_torecord . '°)');
+        
+        if ($lat_torecord != '') {
+          $eqLogic->checkAndUpdateCmd('lastlat', $lat_torecord, $ts_local_date);
+        }
+        if ($lon_torecord != '') {
+          $eqLogic->checkAndUpdateCmd('lastlon', $lon_torecord, $ts_local_date);
+        }
+        if ($distance_torecord != '') {
+          $eqLogic->checkAndUpdateCmd('lastdistance', $distance_torecord, $ts_local_date);
+        }
+        if ($azimuth_torecord != '') {
+          $eqLogic->checkAndUpdateCmd('lastorientation', $azimuth_torecord, $ts_local_date);
+        }
+        
+        $json_recordedimpacts = json_encode($arr_recordedimpacts);
+        log::add(__CLASS__, 'info', '[' . $eqLogic->getName() . ']' . ' json_recordedimpacts : ' . $json_recordedimpacts);
+        cache::set('blitzortung::' . $eqId . '::' . 'json_recordedimpacts', $json_recordedimpacts);
+        $eqLogic->checkAndUpdateCmd('counter', $counter);
+        $y =  date('Y-m-d H:i:s', round($lastTS / 1000000000));
+        log::add(__CLASS__, 'info', '[' . $eqLogic->getName() . ']' . ' lastTSreceived : ' . $lastTS . ' -> ' . $y);
+        $eqLogic->checkAndUpdateCmd('lastTSreceived', $lastTS); // Enregistrement du dernier timestamp envoyé par le serveur
+
+        $eqLogic->refreshWidget();  
+
+      }
+    }
+    log::add('blitzortung', 'info', '>> Fin du traitement des données <<');
+  }
+
+  public static function CleanAndAnalyzeImpacts() {
+    // Nouvelle fonction pour supprimer les enregistrements suivant la valeur de rétention définie dans la configuration    
+    log::add('blitzortung', 'info', '| CleanAndAnalyzeImpacts');
     foreach (eqLogic::byType('blitzortung', true) as $eqLogic) {
       if ($eqLogic->getIsEnable()) {
-        //$json = $eqLogic->getConfiguration("json_impacts");
-        $keyName = 'json_impacts';
-        $json = cache::byKey('blitzortung::' . $eqLogic->getId() . '::' . $keyName)->getValue('');
-        $LastImpactRetention = $eqLogic->getConfiguration("cfg_LastImpactRetention", 1);
-
-        log::add('blitzortung', 'info', '[Start] Nettoyage des enregistrements de ' . $eqLogic->getName());
-        log::add('blitzortung', 'info', '| Durée de conservation : ' . $LastImpactRetention . ' h');
-
+        $eqId = $eqLogic->getId();
+        $json = cache::byKey('blitzortung::' . $eqId . '::' . 'json_recordedimpacts')->getValue('');
         $arr = json_decode($json, true);
         $count_start = count($arr);
+
+        $LastImpactRetention = $eqLogic->getConfiguration("cfg_LastImpactRetention", 1);
+
+        log::add('blitzortung', 'info', '[Start] Nettoyage des enregistrements de ' . $eqLogic->getName() . ' (id :' . $eqId . ')');
+        log::add('blitzortung', 'info', '| Durée de conservation : ' . $LastImpactRetention . ' h');
+
+        /*
         $ts_limit = time() + self::getUTCoffset('Europe/Paris') - 3600 * $LastImpactRetention; // Heure actuelle moins le délais de rétention
         $ts_limit_5mn = time() + self::getUTCoffset('Europe/Paris') - 300;
         $ts_limit_10mn = time() + self::getUTCoffset('Europe/Paris') - 600;
         $ts_limit_15mn = time() + self::getUTCoffset('Europe/Paris') - 900;
+        */
+
+        $ts_limit = time() - 3600 * $LastImpactRetention; // Heure actuelle moins le délais de rétention
+        $ts_limit_5mn = time() - 300;
+        $ts_limit_10mn = time()  - 600;
+        $ts_limit_15mn = time() - 900;
+
 
         log::add('blitzortung', 'debug', '| TS LIMIT : ' . $ts_limit);
         log::add('blitzortung', 'debug', '| TS LIMIT 15mn : ' . $ts_limit_15mn);
@@ -218,7 +403,7 @@ class blitzortung extends eqLogic {
         log::add('blitzortung', 'debug', '| TS LIMIT 5mn : ' . $ts_limit_5mn);
 
         log::add('blitzortung', 'debug', '| Impacts enregistrés : ' . $json);
-        log::add('blitzortung', 'debug', '| Nombre d\'enregistrement  : ' . $count_start);
+        //log::add('blitzortung', 'debug', '| Nombre d\'enregistrement  : ' . $count_start);
 
         $new_arr = array();
         $average_arr = array();
@@ -226,12 +411,15 @@ class blitzortung extends eqLogic {
 
         foreach ($arr as $key => $value) {
           if ($value["ts"] < $ts_limit) {
-            log::add('blitzortung', 'debug', '| ' . $value["ts"] . ' < ' . $ts_limit . ' removing entry ' . $key);
+            log::add('blitzortung', 'debug', '| ' . $value["ts"] . ' < ' . $ts_limit . ' : removing entry ' . $key);
           } else {
+            log::add('blitzortung', 'debug', '| ' . $value["ts"] . ' : keeping entry ' . $key);
             $new_arr[] = $value;
           }
           // $average_arr[0] : -15mn -> -10mn ;  $average_arr[1] : -10mn -> -5mn ; $average_arr[2] : -5mn -> 0mn
-          if ($value["ts"] > $ts_limit_15mn) { // Si le TS est dans les 5 dernières minutes
+          if (
+            $value["ts"] > $ts_limit_15mn
+          ) { // Si le TS est dans les 5 dernières minutes
             if ($value["ts"] < $ts_limit_10mn) {
               $average_arr[0][0]++;
               $average_arr[0][1] = $average_arr[0][1] + $value["distance"];
@@ -247,6 +435,7 @@ class blitzortung extends eqLogic {
             }
           }
         }
+
 
         // Analyse de l'évolution de l'orage //
         for ($i = 0; $i < 3; $i++) {
@@ -269,7 +458,9 @@ class blitzortung extends eqLogic {
           $evolution_impacts = true;
           $eqLogic->checkAndUpdateCmd('counterevolution', 1);
         }
-        if ($average_arr[0][1] > $average_arr[1][1] && $average_arr[1][1] >= $average_arr[2][1]) {
+        if (
+          $average_arr[0][1] > $average_arr[1][1] && $average_arr[1][1] >= $average_arr[2][1]
+        ) {
           log::add('blitzortung', 'info', '| L\'orage se rapproche');
           $evolution_distance = true;
           $eqLogic->checkAndUpdateCmd('distanceevolution', 1);
@@ -298,59 +489,14 @@ class blitzortung extends eqLogic {
         log::add('blitzortung', 'info', '| [End] Nettoyage des enregistrements de ' . $eqLogic->getName());
 
         $json = json_encode($new_arr);
-        //$eqLogic->setConfiguration("json_impacts", $json);
-        cache::set('blitzortung::' . $eqLogic->getId() . '::' . $keyName, $json);
+        cache::set('blitzortung::' . $eqId . '::' . 'json_recordedimpacts', $json);
         $eqLogic->checkAndUpdateCmd('counter', $count_end);
         $eqLogic->setConfiguration("evolution", 'Evolution sur 15 minutes : ' . $evolution_impacts . ' --- ' . $evolution_distance);
         $eqLogic->save();
 
-        // Vérification de la probabilité d'un orage pour activer l'écoute coté démon
-        log::add('blitzortung', 'info', '[Start] Récupération de la probabilité d\'un orage pour ' . $eqLogic->getName());
-        $cfg_CmdtoListen = $eqLogic->getConfiguration("cfg_CmdtoListen");
-        $proba = 0;
-        if ($cfg_CmdtoListen != '') {
-          $expr = $eqLogic->evalExpr($cfg_CmdtoListen); // Evaluation de la condition sur la probabilité d'un orage
-          log::add('blitzortung', 'info', '| Probabilité d\'un orage : ' . $expr);
-          if ($expr == 1) {
-            $event_to_send = 'start';
-            $proba = 1;
-          }
-        } else {
-          log::add('blitzortung', 'info', '| Aucune commande liée à la probabilité d\'un orage');
-          $event_to_send = 'start';
-        }
-        log::add('blitzortung', 'info', '[End] Récupération de la probabilité d\'un orage pour ' . $eqLogic->getName());
-        cache::set('blitzortung::' . $eqLogic->getName() . '::event', $proba);
-        $eqLogic->refreshWidget();
+        //  $eqLogic->refreshWidget();
       }
     }
-
-    $event_running = cache::byKey('blitzortung::blitzortung::event')->getValue('');
-    if ($event_to_send == 'start' && ($event_running == 'stop' || $event_running == '')) {
-      $params['cmd']  = 'start';
-      $eqLogic->sendToDaemon($params);
-      log::add('blitzortung', 'info', 'Démarrage de l\'écoute envoyée au démon');
-      cache::set('blitzortung::blitzortung::event', 'start');
-    }
-    if ($event_to_send == 'stop' && $event_running == 'start') {
-      $params['cmd']  = 'stop';
-      $eqLogic->sendToDaemon($params);
-      log::add('blitzortung', 'info', 'Arrêt de l\'écoute envoyée au démon');
-      cache::set('blitzortung::blitzortung::event', 'stop');
-    }
-  }
-
-  public static function getFreePort() {
-    $freePortFound = false;
-    while (!$freePortFound) {
-      $port = mt_rand(50000, 65000);
-      exec('sudo fuser ' . $port . '/tcp', $out, $return);
-      if ($return == 1) {
-        $freePortFound = true;
-      }
-    }
-    config::save('socketport', $port, 'blitzortung');
-    return $port;
   }
 
   public function CreateCmd($_eqlogic, $_name, $_template, $_histo, $_historound, $_histomode, $_histopurge, $_repeatEvent, $_generictype, $_type, $_subtype, $_unite, $_visible) {
@@ -433,13 +579,15 @@ class blitzortung extends eqLogic {
     $this->CreateCmd('lastlon', 'Dernière longitude', '', '0', '', '', '', '', '', 'info', 'string', '', '1');
     $this->CreateCmd('lastdistance', 'Dernière distance', '', '1', '2', 'none', '-1 month', 'always', '', 'info', 'numeric', 'km', '1');
     $this->CreateCmd('lastorientation', 'Dernière orientation', '', '0', '2', '', '', '', '', 'info', 'numeric', '°', '1');
+    $this->CreateCmd('lastTSreceived', 'Timestamp de la dernière donnée reçue', '', '0', '', '', '', '', '', 'info', 'string', '', '0');
     $this->CreateCmd('distanceevolution', 'Evolution de la distance sur 15mn', '', '1', '', 'none', '-1 month', '', '', 'info', 'numeric', '', '1');
     $this->CreateCmd('counter', 'Compteur des impacts', '', '0', '', '', '', '', '', 'info', 'numeric', '', '1');
     $this->CreateCmd('counterevolution', 'Evolution des impacts sur 15mn', '', '1', '', 'none', '-1 month', '', '', 'info', 'numeric', '', '1');
-    $this->CreateCmd('timetoprocessexceeded', 'Délai de traitement trop important', '', '', '', '', '', '', '', 'info', 'numeric', '', '1');
+    //$this->CreateCmd('timetoprocessexceeded', 'Délai de traitement trop important', '', '', '', '', '', '', '', 'info', 'numeric', '', '1');
     $this->CreateCmd('mapurl', 'URL de la carte', '', '0', '', '', '', '', '', 'info', 'string', '', '1');
     $this->checkAndUpdateCmd('mapurl', 'https://map.blitzortung.org/#' . $this->getConfiguration("cfg_Zoom", 10) . '/' . self::getLatitude($this) . '/' . self::getLongitude($this));
 
+    /*
     if ($this->getConfiguration('latChanged') == 'true' || $this->getConfiguration('lonChanged') == 'true' || $this->getConfiguration('rayonChanged') == 'true') {
       log::add('blitzortung', 'debug', 'latChanged : ' . $this->getConfiguration('latChanged'));
       log::add('blitzortung', 'debug', 'lonChanged : ' . $this->getConfiguration('lonChanged'));
@@ -449,8 +597,9 @@ class blitzortung extends eqLogic {
       $this->setConfiguration('rayonChanged', '');
       $this->save(true); // Save pour enregister les données brutes sans repasser par PRE & POST sinon ça boucle sur postSave()
       log::add('blitzortung', 'info', 'Changement de la configuration -> Redémarrage du démon');
-      self::deamon_start();
+      self::deamon_start();      
     }
+    */
   }
 
   // Fonction exécutée automatiquement avant la suppression de l'équipement
@@ -461,6 +610,7 @@ class blitzortung extends eqLogic {
   public function postRemove() {
   }
 
+  /*
   public static function dependancy_info() {
     $return = array();
     $return['log'] = log::getPathToLog(__CLASS__ . '_update');
@@ -477,8 +627,9 @@ class blitzortung extends eqLogic {
       }
     }
     return $return;
-  }
+  } 
 
+  
   public static function deamon_info() {
     $return = array();
     $return['log'] = __CLASS__;
@@ -513,6 +664,7 @@ class blitzortung extends eqLogic {
     $return['last_launch'] = config::byKey('lastDeamonLaunchTime', __CLASS__, __('Inconnue', __FILE__));
     return $return;
   }
+  
 
   public static function deamon_start() {
     self::deamon_stop();
@@ -564,7 +716,9 @@ class blitzortung extends eqLogic {
     system::kill('blitzortungd.py'); // nom du démon
     sleep(1);
   }
+  */
 
+  /*
   public static function sendToDaemon($params) {
     $deamon_info = self::deamon_info();
     if ($deamon_info['state'] != 'ok') {
@@ -576,6 +730,79 @@ class blitzortung extends eqLogic {
     socket_connect($socket, '127.0.0.1', config::byKey('socketport', __CLASS__, '56023'));
     socket_write($socket, $payLoad, strlen($payLoad));
     socket_close($socket);
+  }
+  */
+
+  public static function Fetch($_id = '') {
+    $url = 'https://blitzortung.bad.wf/query';
+    $ch = curl_init($url);
+
+    $json = self::getMinAndMaxGPS(); // Récupération des coordonées GPS min/max en fonction du rayon pour les équipements afin de limiter la zone de recherche    
+    $MinAndMaxGPS = json_decode($json, true);
+
+    $eqs = array();
+    $i = 0;
+    foreach ($MinAndMaxGPS as $key => $value) {
+      if ($_id == '' || $_id == $key) { // Si un id d'équipement a été transmis on ne récupère les informations que pour lui
+        $eqs[$i] = array('id' => $key, 'est' => $value['lon_max'], 'west' => $value['lon_min'], 'north' => $value['lat_max'], 'south' => $value['lat_min']); // Construction du tableau des équipements à passer dans le payload
+        $i++;
+      }
+    }
+
+    $lastTS_array = array();
+    foreach (eqLogic::byType('blitzortung', true) as $eqLogic) {
+      $LastImpactRetention = $eqLogic->getConfiguration("cfg_LastImpactRetention", 1);
+      //$ts_limit = time() + self::getUTCoffset('Europe/Paris') - 3600 * $LastImpactRetention; // Heure actuelle moins le délais de rétention
+      $ts_limit = (time() - 3600 * $LastImpactRetention) * 1000000000 ; // Heure actuelle moins le délais de rétention puis converti en nano secondes
+      $lastTSreceived = $eqLogic->getCmd('info', 'lastTSreceived')->execCmd();
+      log::add('blitzortung', 'debug', 'Fetch ' . 'Equipement : ' . $eqLogic->getId());
+      log::add('blitzortung', 'debug', 'Fetch ' . 'ts_limit : ' . $ts_limit);
+      log::add('blitzortung', 'debug', 'Fetch ' . 'lastTSreceived : ' . $eqLogic->getCmd('info', 'lastTSreceived')->execCmd());
+      log::add('blitzortung', 'debug', 'Fetch (max between ts_limit and lastTSreceived)  : ' . max($ts_limit, $lastTSreceived));
+      if ($lastTSreceived == '') {
+        $lastTS_array[] = $ts_limit;
+      } else {
+        $lastTS_array[] = max($ts_limit, $lastTSreceived);
+      }
+    }
+    $lastTS_tosend = min($lastTS_array);
+    log::add('blitzortung', 'debug', 'Fetch (min between all entries)  : ' . $lastTS_tosend);
+    $data = array('since' => $lastTS_tosend, 'eqs' => $eqs);
+
+    /*
+    $data =
+      array(
+        'since' => 1693945259548686391,
+        'eqs' =>
+        array(
+          0 =>
+          array(
+            'id' => 47,
+            'est' => -6.674108406469319,
+            'west' => -8.07969159353068 ,
+            'north' => 40.385592963551225,
+            'south' => 39.30640703644876,
+          ),
+          1 =>
+          array(
+            'id' => 42,
+            'est' => 87.33769,
+            'west' => 81.33769,
+            'north' => -10.85923,
+            'south' => -16.85923,
+          ),
+        ),
+      );
+    */
+
+    $payload = json_encode($data);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    log::add('blitzortung', 'info', '>> Interrogation du serveur avec le payload ' . $payload . ' <<');
+    $result = curl_exec($ch);
+    curl_close($ch);
+    return $result;
   }
 
   /*
@@ -597,7 +824,10 @@ class blitzortung extends eqLogic {
     if ($TemplateName == 'aucun') {
       return parent::toHtml($_version);
     }
-
+    if ($_version == 'mobile') {
+      $TemplateName = 'minimal'; //Affichage du template mobile minimal quelque soit la configuration choisie pour le dashboard
+    }
+    
     $replace = $this->preToHtml($_version); // initialise les tag standards : #id#, #name# ...
 
     if (!is_array($replace)) {
@@ -609,8 +839,8 @@ class blitzortung extends eqLogic {
     $eqLogicName = $this->getName();
     log::add('blitzortung', 'debug', '[template] Affichage du template pour ' . $eqLogicName . ' [START]');
 
-    //$json = $this->getConfiguration("json_impacts");
-    $keyName = 'json_impacts';
+    //$keyName = 'json_impacts';
+    $keyName = 'json_recordedimpacts';
     $json = cache::byKey('blitzortung::' . $this->getId() . '::' . $keyName)->getValue('');
     $rayon = $this->getConfiguration('cfg_rayon', 50);
     $LastImpactRetention = $this->getConfiguration("cfg_LastImpactRetention", 1);
@@ -622,10 +852,12 @@ class blitzortung extends eqLogic {
     $replace['#datapolar_recent#'] = '';
     $replace['#datapolar_lessrecent#'] = '';
     $cfg_ImpactsRecents = $this->getConfiguration("cfg_ImpactsRecents", 1);
-    $ts_limit = time() + self::getUTCoffset('Europe/Paris') - $cfg_ImpactsRecents * 300; // pour avoir les impacts des 5, 10 ou 15 dernieres minutes suivant la configuration
+    //$ts_limit = time() + self::getUTCoffset('Europe/Paris') - $cfg_ImpactsRecents * 300; // pour avoir les impacts des 5, 10 ou 15 dernieres minutes suivant la configuration
+    $ts_limit = time()  - $cfg_ImpactsRecents * 300; // pour avoir les impacts des 5, 10 ou 15 dernieres minutes suivant la configuration
     //log::add('blitzortung', 'info', 'ts_limit : ' . $ts_limit);
     foreach ($arr as $key => $value) {
-      $ts = time() + self::getUTCoffset('Europe/Paris') - $value["ts"]; // Délais depuis l'enregistrement en secondes      
+      //$ts = time() + self::getUTCoffset('Europe/Paris') - $value["ts"]; // Délais depuis l'enregistrement en secondes
+      $ts = time() - $value["ts"]; // Délais depuis l'enregistrement en secondes
       $replace['#data#'] .= '[' . $ts . ',' . $value["distance"] . ']' . ',';
       $azimuth = $value["azimuth"] < 0 ? 360 + $value["azimuth"] : $value["azimuth"]; // Transforme un azimuth négatif en valeur comprise entre 0 et 360° pour l'affichage
       if ($value["ts"] > $ts_limit) {
@@ -820,11 +1052,13 @@ class blitzortungCmd extends cmd {
   public function execute($_options = array()) {
     $eqLogic = $this->getEqLogic(); // récupère l'éqlogic de la commande $this
     switch ($this->getLogicalId()) { // vérifie le logicalid de la commande      
-      case 'refresh': // LogicalId de la commande rafraîchir
-        $eqLogic->blitzortungCron();
+      case 'refresh': // LogicalId de la commande rafraîchir        
+        $json = $eqLogic->Fetch($eqLogic->getId()); // Fetch uniquement pour l'équipement en question
+        $eqLogic->RecordNewImpacts($json); // Enregistrement des impacts reçus du serveur
+        //$eqLogic->setupCron(1); // pour tester la modification du cron sans l'update du plugin
         break;
       default:
-        log::add('blitzortung', 'debug', 'Erreur durant le raffraichissement');
+        log::add('blitzortung', 'debug', 'Erreur durant le rafraichissement');
         break;
     }
   }
