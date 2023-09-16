@@ -21,6 +21,7 @@ if (!isConnect()) {
   include_file('desktop', '404', 'php');
   die();
 }
+/*
 ?>
 <form class="form-horizontal">
   <fieldset>
@@ -42,3 +43,4 @@ if (!isConnect()) {
     </div>
   </fieldset>
 </form>
+*/

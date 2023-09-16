@@ -222,7 +222,11 @@
             },
 
             credits: {
-                text: 'Source : blitzortung.org'
+                text: 'Source : blitzortung.org',
+                href: '',
+                style: {
+                    cursor: 'arrow'
+                }
             },
 
             navigation: {
@@ -306,11 +310,15 @@
 
         Highcharts.chart('containerpolar-#id#', {
             chart: {
-                polar: true            
+                polar: true
             },
 
             credits: {
-                text: 'Source : blitzortung.org'
+                text: 'Source : blitzortung.org',
+                href: '',
+                style: {
+                    cursor: 'arrow'
+                }
             },
 
             navigation: {
@@ -328,11 +336,11 @@
                 endAngle: 360
             },
 
-            xAxis: {                    
+            xAxis: {
                 tickInterval: 45,
                 min: 0,
                 max: 360,
-                lineWidth : 3,
+                lineWidth: 3,
                 gridLineColor: 'var(--blitzortung-color)',
                 labels: {
                     formatter: function () {
@@ -368,7 +376,7 @@
                 }
             },
 
-            yAxis: {       
+            yAxis: {
                 min: 0,
                 max: #rayon#,
                 tickInterval: 10
@@ -416,22 +424,28 @@
             margin-left: -20px;
             margin-right: -20px;
         }
+
         [data-theme="core2019_Dark"] .blitzortung {
             --blitzortung-color: rgba(160, 160, 160, 0.5);
         }
+
         [data-theme="core2019_Light"] .blitzortung {
             --blitzortung-color: rgba(100, 100, 100, 0.5);
         }
-        .blitzortung .highcharts-yaxis-grid .highcharts-grid-line { 
+
+        .blitzortung .highcharts-yaxis-grid .highcharts-grid-line {
             stroke: var(--blitzortung-color) !important;
-  	        stroke-width: 1 !important;
+            stroke-width: 1 !important;
         }
-        .blitzortung .highcharts-yaxis-labels > text {
-	        fill: var(--blitzortung-color) !important;
+
+        .blitzortung .highcharts-yaxis-labels>text {
+            fill: var(--blitzortung-color) !important;
         }
-        .blitzortung .highcharts-yaxis-labels > text:nth-child(1) {
+
+        .blitzortung .highcharts-yaxis-labels>text:nth-child(1) {
             display: none;
         }
+
         .blitzortung .highcharts-axis.highcharts-yaxis.highcharts-radial-axis {
             display: none;
         }

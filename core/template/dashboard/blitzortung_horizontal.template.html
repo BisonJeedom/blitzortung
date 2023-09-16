@@ -1,4 +1,4 @@
-<div class="eqLogic eqLogic-widget allowResize allowReorderCmd #custom_layout# #eqLogic_class# #class#"
+<div class="eqLogic eqLogic-widget allowResize allowReorderCmd blitzortung #custom_layout# #eqLogic_class# #class#"
     data-eqType="#eqType#" data-eqLogic_id="#id#" data-eqLogic_uid="#uid#" data-version="#version#"
     data-translate-category="#translate_category#" data-category="#category#" data-tags="#tags#"
     style="width: #width#;height: #height#;#style#">
@@ -248,7 +248,11 @@
         },
 
         credits: {
-            text: 'Source : blitzortung.org'
+            text: 'Source : blitzortung.org',
+            href: '',
+            style: {
+                cursor: 'arrow'
+            }
         },
 
         navigation: {
@@ -337,7 +341,11 @@
         },
 
         credits: {
-            text: 'Source : blitzortung.org'
+            text: 'Source : blitzortung.org',
+            href: '',
+            style: {
+                cursor: 'arrow'
+            }
         },
 
         navigation: {
@@ -359,6 +367,8 @@
             tickInterval: 45,
             min: 0,
             max: 360,
+            lineWidth: 3,
+            gridLineColor: 'var(--blitzortung-color)',
             labels: {
                 formatter: function () {
                     let label;
@@ -440,6 +450,30 @@
         width: 5%;
         margin-left: -20px;
         margin-right: -20px;
+    }
+    [data-theme="core2019_Dark"] .blitzortung {
+        --blitzortung-color: rgba(160, 160, 160, 0.5);
+    }
+
+    [data-theme="core2019_Light"] .blitzortung {
+        --blitzortung-color: rgba(100, 100, 100, 0.5);
+    }
+
+    .blitzortung .highcharts-yaxis-grid .highcharts-grid-line {
+        stroke: var(--blitzortung-color) !important;
+        stroke-width: 1 !important;
+    }
+
+    .blitzortung .highcharts-yaxis-labels>text {
+        fill: var(--blitzortung-color) !important;
+    }
+
+    .blitzortung .highcharts-yaxis-labels>text:nth-child(1) {
+        display: none;
+    }
+
+    .blitzortung .highcharts-axis.highcharts-yaxis.highcharts-radial-axis {
+        display: none;
     }
 </style>
 
