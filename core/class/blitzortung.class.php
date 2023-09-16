@@ -824,7 +824,10 @@ class blitzortung extends eqLogic {
     if ($TemplateName == 'aucun') {
       return parent::toHtml($_version);
     }
-
+    if ($_version == 'mobile') {
+      $TemplateName = 'minimal'; //Affichage du template mobile minimal quelque soit la configuration choisie pour le dashboard
+    }
+    
     $replace = $this->preToHtml($_version); // initialise les tag standards : #id#, #name# ...
 
     if (!is_array($replace)) {
