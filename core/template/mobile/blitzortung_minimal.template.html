@@ -25,13 +25,13 @@
 		</span>
 		<div style="padding: 5px; display: flex; flex-wrap: wrap; justify-content: center;">
 			<div class="cmd cmd-widget history cursor" data-type="info" data-subtype="numeric" data-template="tile"
-				data-cmd_id="#counter_id#" style="width: 50%;">
+				data-cmd_id="#counter_id#" style="width: 49%;">
 				<div class="cmdName">Impacts</div>
 				<span class="evolstate"></span>
 				<span class="state"></span>
 			</div>
 			<div class="cmd cmd-widget history cursor" data-type="info" data-subtype="numeric" data-template="tile"
-				data-cmd_id="#distance_id#" style="width: 50%;">
+				data-cmd_id="#distance_id#" style="width: 51%;">
 				<div class="cmdName">Distance</div>
 				<span class="evoldistance"></span>
 				<span class="state"></span>
@@ -39,7 +39,7 @@
 			<div class="cmd cmd-widget history cursor" data-type="info" data-subtype="numeric" data-template="tile"
 				data-cmd_id="#cmdIdOrientation#" style="width: 100%;">
 				<div class="cmdName">Direction</div>
-				<div style="display: flex; justify-content: center;">
+				<div>
 					<svg id="SvgOrientation-#id#" data-v-47880d39="" width="30" height="30" viewBox="0 0 1000 1000"
 						enable-background="new 0 0 1000 1000" xml:space="preserve"
 						style="transform: scale(0.9) rotate(#orientationValue#deg);">
@@ -53,6 +53,7 @@
 						</g>
 					</svg>
 				</div>
+				<span class="state"></span>
 			</div>
 		</div>
 	</center>
@@ -63,8 +64,7 @@
 
 	<span class="cursor">
 		<a href="#mapurl#" target="_blank"
-			style="margin-left: 5px; font-size: 10px !important; font-style: italic; color: var(--link-color) !important;">Source
-			: blitzortung.org</a>
+			style="margin-left: 5px; font-size: 10px; font-style: italic; color: var(--link-color) !important;">Source : blitzortung.org</a>
 	</span>
 
 	#divGraphInfo#
@@ -103,9 +103,13 @@
 				let v = _options.display_value
 				if (v == '' || v == 0) {
 					v = '---'
-					document.getElementById("gOrientation-#id#").setAttribute("visibility", 'hidden')
+					// document.getElementById("gOrientation-#id#").setAttribute("visibility", 'hidden')
+					document.getElementById("SvgOrientation-#id#").parentNode.setAttribute('style', 'display: none;')
+					document.querySelector('.cmd[data-cmd_id="#cmdIdOrientation#"] .state').innerHTML = '<span style="font-size: 1em;">---</span>'
 				} else {
-					document.getElementById("gOrientation-#id#").setAttribute("visibility", 'visible')
+					// document.getElementById("gOrientation-#id#").setAttribute("visibility", 'visible')
+					document.getElementById("SvgOrientation-#id#").parentNode.setAttribute('style', 'display: flex; justify-content: center;')
+					document.querySelector('.cmd[data-cmd_id="#cmdIdOrientation#"] .state').innerHTML = ''
 				}
 				if (v > 200) {
 					color = 'color: #EA251F'
@@ -272,7 +276,6 @@
 				// }]
 			}]
 		});
-
 	</script>
 	<style>
 		[data-theme="core2019_Dark"] .blitzortung {
