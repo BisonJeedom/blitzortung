@@ -217,24 +217,6 @@ $eqLogics = eqLogic::byType($plugin->getId());
 								</div>
 							</div>
 							
-							<!--
-							<div class="form-group">
-								<label class="col-sm-4 control-label">{{Expression déclenchant l'écoute}}
-									<sup><i class="fa fa-question-circle tooltips" title="{{Expression qui déclenche l'écoute des évènements si elle est vrai}}"></i></sup>
-								</label>
-								<div class="col-sm-8">
-									<div class="input-group">
-										<input type="text" id="select_CmdtoListen" class="eqLogicAttr form-control CmdAction" data-l1key="configuration" data-l2key="cfg_CmdtoListen">
-										<span class="input-group-btn">
-											<a id="bt_selectCmdtoListen" class="btn btn-success btn-sm listCmdAction" data-type="action">
-												<i class="fa fa-list-alt"></i>
-											</a>
-										</span>
-									</div>
-								</div>
-							</div>
-							-->
-
 							<div class="form-group">
 								<label class="col-sm-4 control-label">{{Facteur de zoom en ouvrant la carte}}
 									<sup><i class="fas fa-question-circle tooltips" title="{{Choisir entre 5 (vue pays) et 12 (vue ville)}}"></i></sup>
