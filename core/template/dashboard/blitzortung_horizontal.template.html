@@ -28,6 +28,10 @@
     </center>
 
     <div style="width:100%">
+        <span id="#icon-nocommserver_#id#" class="icon kiko-no-signal icon_red"
+            style="font-size: 28px !important"></span>
+        <span id="#icon-nocommblitzortung_#id#" class="icon kiko-lightning-off icon_yellow"
+            style="font-size: 28px !important"></span>
         <table style="text-align: center;width: 100%;">
             <tr>
                 <td>
@@ -173,6 +177,20 @@
         document.getElementById("#icon-blitz_id#").style.display = 'block'; // Affichage
     } else {
         document.getElementById("#icon-blitz_id#").style.display = 'none'; // Non affichage
+    }
+
+    // Gestion de l'affichage de l'icône nocommserver (plus de communication avec le serveur)
+    if ('#nocommserver#' == 1) {
+        document.getElementById("#icon-nocommserver_#id#").style.display = 'block'; // Affichage
+    } else {
+        document.getElementById("#icon-nocommserver_#id#").style.display = 'none'; // Non affichage
+    }
+
+    // Gestion de l'affichage de l'icône nocommblitzortung (probable problème coté serveur car plus d'impacts reçus dans le monde depuis plus de 5mn)
+    if ('#nocommblitzortung#' == 1) {
+        document.getElementById("#icon-nocommblitzortung_#id#").style.display = 'block'; // Affichage
+    } else {
+        document.getElementById("#icon-nocommblitzortung_#id#").style.display = 'none'; // Non affichage
     }
 
     // Gestion de l'affichage du compteur d'impacts
@@ -451,6 +469,7 @@
         margin-left: -20px;
         margin-right: -20px;
     }
+
     [data-theme="core2019_Dark"] .blitzortung {
         --blitzortung-color: rgba(160, 160, 160, 0.5);
     }
