@@ -98,7 +98,7 @@ class blitzortung extends eqLogic {
     if (date("i")%5 == 0) { // toutes les 5mn
       self::CleanAndAnalyzeImpacts();
     }
-    sleep(rand(0, 4)); // Pause aléatoire de 0 à 4 secondes pour ne pas flooder le serveur
+    sleep(rand(0, 40)); // Pause aléatoire de 0 à 40 secondes pour ne pas flooder le serveur
     $json = self::Fetch();
     self::RecordNewImpacts($json);  
   }
@@ -272,12 +272,39 @@ class blitzortung extends eqLogic {
     return round(rad2deg($Azimuth), 0);
   }
 
+  public static function refreshAllEqs() {
+    foreach (eqLogic::byType('blitzortung', true) as $eqLogic) {
+      if ($eqLogic->getIsEnable()) {
+        $eqLogic->refreshWidget();
+      }
+    }
+  }
 
   public static function RecordNewImpacts($_json) {
     log::add('blitzortung', 'info', '>> Début du traitement des données : ' . $_json . ' <<');
+
+    if ($_json == '') {
+      log::add('blitzortung', 'warning', 'Impossible de joindre le serveur !');
+      cache::set('blitzortung::blitzortung::nocommserver', 1);
+      log::add('blitzortung', 'info', '>> Fin du traitement des données <<');
+      self::refreshAllEqs();
+      return;
+    } elseif (cache::byKey('blitzortung::blitzortung::nocommserver')->getValue('') == 1) {
+      cache::set('blitzortung::blitzortung::nocommserver', 0);      
+    }
+
     $result_array = json_decode($_json, true);
 
-    foreach ($result_array as $tabEq) {      
+    $lastimpactfromsource = $result_array["since"];
+    log::add('blitzortung', 'debug', 'Dernier impact reçu par le serveur : ' . date('Y-m-d H:i:s', $lastimpactfromsource));
+    if (time() - $lastimpactfromsource > 300) { // 300 secondes -> 5mn
+      log::add('blitzortung', 'warning', 'Le dernier impact reçu par le serveur est supérieur à 5mn !');
+      cache::set('blitzortung::blitzortung::nocommblitzortung', 1);
+    } elseif (cache::byKey('blitzortung::blitzortung::nocommblitzortung')->getValue('') == 1) {
+      cache::set('blitzortung::blitzortung::nocommblitzortung', 0);      
+    }
+
+    foreach ($result_array["eqs"] as $tabEq) {      
       $eqId = $tabEq["id"];
       $eqLogic = eqLogic::byId($eqId);
       $count_impacts = count($tabEq["impacts"]);
@@ -364,10 +391,10 @@ class blitzortung extends eqLogic {
         log::add(__CLASS__, 'info', '[' . $eqLogic->getName() . ']' . ' lastTSreceived : ' . $lastTS . ' (' . $y . ')');
         $eqLogic->checkAndUpdateCmd('lastTSreceived', $lastTS); // Enregistrement du dernier timestamp envoyé par le serveur
 
-        $eqLogic->refreshWidget();  
-
+        //$eqLogic->refreshWidget();
       }
     }
+    self::refreshAllEqs();
     log::add('blitzortung', 'info', '>> Fin du traitement des données <<');
   }
 
@@ -626,7 +653,8 @@ class blitzortung extends eqLogic {
   public static function Fetch($_id = '') {
     log::add('blitzortung', 'info', '>> Interrogation du serveur <<');
     //$url = 'https://blitzortung.bad.wf/querynsew'; // interrogation avec north / south / est / west 
-    $url = 'https://blitzortung.bad.wf/queryllr'; // lat / lon / rad
+    //$url = 'https://blitzortung.bad.wf/queryllr'; // lat / lon / rad
+    $url = 'https://blitzortung.bad.wf/v2/query'; // lat / lon / rad
     $ch = curl_init($url);
 
     $i = 0;
@@ -738,7 +766,9 @@ class blitzortung extends eqLogic {
     $eqLogicName = $this->getName();
     log::add('blitzortung', 'debug', '[template] Affichage du template pour ' . $eqLogicName . ' [START]');
 
-    //$keyName = 'json_impacts';
+    $replace['#nocommserver#'] = (cache::byKey('blitzortung::blitzortung::nocommserver')->getValue('') == 1) ? 1 : 0; 
+    $replace['#nocommblitzortung#'] = (cache::byKey('blitzortung::blitzortung::nocommblitzortung')->getValue('') == 1) ? 1 : 0; 
+
     $keyName = 'json_recordedimpacts';
     $json = cache::byKey('blitzortung::' . $this->getId() . '::' . $keyName)->getValue('');
     $rayon = $this->getConfiguration('cfg_rayon', 50);
