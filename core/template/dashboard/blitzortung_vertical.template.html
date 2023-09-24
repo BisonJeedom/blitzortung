@@ -184,14 +184,14 @@
         }
 
         // Gestion de l'affichage de l'icône nocommserver (plus de communication avec le serveur)
-        if ('#nocommserver#' == 0) {
+        if ('#nocommserver#' == 1) {
             document.getElementById("#icon-nocommserver_#id#").style.display = 'block'; // Affichage
         } else {
             document.getElementById("#icon-nocommserver_#id#").style.display = 'none'; // Non affichage
         }
 
         // Gestion de l'affichage de l'icône nocommblitzortung (probable problème coté serveur car plus d'impacts reçus dans le monde depuis plus de 5mn)
-        if ('#nocommblitzortung#' == 0) {
+        if ('#nocommblitzortung#' == 1) {
             document.getElementById("#icon-nocommblitzortung_#id#").style.display = 'block'; // Affichage
         } else {
             document.getElementById("#icon-nocommblitzortung_#id#").style.display = 'none'; // Non affichage
