@@ -654,13 +654,14 @@ class blitzortung extends eqLogic {
   public static function GenerateRandomGPSarround($_eqLogic) {
     $lat = blitzortung::getLatitude($_eqLogic);
     $lon = blitzortung::getLongitude($_eqLogic);
-    $newlat = round($lat + mt_rand(-18, 18) / 1000, 4); // Latitude aléatoire entre -0.018 et 0.018 autour du point GPS
-    $newlon = round($lon + mt_rand(-4, 4) / 100, 4); // Longitude aléatoire entre -0.04  et 0.04 autour du point GPS
-    $distance = self::distance($lat, $lon, $newlat, $newlon, 'k'); // Analyse de la distance avec le point GPS aléatoire   
-    if ($distance >= 5) { // Si les coordonnées sont éloignées de 5km, on relancer la génération
-      self::GenerateRandomGPSarround($_eqLogic);
+    $distance = 5;
+    while ($distance >= 5) { // Tant que les coordonnées sont éloignées de plus de 5 km
+      $newlat = round($lat + mt_rand(-18, 18) / 1000, 4); // Latitude aléatoire entre -0.018 et 0.018 autour du point GPS
+      $newlon = round($lon + mt_rand(-4, 4) / 100, 4); // Longitude aléatoire entre -0.04  et 0.04 autour du point GPS
+      $distance = self::distance($lat, $lon, $newlat, $newlon, 'k'); // Analyse de la distance avec le point GPS aléatoire
+      log::add('blitzortung', 'debug', 'Coordonnées aléatoires générées pour l\'équipement ' . $_eqLogic->getName() . ' : lat : ' . $lat . ' -> ' . $newlat . ' / lon : ' . $lon . ' -> ' . $newlon . ' / distance générée : ' . $distance . ' km');
     }
-    log::add('blitzortung', 'debug', 'Coordonnées aléatoires pour l\'équipement ' . $_eqLogic->getName() . ' : lat : ' . $lat . ' -> ' . $newlat . ' / lon : ' . $lon . ' -> ' . $newlon . ' / distance générée : ' . $distance . ' km');
+    log::add('blitzortung', 'debug', 'Coordonnées aléatoires retenues pour l\'équipement ' . $_eqLogic->getName() . ' : lat : ' . $lat . ' -> ' . $newlat . ' / lon : ' . $lon . ' -> ' . $newlon . ' / distance générée : ' . $distance . ' km');
     return (array($newlat, $newlon));
   }
 
