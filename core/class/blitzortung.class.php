@@ -618,14 +618,17 @@ class blitzortung extends eqLogic {
 
 
     if ($this->getConfiguration('latChanged') == 'true' || $this->getConfiguration('lonChanged') == 'true' || $this->getConfiguration('rayonChanged') == 'true') {
-      log::add('blitzortung', 'info', 'Changement de la configuration de l\'équipement ' . $this->getName() . ' -> Réinitialisation du Timestamp de la dernière donnée reçue');
+      log::add('blitzortung', 'info', 'Changement de la configuration de l\'équipement ' . $this->getName() . ' -> Réinitialisation des commandes');
       log::add('blitzortung', 'debug', 'latChanged : ' . $this->getConfiguration('latChanged'));
       log::add('blitzortung', 'debug', 'lonChanged : ' . $this->getConfiguration('lonChanged'));
       log::add('blitzortung', 'debug', 'rayonChanged : ' . $this->getConfiguration('rayonChanged'));
 
+      // Reset des variables de configuration
       $this->setConfiguration('latChanged', '');
       $this->setConfiguration('lonChanged', '');
       $this->setConfiguration('rayonChanged', '');
+
+      // Reset des commandes
       $this->checkAndUpdateCmd('lastTSreceived', ''); // Remise à zéro de lastTSreceived pour permettre de récupérer l'ensemble des données lors du prochain Fetch
       $this->checkAndUpdateCmd('lastorientation', '');
       $this->checkAndUpdateCmd('counter', 0);
@@ -687,6 +690,10 @@ class blitzortung extends eqLogic {
           $lon = $RandomGPS[1];
 
           $rayon = $eqLogic->getConfiguration('cfg_rayon', 50);
+          if ($rayon > 200) {
+            log::add('blitzortung', 'warning', 'L\'équipement ' . $eqLogic->getName() . ' est défini avec un rayon supérieur à 200 km. Vous devez le réduire et sauvegarder');
+            continue;
+          }
           $rayon = $rayon + 5; // Augmentation du rayon pour tenir compte des coordonées aléatoires transmises au serveur
 
           $eqs[$i] = array('id' => $eqId, 'lat' => $lat, 'lon' => $lon, 'rad' => $rayon); // Construction du tableau des équipements à passer dans le payload
@@ -722,7 +729,7 @@ class blitzortung extends eqLogic {
       curl_close($ch);
       return $result;
     } else {
-      log::add('blitzortung', 'debug', 'Aucun équipement actif');
+      log::add('blitzortung', 'debug', 'Aucun équipement actif ou erreur dans la configuration');
       return;
     }
   }
