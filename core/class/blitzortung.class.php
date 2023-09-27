@@ -352,7 +352,7 @@ class blitzortung extends eqLogic {
             //$ts_local = round($tabImpacts["time"] / 1000000000) + self::getUTCoffset('Europe/Paris'); // Convert nano to secondes with UTC offset
             //$ts_local = round($tabImpacts["time"] / 1000000000); // Convert nano to secondes with UTC offset
             $ts_local = $tabImpacts["time"];
-            $azimuth = self::getAzimuth($latitude, $longitude, $tabImpacts["lat"], $tabImpacts["lon"]); // Récupération de l'azimuth pour indiquer sur la boussole                
+            $azimuth = self::getAzimuth($latitude, $longitude, $tabImpacts["lat"], $tabImpacts["lon"]); // Récupération de l'azimuth pour indiquer sur la boussole
             $new_record = ['ts' => $ts_local, 'lat' => $tabImpacts["lat"], 'lon' => $tabImpacts["lon"], 'distance' => $distance, 'azimuth' => $azimuth];
             $arr_recordedimpacts[] = $new_record;
             $counter++;
@@ -642,7 +642,7 @@ class blitzortung extends eqLogic {
       cache::set('blitzortung::' . $this->getId() . '::' . 'json_recordedimpacts', ''); // Suppression de la chaine json des impacts
 
       $this->refreshWidget();
-      //self::CleanAndAnalyzeImpacts(); 
+      //self::CleanAndAnalyzeImpacts();
     }
   }
 
@@ -673,7 +673,7 @@ class blitzortung extends eqLogic {
     log::add(__CLASS__, 'info', '>> Interrogation du serveur <<');
     //$url = 'https://blitzortung.bad.wf/querynsew'; // interrogation avec north / south / est / west
     //$url = 'https://blitzortung.bad.wf/queryllr'; // lat / lon / rad
-    $url = 'https://blitzortung.bad.wf/v2/query'; // lat / lon / rad   
+    $url = 'https://blitzortung.bad.wf/v2/query'; // lat / lon / rad
 
     $i = 0;
     $lastTS_array = array();
@@ -681,7 +681,7 @@ class blitzortung extends eqLogic {
     foreach (eqLogic::byType('blitzortung', true) as $eqLogic) {
       if ($eqLogic->getIsEnable()) {
         $eqId = $eqLogic->getId();
-        if ($_id == '' || $_id == $eqId) { // Si un id d'équipement a été transmis on ne récupère les informations que pour cet équipement          
+        if ($_id == '' || $_id == $eqId) { // Si un id d'équipement a été transmis on ne récupère les informations que pour cet équipement
           //$ts_limit = time() + self::getUTCoffset('Europe/Paris') - 3600 * $LastImpactRetention; // Heure actuelle moins le délais de rétention
           //$ts_limit = (time() - 3600 * $LastImpactRetention) * 1000000000 ; // Heure actuelle moins le délais de rétention puis converti en nano secondes
           $LastImpactRetention = $eqLogic->getConfiguration("cfg_LastImpactRetention", 1);
@@ -934,7 +934,7 @@ class blitzortung extends eqLogic {
 
     $getTemplate = getTemplate('core', $version, 'blitzortung_' . $TemplateName . '.template', __CLASS__); // on récupère le template du plugin.
     $template_replace = template_replace($replace, $getTemplate); // on remplace les tags
-    $postToHtml = $this->postToHtml($_version, $template_replace); // on met en cache le widget, si la config de l'user le permet.  
+    $postToHtml = $this->postToHtml($_version, $template_replace); // on met en cache le widget, si la config de l'user le permet.
     log::add(__CLASS__, 'debug', '[template] Affichage du template pour ' . $eqLogicName . ' [END]');
     return $postToHtml; // renvoie le code du template.
 
@@ -983,8 +983,8 @@ class blitzortungCmd extends cmd {
   // Exécution d'une commande
   public function execute($_options = array()) {
     $eqLogic = $this->getEqLogic(); // récupère l'éqlogic de la commande $this
-    switch ($this->getLogicalId()) { // vérifie le logicalid de la commande      
-      case 'refresh': // LogicalId de la commande rafraîchir        
+    switch ($this->getLogicalId()) { // vérifie le logicalid de la commande
+      case 'refresh': // LogicalId de la commande rafraîchir
         $json = $eqLogic->Fetch($eqLogic->getId()); // Fetch uniquement pour l'équipement en question
         $eqLogic->RecordNewImpacts($json); // Enregistrement des impacts reçus du serveur
         //$eqLogic->setupCron(1); // pour tester la modification du cron sans l'update du plugin
