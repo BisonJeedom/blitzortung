@@ -79,7 +79,7 @@ class blitzortung extends eqLogic {
         $oCron->setClass('blitzortung');
         $oCron->setFunction('blitzortungCron');
         $oCron->setEnable(1);
-        $oCron->setSchedule('*/5 * * * *');
+        $oCron->setSchedule('* * * * *');
         $oCron->setTimeout('2');
         $oCron->save();
       } else {
