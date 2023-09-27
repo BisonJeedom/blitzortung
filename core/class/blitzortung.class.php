@@ -298,12 +298,11 @@ class blitzortung extends eqLogic {
         log::add(__CLASS__, 'debug', '[' . $eqLogic->getName() . ']' . ' json_recordedimpacts : ' . $json_recordedimpacts);
         cache::set('blitzortung::' . $eqId . '::' . 'json_recordedimpacts', $json_recordedimpacts);
         $eqLogic->checkAndUpdateCmd('counter', $counter);
+        log::add(__CLASS__, 'info', '[' . $eqLogic->getName() . ']' . ' Nombre d\'enregistrements après analyse  : ' . $counter);
         //$y =  date('Y-m-d H:i:s', round($lastTS / 1000000000));
         $y =  date('Y-m-d H:i:s', $lastTS);
         log::add(__CLASS__, 'debug', '[' . $eqLogic->getName() . ']' . ' lastTSreceived : ' . $lastTS . ' (' . $y . ')');
-        $eqLogic->checkAndUpdateCmd('lastTSreceived', $lastTS); // Enregistrement du dernier timestamp envoyé par le serveur
-
-        //$eqLogic->refreshWidget();
+        $eqLogic->checkAndUpdateCmd('lastTSreceived', $lastTS); // Enregistrement du dernier timestamp envoyé par le serveur       
       }
     }
     self::refreshAllEqs();
