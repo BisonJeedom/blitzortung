@@ -641,17 +641,17 @@ class blitzortung extends eqLogic {
   }
 
 
-  public static function GenerateRandomGPSarround($_eqLogic) {
-    $lat = $_eqLogic->getLatitude();
-    $lon = $_eqLogic->getLongitude();
+  public function GenerateRandomGPSarround() {
+    $lat = $this->getLatitude();
+    $lon = $this->getLongitude();
     $distance = 5;
     while ($distance >= 5) { // Tant que les coordonnées sont éloignées de plus de 5 km
       $newlat = round($lat + mt_rand(-18, 18) / 1000, 4); // Latitude aléatoire entre -0.018 et 0.018 autour du point GPS
       $newlon = round($lon + mt_rand(-4, 4) / 100, 4); // Longitude aléatoire entre -0.04  et 0.04 autour du point GPS
       $distance = self::distance($lat, $lon, $newlat, $newlon, 'k'); // Analyse de la distance avec le point GPS aléatoire
-      log::add(__CLASS__, 'debug', 'Coordonnées aléatoires générées pour l\'équipement ' . $_eqLogic->getName() . ' : lat : ' . $lat . ' -> ' . $newlat . ' / lon : ' . $lon . ' -> ' . $newlon . ' / distance générée : ' . $distance . ' km');
+      log::add(__CLASS__, 'debug', 'Coordonnées aléatoires générées pour l\'équipement ' . $this->getName() . ' : lat : ' . $lat . ' -> ' . $newlat . ' / lon : ' . $lon . ' -> ' . $newlon . ' / distance générée : ' . $distance . ' km');
     }
-    log::add(__CLASS__, 'debug', 'Coordonnées aléatoires retenues pour l\'équipement ' . $_eqLogic->getName() . ' : lat : ' . $lat . ' -> ' . $newlat . ' / lon : ' . $lon . ' -> ' . $newlon . ' / distance générée : ' . $distance . ' km');
+    log::add(__CLASS__, 'debug', 'Coordonnées aléatoires retenues pour l\'équipement ' . $this->getName() . ' : lat : ' . $lat . ' -> ' . $newlat . ' / lon : ' . $lon . ' -> ' . $newlon . ' / distance générée : ' . $distance . ' km');
     return (array($newlat, $newlon));
   }
 
@@ -671,7 +671,7 @@ class blitzortung extends eqLogic {
           //$ts_limit = (time() - 3600 * $LastImpactRetention) * 1000000000 ; // Heure actuelle moins le délais de rétention puis converti en nano secondes
           $LastImpactRetention = $eqLogic->getConfiguration("cfg_LastImpactRetention", 1);
 
-          $RandomGPS = self::GenerateRandomGPSarround($eqLogic); // Génération de coordonées aléatoires autour du point GPS
+          $RandomGPS = $eqLogic->GenerateRandomGPSarround(); // Génération de coordonées aléatoires autour du point GPS
           $lat = $RandomGPS[0];
           $lon = $RandomGPS[1];
 
