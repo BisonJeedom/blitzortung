@@ -118,22 +118,6 @@ class blitzortung extends eqLogic {
     return $longitude;
   }
 
-  public static function isValidLatitude($latitude) {
-    if (preg_match("/^[-]?(([0-8]?[0-9])\.(\d+))|(90(\.0+)?)$/", $latitude)) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  public static function isValidLongitude($longitude) {
-    if (preg_match("/^[-]?((((1[0-7][0-9])|([0-9]?[0-9]))\.(\d+))|180(\.0+)?)$/", $longitude)) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
   public static function isBeta($text = false) {
     $plugin = plugin::byId('blitzortung');
     $update = $plugin->getUpdate();
@@ -157,90 +141,6 @@ class blitzortung extends eqLogic {
       return $plugin->getDocumentation();
     }
   }
-
-  public static function getFurthestPointsWithPointsAndDistance() {
-    $R = 6371;
-
-    foreach (eqLogic::byType('blitzortung', true) as $eqLogic) {
-      $latitude1 = $eqLogic->getLatitude();
-      $longitude1 = $eqLogic->getLongitude();
-      $rayon = $eqLogic->getConfiguration('cfg_rayon', 50);
-      $rayon = $rayon + 10; // marge de 10km supplémentaire à transmettre
-
-      $lat1 = deg2rad($latitude1);
-      $lon1 = deg2rad($longitude1);
-
-      $a = deg2rad(0);
-      $lat2 = asin(sin($lat1) * cos($rayon / $R) + cos($lat1) * sin($rayon / $R) * cos($a));
-      $lon2 = $lon1 + atan2(sin($a) * sin($rayon / $R) * cos($lat1), cos($rayon / $R) - sin($lat1) * sin($lat2));
-      $arr['"' . $eqLogic->getId() . '"']['"lat_max"'] = rad2deg($lat2);
-
-      $a = deg2rad(90);
-      $lat2 = asin(sin($lat1) * cos($rayon / $R) + cos($lat1) * sin($rayon / $R) * cos($a));
-      $lon2 = $lon1 + atan2(sin($a) * sin($rayon / $R) * cos($lat1), cos($rayon / $R) - sin($lat1) * sin($lat2));
-      $arr['"' . $eqLogic->getId() . '"']['"lon_max"'] = rad2deg($lon2);
-
-      $a = deg2rad(180);
-      $lat2 = asin(sin($lat1) * cos($rayon / $R) + cos($lat1) * sin($rayon / $R) * cos($a));
-      $lon2 = $lon1 + atan2(sin($a) * sin($rayon / $R) * cos($lat1), cos($rayon / $R) - sin($lat1) * sin($lat2));
-      $arr['"' . $eqLogic->getId() . '"']['"lat_min"'] = rad2deg($lat2);
-
-      $a = deg2rad(270);
-      $lat2 = asin(sin($lat1) * cos($rayon / $R) + cos($lat1) * sin($rayon / $R) * cos($a));
-      $lon2 = $lon1 + atan2(sin($a) * sin($rayon / $R) * cos($lat1), cos($rayon / $R) - sin($lat1) * sin($lat2));
-      $arr['"' . $eqLogic->getId() . '"']['"lon_min"'] = rad2deg($lon2);
-    }
-
-    return json_encode($arr);
-  }
-
-  public static function getMinAndMaxGPS() {
-    // Retourne un json contenant les latitudes minimum/maximum ainsi que les longitudes minimum/maximum pour l'équipement en fonction du rayon
-    $R = 6371;
-
-    foreach (eqLogic::byType('blitzortung', true) as $eqLogic) {
-      $latitude1 = $eqLogic->getLatitude();
-      $longitude1 = $eqLogic->getLongitude();
-      $rayon = $eqLogic->getConfiguration('cfg_rayon', 50);
-      $rayon = $rayon + 10; // marge de 10km supplémentaire à transmettre au daemon python
-
-      $lat1 = deg2rad($latitude1);
-      $lon1 = deg2rad($longitude1);
-
-      $a = deg2rad(0);
-      $lat2 = asin(sin($lat1) * cos($rayon / $R) + cos($lat1) * sin($rayon / $R) * cos($a));
-      $lon2 = $lon1 + atan2(sin($a) * sin($rayon / $R) * cos($lat1), cos($rayon / $R) - sin($lat1) * sin($lat2));
-      $arr[$eqLogic->getId()]['lat_max'] = rad2deg($lat2);
-
-      $a = deg2rad(90);
-      $lat2 = asin(sin($lat1) * cos($rayon / $R) + cos($lat1) * sin($rayon / $R) * cos($a));
-      $lon2 = $lon1 + atan2(sin($a) * sin($rayon / $R) * cos($lat1), cos($rayon / $R) - sin($lat1) * sin($lat2));
-      $arr[$eqLogic->getId()]['lon_max'] = rad2deg($lon2);
-
-      $a = deg2rad(180);
-      $lat2 = asin(sin($lat1) * cos($rayon / $R) + cos($lat1) * sin($rayon / $R) * cos($a));
-      $lon2 = $lon1 + atan2(sin($a) * sin($rayon / $R) * cos($lat1), cos($rayon / $R) - sin($lat1) * sin($lat2));
-      $arr[$eqLogic->getId()]['lat_min'] = rad2deg($lat2);
-
-      $a = deg2rad(270);
-      $lat2 = asin(sin($lat1) * cos($rayon / $R) + cos($lat1) * sin($rayon / $R) * cos($a));
-      $lon2 = $lon1 + atan2(sin($a) * sin($rayon / $R) * cos($lat1), cos($rayon / $R) - sin($lat1) * sin($lat2));
-      $arr[$eqLogic->getId()]['lon_min'] = rad2deg($lon2);
-    }
-
-    return json_encode($arr);
-  }
-
-  public static function evalExpr($_expr) {
-    try {
-      return jeedom::evaluateExpression($_expr) == 1 ? 1 : 0;
-    } catch (Exception $e) {
-      log::add(__CLASS__, 'error', 'Impossible d\'évaluer le paramètre Expression "déclenchant l\'écoute des évènements"');
-      return 0;
-    }
-  }
-
-
 
   public static function distance($lat1, $lng1, $lat2, $lng2, $unit = 'k') {
     // https://numa-bord.com/miniblog/php-calcul-de-distance-entre-2-coordonnees-gps-latitude-longitude/
@@ -572,6 +472,7 @@ class blitzortung extends eqLogic {
     $this->setConfiguration('cfg_DefaultChart', '1');
   }
 
+  /*
   // Fonction exécutée automatiquement après la création de l'équipement
   public function postInsert() {
   }
@@ -587,6 +488,7 @@ class blitzortung extends eqLogic {
   // Fonction exécutée automatiquement avant la sauvegarde (création ou mise à jour) de l'équipement
   public function preSave() {
   }
+  */
 
   // Fonction exécutée automatiquement après la sauvegarde (création ou mise à jour) de l'équipement
   public function postSave() {
@@ -606,9 +508,7 @@ class blitzortung extends eqLogic {
 
     if ($this->getConfiguration('latChanged') == 'true' || $this->getConfiguration('lonChanged') == 'true' || $this->getConfiguration('rayonChanged') == 'true') {
       log::add(__CLASS__, 'info', 'Changement de la configuration de l\'équipement ' . $this->getName() . ' -> Réinitialisation des commandes');
-      log::add(__CLASS__, 'debug', 'latChanged : ' . $this->getConfiguration('latChanged'));
-      log::add(__CLASS__, 'debug', 'lonChanged : ' . $this->getConfiguration('lonChanged'));
-      log::add(__CLASS__, 'debug', 'rayonChanged : ' . $this->getConfiguration('rayonChanged'));
+      log::add(__CLASS__, 'debug', 'latChanged : ' . $this->getConfiguration('latChanged') . ' ; lonChanged : ' . $this->getConfiguration('lonChanged') . ' ; rayonChanged : ' . $this->getConfiguration('rayonChanged'));
 
       // Reset des variables de configuration
       $this->setConfiguration('latChanged', '');
@@ -632,6 +532,7 @@ class blitzortung extends eqLogic {
     }
   }
 
+  /*
   // Fonction exécutée automatiquement avant la suppression de l'équipement
   public function preRemove() {
   }
@@ -639,7 +540,7 @@ class blitzortung extends eqLogic {
   // Fonction exécutée automatiquement après la suppression de l'équipement
   public function postRemove() {
   }
-
+  */
 
   public function GenerateRandomGPSarround() {
     $lat = $this->getLatitude();
@@ -657,11 +558,8 @@ class blitzortung extends eqLogic {
 
   public static function Fetch($_id = '') {
     log::add(__CLASS__, 'info', '>> Interrogation du serveur <<');
-    //$url = 'https://blitzortung.bad.wf/querynsew'; // interrogation avec north / south / est / west
-    //$url = 'https://blitzortung.bad.wf/queryllr'; // lat / lon / rad
     $url = 'https://blitzortung.bad.wf/v2/query'; // lat / lon / rad
 
-    $i = 0;
     $lastTS_array = array();
     $eqs = array();
     foreach (eqLogic::byType('blitzortung', true) as $eqLogic) {
@@ -671,10 +569,7 @@ class blitzortung extends eqLogic {
           //$ts_limit = (time() - 3600 * $LastImpactRetention) * 1000000000 ; // Heure actuelle moins le délais de rétention puis converti en nano secondes
           $LastImpactRetention = $eqLogic->getConfiguration("cfg_LastImpactRetention", 1);
 
-          $RandomGPS = $eqLogic->GenerateRandomGPSarround(); // Génération de coordonées aléatoires autour du point GPS
-          $lat = $RandomGPS[0];
-          $lon = $RandomGPS[1];
-
+          list($lat, $lon) = $eqLogic->GenerateRandomGPSarround(); // Génération de coordonées aléatoires autour du point GPS
           $rayon = $eqLogic->getConfiguration('cfg_rayon', 50);
           if ($rayon > 200) {
             log::add(__CLASS__, 'warning', 'L\'équipement ' . $eqLogic->getName() . ' est défini avec un rayon supérieur à 200 km. Vous devez le réduire et sauvegarder');
@@ -682,8 +577,7 @@ class blitzortung extends eqLogic {
           }
           $rayon = $rayon + 5; // Augmentation du rayon pour tenir compte des coordonées aléatoires transmises au serveur
 
-          $eqs[$i] = array('id' => $eqId, 'lat' => $lat, 'lon' => $lon, 'rad' => $rayon); // Construction du tableau des équipements à passer dans le payload
-          $i++;
+          $eqs[] = array('id' => $eqId, 'lat' => $lat, 'lon' => $lon, 'rad' => $rayon); // Construction du tableau des équipements à passer dans le payload
 
           $ts_limit = time() - 3600 * $LastImpactRetention; // Heure actuelle moins le délais de rétention
           $lastTSreceived = $eqLogic->getCmd('info', 'lastTSreceived')->execCmd();
@@ -744,7 +638,6 @@ class blitzortung extends eqLogic {
     }
 
     $replace = $this->preToHtml($_version); // initialise les tag standards : #id#, #name# ...
-
     if (!is_array($replace)) {
       return $replace;
     }
@@ -803,7 +696,6 @@ class blitzortung extends eqLogic {
     }
     $replace['#tickPositions#'] = substr($replace['#tickPositions#'], 0, -1);
 
-
     // Gestion de l'URL de la carte à ouvrir
     if (is_object($this->getCmd('info', 'mapurl'))) {
       $replace['#mapurl#'] = $this->getCmd('info', 'mapurl')->execCmd();
@@ -811,7 +703,6 @@ class blitzortung extends eqLogic {
       $replace['#mapurl#'] = '';
       log::add(__CLASS__, 'error', 'Commande manquante sur l\'équipement ' . $eqLogicName . ' : mapurl -> Merci de vérifier puis sauvegarder pour générer la commande');
     }
-
 
     // Gestion du nombre d'impact pour mise à jour du widget
     if (is_object($this->getCmd('info', 'counter'))) {
@@ -909,7 +800,6 @@ class blitzortung extends eqLogic {
       $replace['#item2active#'] = 'active';
     }
 
-
     //$b = cache::byKey('blitzortung::' . $this->getName() . '::event')->getValue('');
     //log::add(__CLASS__, 'debug', $this->getName() . ' : ' . $b);
     $replace['#proba-blitz_id#'] = cache::byKey('blitzortung::' . $this->getName() . '::event')->getValue('');
@@ -919,9 +809,7 @@ class blitzortung extends eqLogic {
     $postToHtml = $this->postToHtml($_version, $template_replace); // on met en cache le widget, si la config de l'user le permet.
     log::add(__CLASS__, 'debug', '[template] Affichage du template pour ' . $eqLogicName . ' [END]');
     return $postToHtml; // renvoie le code du template.
-
   }
-
 
   /*
   * Permet de déclencher une action avant modification d'une variable de configuration du plugin
@@ -942,6 +830,7 @@ class blitzortung extends eqLogic {
 
   /*     * **********************Getteur Setteur*************************** */
 }
+
 
 class blitzortungCmd extends cmd {
   /*     * *************************Attributs****************************** */
