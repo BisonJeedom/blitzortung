@@ -118,6 +118,22 @@ class blitzortung extends eqLogic {
     return $longitude;
   }
 
+  public static function isValidLatitude($latitude) {
+    if (preg_match("/^[-]?(([0-8]?[0-9])\.(\d+))|(90(\.0+)?)$/", $latitude)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  public static function isValidLongitude($longitude) {
+    if (preg_match("/^[-]?((((1[0-7][0-9])|([0-9]?[0-9]))\.(\d+))|180(\.0+)?)$/", $longitude)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   public static function isBeta($text = false) {
     $plugin = plugin::byId('blitzortung');
     $update = $plugin->getUpdate();
@@ -484,11 +500,28 @@ class blitzortung extends eqLogic {
   // Fonction exécutée automatiquement après la mise à jour de l'équipement
   public function postUpdate() {
   }
+  */
 
   // Fonction exécutée automatiquement avant la sauvegarde (création ou mise à jour) de l'équipement
   public function preSave() {
+    $lat = $this->getLatitude();
+    $lon = $this->getLongitude();
+    $rayon = $this->getConfiguration('cfg_rayon', 50);
+
+    if (!$this->isValidLatitude($lat)) {
+      log::add(__CLASS__, 'warning', 'La latitude n\'est pas dans un format acceptable lors de la sauvegarde de l\'équipement : ' . $lat);
+      throw new Exception('La latitude n\'est pas dans un format acceptable');
+    }
+    if (!$this->isValidLongitude($lon)) {
+      log::add(__CLASS__, 'warning', 'La longitude n\'est pas dans un format acceptable lors de la sauvegarde de l\'équipement : ' . $lon);
+      throw new Exception('La longitude n\'est pas dans un format acceptable');
+    }
+    if ($rayon < 1 || $rayon > 200) {
+      log::add(__CLASS__, 'warning', 'Le rayon n\'est pas acceptable lors de la sauvegarde de l\'équipement : ' . $rayon);
+      throw new Exception('Le rayon doit être compris entre 1 et 200');
+    }
   }
-  */
+
 
   // Fonction exécutée automatiquement après la sauvegarde (création ou mise à jour) de l'équipement
   public function postSave() {
