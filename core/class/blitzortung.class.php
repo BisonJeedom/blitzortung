@@ -856,8 +856,8 @@ class blitzortungCmd extends cmd {
     $eqLogic = $this->getEqLogic(); // récupère l'éqlogic de la commande $this
     switch ($this->getLogicalId()) { // vérifie le logicalid de la commande
       case 'refresh': // LogicalId de la commande rafraîchir
-        $json = $eqLogic->Fetch($eqLogic->getId()); // Fetch uniquement pour l'équipement en question
-        $eqLogic->RecordNewImpacts($json); // Enregistrement des impacts reçus du serveur
+        $json = blitzortung::Fetch($eqLogic->getId()); // Fetch uniquement pour l'équipement en question
+        blitzortung::RecordNewImpacts($json); // Enregistrement des impacts reçus du serveur
         //$eqLogic->setupCron(1); // pour tester la modification du cron sans l'update du plugin
         break;
       default:
