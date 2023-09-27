@@ -320,7 +320,7 @@ class blitzortung extends eqLogic {
         log::add(__CLASS__, 'info', '[' . $eqLogic->getName() . ']' . ' Id n°' . $eqId);
         log::add(__CLASS__, 'info', '[' . $eqLogic->getName() . ']' . ' Nombre d\'impacts à analyser : ' . $count_impacts);
 
-        $json_recordedimpacts = cache::byKey('blitzortung::' . $eqId . '::' . 'json_recordedimpacts')->getValue('');
+        $json_recordedimpacts = cache::byKey('blitzortung::' . $eqId . '::' . 'json_recordedimpacts')->getValue('[]');
         $arr_recordedimpacts = json_decode($json_recordedimpacts, true);
         $counter = count($arr_recordedimpacts);
         log::add(__CLASS__, 'info', '[' . $eqLogic->getName() . ']' . ' Nombre d\'enregistrements actuels  : ' . $counter);
@@ -401,7 +401,7 @@ class blitzortung extends eqLogic {
     foreach (eqLogic::byType('blitzortung', true) as $eqLogic) {
       if ($eqLogic->getIsEnable()) {
         $eqId = $eqLogic->getId();
-        $json = cache::byKey('blitzortung::' . $eqId . '::' . 'json_recordedimpacts')->getValue('');
+        $json = cache::byKey('blitzortung::' . $eqId . '::' . 'json_recordedimpacts')->getValue('[]');
         $arr = json_decode($json, true);
         $count_start = count($arr);
 
@@ -757,8 +757,7 @@ class blitzortung extends eqLogic {
     $replace['#nocommserver#'] = (cache::byKey('blitzortung::blitzortung::nocommserver')->getValue('') == 1) ? 1 : 0;
     $replace['#nocommblitzortung#'] = (cache::byKey('blitzortung::blitzortung::nocommblitzortung')->getValue('') == 1) ? 1 : 0;
 
-    $keyName = 'json_recordedimpacts';
-    $json = cache::byKey('blitzortung::' . $this->getId() . '::' . $keyName)->getValue('');
+    $json = cache::byKey('blitzortung::' . $this->getId() . '::json_recordedimpacts')->getValue('[]');
     $rayon = $this->getConfiguration('cfg_rayon', 50);
     $LastImpactRetention = $this->getConfiguration("cfg_LastImpactRetention", 1);
     $tsmax = $LastImpactRetention * 3600; // Valeur maximum sur le graphique (en secondes)
