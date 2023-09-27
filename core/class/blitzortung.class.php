@@ -106,12 +106,6 @@ class blitzortung extends eqLogic {
   }
 
 
-  public static function getUTCoffset($_city) {
-    $dtz = new DateTimeZone($_city);
-    $timeCity = new DateTime('now', $dtz);
-    return ($dtz->getOffset($timeCity));
-  }
-
   public static function getLatitude($_eqLogic) {
     $latitude = $_eqLogic->getConfiguration('cfg_latitude', '');
     $latitude = ($latitude == '') ? config::bykey('info::latitude') : $latitude;
@@ -349,7 +343,6 @@ class blitzortung extends eqLogic {
             continue;
           }
           if ($distance <= $rayon) {
-            //$ts_local = round($tabImpacts["time"] / 1000000000) + self::getUTCoffset('Europe/Paris'); // Convert nano to secondes with UTC offset
             //$ts_local = round($tabImpacts["time"] / 1000000000); // Convert nano to secondes with UTC offset
             $ts_local = $tabImpacts["time"];
             $azimuth = self::getAzimuth($latitude, $longitude, $tabImpacts["lat"], $tabImpacts["lon"]); // Récupération de l'azimuth pour indiquer sur la boussole
@@ -416,13 +409,6 @@ class blitzortung extends eqLogic {
 
         log::add(__CLASS__, 'info', '| [Start] Nettoyage des enregistrements de ' . $eqLogic->getName() . ' (id :' . $eqId . ')');
         log::add(__CLASS__, 'info', '|  Durée de conservation : ' . $LastImpactRetention . ' h');
-
-        /*
-        $ts_limit = time() + self::getUTCoffset('Europe/Paris') - 3600 * $LastImpactRetention; // Heure actuelle moins le délais de rétention
-        $ts_limit_5mn = time() + self::getUTCoffset('Europe/Paris') - 300;
-        $ts_limit_10mn = time() + self::getUTCoffset('Europe/Paris') - 600;
-        $ts_limit_15mn = time() + self::getUTCoffset('Europe/Paris') - 900;
-        */
 
         $ts_limit = time() - 3600 * $LastImpactRetention; // Heure actuelle moins le délais de rétention
         $ts_limit_5mn = time() - 300;
@@ -682,7 +668,6 @@ class blitzortung extends eqLogic {
       if ($eqLogic->getIsEnable()) {
         $eqId = $eqLogic->getId();
         if ($_id == '' || $_id == $eqId) { // Si un id d'équipement a été transmis on ne récupère les informations que pour cet équipement
-          //$ts_limit = time() + self::getUTCoffset('Europe/Paris') - 3600 * $LastImpactRetention; // Heure actuelle moins le délais de rétention
           //$ts_limit = (time() - 3600 * $LastImpactRetention) * 1000000000 ; // Heure actuelle moins le délais de rétention puis converti en nano secondes
           $LastImpactRetention = $eqLogic->getConfiguration("cfg_LastImpactRetention", 1);
 
@@ -784,11 +769,9 @@ class blitzortung extends eqLogic {
     $replace['#datapolar_recent#'] = '';
     $replace['#datapolar_lessrecent#'] = '';
     $cfg_ImpactsRecents = $this->getConfiguration("cfg_ImpactsRecents", 1);
-    //$ts_limit = time() + self::getUTCoffset('Europe/Paris') - $cfg_ImpactsRecents * 300; // pour avoir les impacts des 5, 10 ou 15 dernieres minutes suivant la configuration
     $ts_limit = time()  - $cfg_ImpactsRecents * 300; // pour avoir les impacts des 5, 10 ou 15 dernieres minutes suivant la configuration
     //log::add(__CLASS__, 'debug', 'ts_limit : ' . $ts_limit);
     foreach ($arr as $key => $value) {
-      //$ts = time() + self::getUTCoffset('Europe/Paris') - $value["ts"]; // Délais depuis l'enregistrement en secondes
       $ts = time() - $value["ts"]; // Délais depuis l'enregistrement en secondes
       $replace['#data#'] .= '[' . $ts . ',' . $value["distance"] . ']' . ',';
       $azimuth = $value["azimuth"] < 0 ? 360 + $value["azimuth"] : $value["azimuth"]; // Transforme un azimuth négatif en valeur comprise entre 0 et 360° pour l'affichage
