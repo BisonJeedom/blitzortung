@@ -106,14 +106,14 @@ class blitzortung extends eqLogic {
   }
 
 
-  public static function getLatitude($_eqLogic) {
-    $latitude = $_eqLogic->getConfiguration('cfg_latitude', '');
+  public function getLatitude() {
+    $latitude = $this->getConfiguration('cfg_latitude', '');
     $latitude = ($latitude == '') ? config::bykey('info::latitude') : $latitude;
     return $latitude;
   }
 
-  public static function getLongitude($_eqLogic) {
-    $longitude = $_eqLogic->getConfiguration('cfg_longitude', '');
+  public function getLongitude() {
+    $longitude = $this->getConfiguration('cfg_longitude', '');
     $longitude = ($longitude == '') ? config::bykey('info::longitude') : $longitude;
     return $longitude;
   }
@@ -162,8 +162,8 @@ class blitzortung extends eqLogic {
     $R = 6371;
 
     foreach (eqLogic::byType('blitzortung', true) as $eqLogic) {
-      $latitude1 = blitzortung::getLatitude($eqLogic);
-      $longitude1 = blitzortung::getLongitude($eqLogic);
+      $latitude1 = $eqLogic->getLatitude();
+      $longitude1 = $eqLogic->getLongitude();
       $rayon = $eqLogic->getConfiguration('cfg_rayon', 50);
       $rayon = $rayon + 10; // marge de 10km supplémentaire à transmettre
 
@@ -199,8 +199,8 @@ class blitzortung extends eqLogic {
     $R = 6371;
 
     foreach (eqLogic::byType('blitzortung', true) as $eqLogic) {
-      $latitude1 = blitzortung::getLatitude($eqLogic);
-      $longitude1 = blitzortung::getLongitude($eqLogic);
+      $latitude1 = $eqLogic->getLatitude();
+      $longitude1 = $eqLogic->getLongitude();
       $rayon = $eqLogic->getConfiguration('cfg_rayon', 50);
       $rayon = $rayon + 10; // marge de 10km supplémentaire à transmettre au daemon python
 
@@ -312,8 +312,8 @@ class blitzortung extends eqLogic {
 
       $eqLogic = eqLogic::byId($eqId);
 
-      $latitude = blitzortung::getLatitude($eqLogic);
-      $longitude = blitzortung::getLongitude($eqLogic);
+      $latitude = $eqLogic->getLatitude();
+      $longitude = $eqLogic->getLongitude();
       $rayon = $eqLogic->getConfiguration('cfg_rayon', 50);
 
       if ($latitude != '' && $longitude != '') {
@@ -601,7 +601,7 @@ class blitzortung extends eqLogic {
     $this->CreateCmd('counterevolution', 'Evolution des impacts sur 15mn', '', '1', '', 'none', '-1 month', '', '', 'info', 'numeric', '', '1');
     //$this->CreateCmd('timetoprocessexceeded', 'Délai de traitement trop important', '', '', '', '', '', '', '', 'info', 'numeric', '', '1');
     $this->CreateCmd('mapurl', 'URL de la carte', '', '0', '', '', '', '', '', 'info', 'string', '', '1');
-    $this->checkAndUpdateCmd('mapurl', 'https://map.blitzortung.org/#' . $this->getConfiguration("cfg_Zoom", 10) . '/' . self::getLatitude($this) . '/' . self::getLongitude($this));
+    $this->checkAndUpdateCmd('mapurl', 'https://map.blitzortung.org/#' . $this->getConfiguration("cfg_Zoom", 10) . '/' . $this->getLatitude() . '/' . $this->getLongitude());
 
 
     if ($this->getConfiguration('latChanged') == 'true' || $this->getConfiguration('lonChanged') == 'true' || $this->getConfiguration('rayonChanged') == 'true') {
@@ -642,8 +642,8 @@ class blitzortung extends eqLogic {
 
 
   public static function GenerateRandomGPSarround($_eqLogic) {
-    $lat = blitzortung::getLatitude($_eqLogic);
-    $lon = blitzortung::getLongitude($_eqLogic);
+    $lat = $_eqLogic->getLatitude();
+    $lon = $_eqLogic->getLongitude();
     $distance = 5;
     while ($distance >= 5) { // Tant que les coordonnées sont éloignées de plus de 5 km
       $newlat = round($lat + mt_rand(-18, 18) / 1000, 4); // Latitude aléatoire entre -0.018 et 0.018 autour du point GPS
