@@ -6,7 +6,7 @@ Ce plugin permet la récupération des impacts de foudre en temps réel à trave
 
 ---
 
-Community Jeedom [ [#plugin-blitzortung](https://community.jeedom.com/tag/plugin-) ]
+Community Jeedom [ [#plugin-blitzortung](https://community.jeedom.com/tag/plugin-blitzortung) ]
 
 Documentations : [ [Stable](https://github.com/BisonJeedom/documentations/blob/main/blitzortung/index_stable.md) ]
 [ [Bêta](https://github.com/BisonJeedom/documentations/blob/main/blitzortung/index_beta.md) ]
