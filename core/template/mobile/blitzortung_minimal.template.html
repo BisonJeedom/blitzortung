@@ -1,0 +1,320 @@
+<div class="eqLogic eqLogic-widget blitzortung #class# #category#" data-eqLogic_id="#id#" data-eqType="#eqType#"
+	data-version="#version#" data-eqLogic_uid="#uid#" data-translate-category="#translate_category#"
+	data-category="#category#" data-tags="#tags#" style="#style#">
+
+	<span class="cmd refresh pull-right cursor" data-cmd_id="#refresh_id#">
+		<i class="fas fa-sync"></i>
+	</span>
+	<span class="cmd pull-right cursor" style="margin-right: 20px; position: absolute; right: 0;">
+		<a href="#info#"><i class="fas fa-info tooltips"
+				style="font-size: small; color: var(--sc-lightTxt-color) !important;"
+				title="Impacts de foudre depuis #retention# heure(s) dans un rayon de #rayon# km"></i></a>
+	</span>
+	<span class="cmd pull-left cursor" style="margin-left: 3px; margin-top: 4px; position: absolute;">
+		<a href="#mapurl#" target="_blank" style="color: var(--sc-lightTxt-color) !important;">
+			<i class="icon kiko-marker-map tooltips" title="Ouvrir la carte sur Blitzortung"></i>
+		</a>
+	</span>
+
+	<center>
+		<span class="widget-name">
+			<span class="warning" title="#alert_name#">
+				<i class='#alert_icon#'></i>
+			</span>
+			<span>#name_display#<span class="object_name">#object_name#</span></span><br />
+		</span>
+		<span id="#icon-nocommserver_#id#" class="icon kiko-no-signal icon_red"
+			style="font-size: 28px !important"></span>
+		<span id="#icon-nocommblitzortung_#id#" class="icon kiko-lightning-off icon_yellow"
+			style="font-size: 28px !important"></span>
+		<div style="padding: 5px; display: flex; flex-wrap: wrap; justify-content: center;">
+			<div class="cmd cmd-widget history cursor" data-type="info" data-subtype="numeric" data-template="tile"
+				data-cmd_id="#counter_id#" style="width: 49%;">
+				<div class="cmdName">Impacts</div>
+				<span class="evolstate"></span>
+				<span class="state"></span>
+			</div>
+			<div class="cmd cmd-widget history cursor" data-type="info" data-subtype="numeric" data-template="tile"
+				data-cmd_id="#distance_id#" style="width: 51%;">
+				<div class="cmdName">Distance</div>
+				<span class="evoldistance"></span>
+				<span class="state"></span>
+			</div>
+			<div class="cmd cmd-widget history cursor" data-type="info" data-subtype="numeric" data-template="tile"
+				data-cmd_id="#cmdIdOrientation#" style="width: 100%;">
+				<div class="cmdName">Direction</div>
+				<div>
+					<svg id="SvgOrientation-#id#" data-v-47880d39="" width="30" height="30" viewBox="0 0 1000 1000"
+						enable-background="new 0 0 1000 1000" xml:space="preserve"
+						style="transform: scale(0.9) rotate(#orientationValue#deg);">
+						<g id="gOrientation-#id#" data-v-47880d39="" fill="#3C73A5">
+							<path data-v-47880d39=""
+								d="M510.5,749.6c-14.9-9.9-38.1-9.9-53.1,1.7l-262,207.3c-14.9,11.6-21.6,6.6-14.9-11.6L474,48.1c5-16.6,14.9-18.2,21.6,0l325,898.7c6.6,16.6-1.7,23.2-14.9,11.6L510.5,749.6z">
+							</path>
+							<path data-v-47880d39=""
+								d="M817.2,990c-8.3,0-16.6-3.3-26.5-9.9L497.2,769.5c-5-3.3-18.2-3.3-23.2,0L210.3,976.7c-19.9,16.6-41.5,14.9-51.4,0c-6.6-9.9-8.3-21.6-3.3-38.1L449.1,39.8C459,13.3,477.3,10,483.9,10c6.6,0,24.9,3.3,34.8,29.8l325,898.7c5,14.9,5,28.2-1.7,38.1C837.1,985,827.2,990,817.2,990z M485.6,716.4c14.9,0,28.2,5,39.8,11.6l255.4,182.4L485.6,92.9l-267,814.2l223.9-177.4C454.1,721.4,469,716.4,485.6,716.4z">
+							</path>
+						</g>
+					</svg>
+				</div>
+				<span class="state"></span>
+			</div>
+		</div>
+	</center>
+
+	<div class="item #item1active#">
+		<div class="chart" id="container-#id#" style="height: 220px; width: 210px;"></div>
+	</div>
+
+	<span class="cursor">
+		<a href="#mapurl#" target="_blank"
+			style="margin-left: 5px; font-size: 10px; font-style: italic; color: var(--link-color) !important;">Source :
+			blitzortung.org</a>
+	</span>
+
+	#divGraphInfo#
+
+	<script>
+		if ('#refresh_id#' != '') {
+			$('.eqLogic[data-eqLogic_uid=#uid#] .refresh').on('click', function () {
+				jeedom.cmd.execute({ id: '#refresh_id#' });
+			});
+		} else {
+			$('.eqLogic[data-eqLogic_uid=#uid#] .refresh').remove();
+		}
+
+		// Gestion de l'affichage de l'icône nocommserver (plus de communication avec le serveur)
+		if ('#nocommserver#' == 1) {
+			document.getElementById("#icon-nocommserver_#id#").style.display = 'block'; // Affichage
+		} else {
+			document.getElementById("#icon-nocommserver_#id#").style.display = 'none'; // Non affichage
+		}
+
+		// Gestion de l'affichage de l'icône nocommblitzortung (probable problème coté serveur car plus d'impacts reçus dans le monde depuis plus de 5mn)
+		if ('#nocommblitzortung#' == 1) {
+			document.getElementById("#icon-nocommblitzortung_#id#").style.display = 'block'; // Affichage
+		} else {
+			document.getElementById("#icon-nocommblitzortung_#id#").style.display = 'none'; // Non affichage
+		}
+
+		// Gestion de l'affichage de l'évolution des impacts sur 15mn
+		if ('#counterevolution_id#' != '') {
+			jeedom.cmd.addUpdateFunction('#counterevolution_id#', function (_options) {
+				var _target = document.querySelector('.cmd[data-cmd_id="#counter_id#"]')
+				if (!_target) return;
+				let v = _options.display_value
+				if (v == 'Diminution') {
+					_target.querySelector('.evolstate').innerHTML = '<a href="#evolstate#"><i class="icon jeedomapp-dirDB tooltips" title="Diminution des impacts sur 15mn" style="font-size: 1.2em; padding-top: 3px; color: var(--link-color);"></i></a>'
+				} else if (v == 'Augmentation') {
+					_target.querySelector('.evolstate').innerHTML = '<a href="#evolstate#"><i class="icon jeedomapp-dirDH tooltips" title="Augmentation des impacts sur 15mn" style="font-size: 1.2em; padding-top: 3px; color: var(--link-color);"></i></a>'
+				} else {
+					_target.querySelector('.evolstate').innerHTML = '<a href="#evolstate#"><i class="icon fas fa-minus tooltips" title="Aucune évolution sur 15mn" style="font-size: 1.2em; padding-top: 3px; color: var(--link-color);"></i></a>'
+				}
+			});
+			jeedom.cmd.refreshValue([{ cmd_id: '#counterevolution_id#', display_value: '#counterevolution_value#' }])
+		}
+
+		// Gestion de l'affichage du compteur d'impacts
+		if ('#counter_id#' != '') {
+			jeedom.cmd.addUpdateFunction('#counter_id#', function (_options) {
+				var _target = document.querySelector('.cmd[data-cmd_id="#counter_id#"]')
+				if (!_target) return;
+				let v = _options.display_value
+				if (v == '' || v == 0) {
+					v = '---'
+					// document.getElementById("gOrientation-#id#").setAttribute("visibility", 'hidden')
+					document.getElementById("SvgOrientation-#id#").parentNode.setAttribute('style', 'display: none;')
+					document.querySelector('.cmd[data-cmd_id="#cmdIdOrientation#"] .state').innerHTML = '<span style="font-size: 1em;">---</span>'
+				} else {
+					// document.getElementById("gOrientation-#id#").setAttribute("visibility", 'visible')
+					document.getElementById("SvgOrientation-#id#").parentNode.setAttribute('style', 'display: flex; justify-content: center;')
+					document.querySelector('.cmd[data-cmd_id="#cmdIdOrientation#"] .state').innerHTML = ''
+				}
+				if (v > 200) {
+					color = 'color: #EA251F'
+				} else if (v > 50) {
+					color = 'color: #EA6E1E'
+				} else {
+					color = ''
+				}
+				_target.setAttribute('title', 'Date de valeur : ' + _options.valueDate + '<br/>Date de collecte : ' + _options.collectDate);
+				_target.querySelector('.state').innerHTML = '<span style="font-size: 1em;' + color + ' !important">' + v + '</span>';
+			});
+			jeedom.cmd.refreshValue([{ cmd_id: '#counter_id#', display_value: '#counter_value#', valueDate: '#counter_valueDate#', collectDate: '#counter_collectDate#' }]);
+		}
+
+		// Gestion de l'affichage de l'évolution de la distance sur 15mn
+		if ('#distanceevolution_id#' != '') {
+			jeedom.cmd.addUpdateFunction('#distanceevolution_id#', function (_options) {
+				var _target = document.querySelector('.cmd[data-cmd_id="#distance_id#"]')
+				if (!_target) return;
+				let v = _options.display_value
+				if (v == 'Rapprochement') {
+					_target.querySelector('.evoldistance').innerHTML = '<a href="#evoldistance#"><i class="icon jeedomapp-dirDB tooltips" title="Rapprochement des impacts sur 15mn" style="font-size: 1.2em; padding-top: 3px; color: var(--link-color);"></i></a>'
+				} else if (v == 'Eloignement') {
+					_target.querySelector('.evoldistance').innerHTML = '<a href="#evoldistance#" ><i class="icon jeedomapp-dirDB tooltips" title="Eloignement des impacts sur 15mn" style="font-size: 1.2em; padding-top: 3px; color: var(--link-color);"></i></a>'
+				} else {
+					_target.querySelector('.evoldistance').innerHTML = '<a href="#evoldistance#"><i class="icon fas fa-minus tooltips" title="Aucune évolution sur 15mn" style="font-size: 1.2em; padding-top: 3px; color: var(--link-color);"></i></a>'
+				}
+			});
+			jeedom.cmd.refreshValue([{ cmd_id: '#distanceevolution_id#', display_value: '#distanceevolution_value#' }])
+		}
+
+		// Gestion de l'affichage de la distance du dernier impact
+		if ('#distance_id#' != '') {
+			jeedom.cmd.addUpdateFunction('#distance_id#', function (_options) {
+				var _target = document.querySelector('.cmd[data-cmd_id="#distance_id#"]')
+				if (!_target) return;
+				let v = _options.display_value
+				let unit = ' ' + _options.unit
+				if (v == '' || v == 0) {
+					v = '---'
+					color = ''
+				} else {
+					if (v <= 10) {
+						color = 'color: #EA251F' // Texte en rouge
+					} else if (v <= 30) {
+						color = 'color: #EA6E1E' // Texte en Orange
+					} else {
+						color = 'color: #DFE150' // Texte en Jaune
+					}
+				}
+				_target.setAttribute('title', 'Date de valeur : ' + _options.valueDate + '<br/>Date de collecte : ' + _options.collectDate);
+				_target.querySelector('.state').innerHTML = '<span style="font-size: 1em;' + color + ' !important;">' + v + unit + '</span>';
+			});
+			jeedom.cmd.refreshValue([{ cmd_id: '#distance_id#', display_value: '#distance_value#', unit: '#distance_unit#', valueDate: '#distance_valueDate#', collectDate: '#distance_collectDate#' }]);
+		}
+
+		jeedom.cmd.addUpdateFunction('#lastorientation_id#', function (_options) {
+			var _target = document.getElementById("SvgOrientation-#id#")
+			if (!_target) return;
+			let o = _options.display_value
+			_target.setAttribute("style", "transform: scale(0.9) rotate(" + o + "deg);")
+		});
+		jeedom.cmd.refreshValue([{ cmd_id: '#lastorientation_id#', display_value: '#lastorientation_value#' }])
+
+		Highcharts.chart('container-#id#', {
+			chart: {
+				type: 'scatter',
+				zoomType: 'xy'
+			},
+
+			credits: {
+				enabled: false
+			},
+
+			navigation: {
+				buttonOptions: {
+					enabled: false
+				}
+			},
+
+			title: {
+				text: ''
+			},
+
+			subtitle: {
+				useHTML: true,
+				text: ''
+			},
+
+			yAxis: {
+				title: {
+					enabled: false
+				},
+				min: 0,
+				max: #rayon#,
+				tickInterval: 10,
+				labels: {
+					style: {
+						color: 'var(--link-color)'
+					},
+					x: -8
+				},
+			},
+
+			xAxis: {
+				title: {
+					text: 'Minutes',
+					style: {
+						color: 'var(--link-color)'
+					}
+				},
+				min: 0,
+				max: #tsmax#,
+				tickPositions: [#tickPositions#],
+				labels: {
+					formatter: function () {
+						var time = this.value;
+						var min = parseInt(time / 60);
+						return min;
+					},
+					style: {
+						color: 'var(--link-color)'
+					}
+				},
+				lineColor: 'var(--link-color)',
+				tickColor: 'var(--link-color)'
+			},
+
+			tooltip: {
+				useHTML: true,
+				headerFormat: null,
+				pointFormatter: function () {
+					return this.y + ' km il y a ' + Math.round(this.x / 60, 0) + ' minutes'
+				}
+			},
+
+			legend: {
+				enabled: false
+			},
+
+			plotOptions: {
+				scatter: {
+					marker: {
+						radius: 2.5,
+						symbol: 'circle',
+
+					}
+				}
+			},
+
+			series: [{
+				keys: ['x', 'y'],
+				data: [#data#],
+				zoneAxis: 'y',
+				// zones: [{
+				// 	value: 10,
+				// 	color: '#EA251F'
+				// }, {
+				// 	value: 30,
+				// 	color: '#EA6E1E'
+				// },
+				// {
+				// 	color: '#DFE150'
+				// }]
+			}]
+		});
+	</script>
+	<style>
+		[data-theme="core2019_Dark"] .blitzortung {
+			--blitzortung-color: rgba(160, 160, 160, 0.5);
+		}
+
+		[data-theme="core2019_Light"] .blitzortung {
+			--blitzortung-color: rgba(100, 100, 100, 0.5);
+		}
+
+		.blitzortung .highcharts-yaxis-grid .highcharts-grid-line {
+			stroke: var(--blitzortung-color);
+		}
+
+		.blitzortung .highcharts-xaxis-grid>path:nth-child(1) {
+			stroke: var(--link-color);
+		}
+
+		.blitzortung .highcharts-color-0 {
+			fill: #EA6E1E;
+		}
+	</style>
+</div>

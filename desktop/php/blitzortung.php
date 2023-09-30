@@ -11,24 +11,48 @@ $eqLogics = eqLogic::byType($plugin->getId());
 <div class="row row-overflow">
 	<!-- Page d'accueil du plugin -->
 	<div class="col-xs-12 eqLogicThumbnailDisplay">
-		<legend><i class="fas fa-cog"></i> {{Gestion}}</legend>
-		<!-- Boutons de gestion du plugin -->
-		<div class="eqLogicThumbnailContainer">
-			<div class="cursor pluginAction logoSecondary" data-action="openLocation" data-location="<?= $plugin->getDocumentation() ?>">
-				<i class="fas fa-book-open"></i>
-				<br>
-				<span>{{Documentation}}</span>
+		<div class="row">
+			<div class="col-sm-10">
+				<legend><i class="fas fa-cog"></i> {{Gestion}}</legend>
+				<!-- Boutons de gestion du plugin -->
+				<div class="eqLogicThumbnailContainer">
+					<div class="cursor pluginAction logoSecondary" data-action="openLocation" data-location="<?= blitzortung::getDocumentation() ?>">
+						<i class="fas fa-book-open"></i>
+						<br>
+						<span>{{Documentation}}</span>
+					</div>
+					<div class="cursor eqLogicAction logoPrimary" data-action="add">
+						<i class="fas fa-plus-circle"></i>
+						<br>
+						<span>{{Ajouter}}</span>
+					</div>
+					<div class="cursor eqLogicAction logoSecondary" data-action="gotoPluginConf">
+						<i class="fas fa-wrench"></i>
+						<br>
+						<span>{{Configuration}}</span>
+					</div>
+				</div>
 			</div>
-			<div class="cursor eqLogicAction logoPrimary" data-action="add">
-				<i class="fas fa-plus-circle"></i>
-				<br>
-				<span>{{Ajouter}}</span>
-			</div>
-			<div class="cursor eqLogicAction logoSecondary" data-action="gotoPluginConf">
-				<i class="fas fa-wrench"></i>
-				<br>
-				<span>{{Configuration}}</span>
-			</div>
+			<?php
+			// à conserver
+			// sera afficher uniquement si l'utilisateur est en version 4.4 ou supérieur
+			$jeedomVersion  = jeedom::version() ?? '0';
+			$displayInfoValue = version_compare($jeedomVersion, '4.4.0', '>=');
+			if ($displayInfoValue) {
+			?>
+				<div class="col-sm-2">
+					<legend><i class=" fas fa-comments"></i> {{Community}}</legend>
+					<div class="eqLogicThumbnailContainer">
+						<div class="cursor eqLogicAction logoSecondary" data-action="createCommunityPost" style="width: 180px;">
+							<i class="fas fa-ambulance"></i>
+							<br>
+							<span style="color:var(--txt-color)">{{Créer un post Community}}</span>
+						</div>
+					</div>
+				</div>
+			<?php
+			}
+			?>
 		</div>
 		<legend><i class="fas fa-table"></i> {{Mes équipements}}</legend>
 		<?php
@@ -139,7 +163,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 								</label>
 								<div class="col-sm-6">
 									<div class="input-group">
-										<input type="number" class="eqLogicAttr" data-l1key="configuration" data-l2key="cfg_latitude" placeholder="<?= config::bykey('info::latitude') ?>">
+										<input id="lat" type="text" class="eqLogicAttr" data-l1key="configuration" data-l2key="cfg_latitude" placeholder="<?= config::bykey('info::latitude') ?>">
 									</div>
 								</div>
 							</div>
@@ -150,18 +174,18 @@ $eqLogics = eqLogic::byType($plugin->getId());
 								</label>
 								<div class="col-sm-6">
 									<div class="input-group">
-										<input type="number" class="eqLogicAttr" data-l1key="configuration" data-l2key="cfg_longitude" placeholder="<?= config::bykey('info::longitude') ?>">
+										<input id="lon" type="text" class="eqLogicAttr" data-l1key="configuration" data-l2key="cfg_longitude" placeholder="<?= config::bykey('info::longitude') ?>">
 									</div>
 								</div>
 							</div>
 
 							<div class="form-group">
-								<label class="col-sm-4 control-label">{{Rayon (km)}}
+								<label class="col-sm-4 control-label">{{Rayon (entre 1 et 200 km)}}
 									<sup><i class="fas fa-question-circle tooltips" title="{{Renseigner le rayon autour de vos coordonnées GPS}}"></i></sup>
 								</label>
 								<div class="col-sm-6">
 									<div class="input-group">
-										<input type="number" class="eqLogicAttr" data-l1key="configuration" data-l2key="cfg_rayon" placeholder="50">
+										<input id="rayon" type="number" class="eqLogicAttr" data-l1key="configuration" data-l2key="cfg_rayon" placeholder="50">
 									</div>
 								</div>
 							</div>
@@ -170,7 +194,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 								<label class="col-sm-4 control-label">{{Conservation des derniers impacts}}
 									<sup><i class="fas fa-question-circle tooltips" title="{{Renseigner la durée de conservation des derniers impacts}}"></i></sup>
 								</label>
-								<div class="col-sm-6">
+								<div class="col-sm-8">
 									<select id="bt_select_LastImpactRetention" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="cfg_LastImpactRetention">
 										<option value="1">{{1 heure}}</option>
 										<option value="2">{{2 heures}}</option>
@@ -181,10 +205,23 @@ $eqLogics = eqLogic::byType($plugin->getId());
 							</div>
 
 							<div class="form-group">
+								<label class="col-sm-4 control-label">{{Visualiser les impacts récents sur}}
+									<sup><i class="fas fa-question-circle tooltips" title="{{Renseigner la durée pour voir les impacts récents sur le graph polar}}"></i></sup>
+								</label>
+								<div class="col-sm-8">
+									<select id="bt_select_ImpactsRecents" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="cfg_ImpactsRecents">
+										<option value="1">{{les 5 dernières minutes}}</option>
+										<option value="2">{{les 10 dernières minutes}}</option>
+										<option value="3">{{les 15 dernières minutes}}</option>
+									</select>
+								</div>
+							</div>
+							
+							<div class="form-group">
 								<label class="col-sm-4 control-label">{{Facteur de zoom en ouvrant la carte}}
 									<sup><i class="fas fa-question-circle tooltips" title="{{Choisir entre 5 (vue pays) et 12 (vue ville)}}"></i></sup>
 								</label>
-								<div class="col-sm-6">
+								<div class="col-sm-8">
 									<select id="bt_select_Zoom" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="cfg_Zoom" placeholder="10">
 										<option value="5">{{5}}</option>
 										<option value="6">{{6}}</option>
@@ -200,15 +237,26 @@ $eqLogics = eqLogic::byType($plugin->getId());
 
 							<div class="form-group">
 								<label class="col-sm-4 control-label">{{Sélection du template}}</label>
-								<div class="col-sm-6">
+								<div class="col-sm-8">
 									<select id="bt_select_LastImpactRetention" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="cfg_TemplateName">
 										<option value="aucun">{{Aucun}}</option>
 										<option value="horizontal">{{Horizontal}}</option>
 										<option value="vertical">{{Vertical}}</option>
+										<option value="minimal">{{Minimal}}</option>
 									</select>
 								</div>
 							</div>
-							
+
+							<div class="form-group">
+								<label class="col-sm-4 control-label">{{Graphique par défaut}}</label>
+								<div class="col-sm-8">
+									<select id="bt_select_DefaultChart" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="cfg_DefaultChart">
+										<option value="1">{{Distance en fonction de la durée}}</option>
+										<option value="2">{{Distance en fonction de l'angle (mode radar)}}</option>
+									</select>
+								</div>
+							</div>
+
 						</div>
 
 						<!-- Partie droite de l'onglet "Équipement" -->

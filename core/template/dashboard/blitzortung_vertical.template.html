@@ -1,10 +1,24 @@
-<div class="eqLogic eqLogic-widget allowResize allowReorderCmd #custom_layout# #eqLogic_class# #class#"
+<div class="eqLogic eqLogic-widget allowResize allowReorderCmd blitzortung #custom_layout# #eqLogic_class# #class#"
     data-eqType="#eqType#" data-eqLogic_id="#id#" data-eqLogic_uid="#uid#" data-version="#version#"
     data-translate-category="#translate_category#" data-category="#category#" data-tags="#tags#"
-    style="width: #width#;height: #height#;#style#">
+    style="width: #width#;height: #height#;#style#;">
     <center class="widget-name">
         <span class="warning" title="#alert_name#">
             <i class='#alert_icon#'></i>
+        </span>
+        <span class="cmd pull-left cursor"
+            style="margin-left: 3px;margin-top: 3px; color: var(--link-color) !important;">
+            <a href="#mapurl#" target="_blank"><i class="icon kiko-marker-map tooltips"
+                    title="Ouvrir la carte sur Blitzortung"></i></a>
+        </span>
+        <span id="#icon-blitz_#id#" class="cmd pull-right cursor"
+            style="margin-left: 3px;margin-top: 3px; color: var(--link-color) !important;">
+            <a href="#probablitz#"><i class="icon meteo-orage tooltips" title="Probabilité d'orage"></i></a>
+        </span>
+        <span class="cmd pull-right cursor"
+            style="margin-left: 3px;margin-top: 3px; color: var(--link-color) !important;">
+            <a href="#info#"><i class="fas fa-info tooltips" style="font-size: small;"
+                    title="Impacts de foudre depuis #retention# heure(s) dans un rayon de #rayon# km"></i></a>
         </span>
         <span class="cmd refresh pull-right cursor" data-cmd_id="#refresh_id#">
             <i class="fas fa-sync"></i>
@@ -13,13 +27,12 @@
         <a href="#eqLink#" class="reportModeHidden">#name_display# <span class="object_name">#object_name#</span></a>
     </center>
 
-    <center>
-        <div id="counter-#id#" class="cmd" style="margin-top: 10px; margin-bottom: 10px; font-size :14px;">Impacts de
-            foudre depuis #retention# heure(s) dans un rayon de #rayon# km</div>
-    </center>
-
-    <div style="width:100%">
-        <table style="text-align: center;width: 100%;">
+    <div style="width:100%; height: 100%;">
+        <span id="#icon-nocommserver_#id#" class="icon kiko-no-signal icon_red"
+            style="font-size: 28px !important"></span>
+        <span id="#icon-nocommblitzortung_#id#" class="icon kiko-lightning-off icon_yellow"
+            style="font-size: 28px !important"></span>
+        <table style="text-align: center;width: 100%; max-height: 30%;">
             <tr>
                 <td>
                     <div style="padding-top: 10px;">
@@ -36,11 +49,11 @@
                                 fill="none" />
                             <text dominant-baseline="middle" text-anchor="middle" font-weight="normal" font-size="1.2em"
                                 fill="var(--txt-color)">
-                                <tspan id="circleTxtImpacts-#id#" x="50%" y="50%" dy="0.3em">#stateCounter#</tspan>
+                                <tspan id="circleTxtImpacts-#id#" x="50%" y="50%" dy="0.3em"></tspan>
                             </text>
                         </svg>
                     </div>
-                </td>                
+                </td>
                 <td>
                     <div>
                         <br>
@@ -49,14 +62,13 @@
                                 font-size="1em" fill="var(--txt-color)">
                                 <tspan x="50%" dy="0.3em">Dernier impact et direction</tspan>
                             </text>
-                            <circle id="circleDistance-#id#" cx="60" cy="65" r="45" stroke="#CirclecolorValue#"
+                            <circle id="circleDistance-#id#" cx="60" cy="66" r="45" stroke="#CirclecolorValue#"
                                 stroke-width="2" fill="none" />
-                            <!-- <line id="lineDistance-#id#" x1="89.75" y1="46.6" x2="115.25" y2="31.2" stroke="blue" stroke-width="2" /> -->
                             <text dominant-baseline="middle" text-anchor="middle" font-weight="normal" font-size="1.2em"
                                 fill="var(--txt-color)">
-                                <tspan id="circleTxtDistance-#id#" x="33%" y="50%" dy="0.3em">#stateDistance#</tspan>
+                                <tspan id="circleTxtDistance-#id#" x="33%" y="50%" dy="0.3em"></tspan>
                             </text>
-                            <circle id="circleOrientation-#id#" cx="145" cy="65" r="30" stroke="#3A5B8F"
+                            <circle id="circleOrientation-#id#" cx="145" cy="66" r="30" stroke="#3A5B8F"
                                 stroke-width="2" fill="none" />
                             <text font-weight="normal" font-size="1.2em" fill="var(--txt-color)">
                                 <tspan x="77%" y="23%" dy="0.3em">N</tspan>
@@ -64,8 +76,8 @@
                         </svg>
                         <svg id="SvgOrientation-#id#" data-v-47880d39="" width="30" height="30" viewBox="0 0 1000 1000"
                             enable-background="new 0 0 1000 1000" xml:space="preserve"
-                            style="transform: translate(-55px,-40px) rotate(#orientationValue#deg);">
-                            <g data-v-47880d39="" fill="#3C73A5">
+                            style="transform-box: fill-box; transform: translate(-54px,-40px) rotate(#lastorientation_value#ddeg);">
+                            <g id="gOrientation-#id#" data-v-47880d39="" fill="#3C73A5">
                                 <path data-v-47880d39=""
                                     d="M510.5,749.6c-14.9-9.9-38.1-9.9-53.1,1.7l-262,207.3c-14.9,11.6-21.6,6.6-14.9-11.6L474,48.1c5-16.6,14.9-18.2,21.6,0l325,898.7c6.6,16.6-1.7,23.2-14.9,11.6L510.5,749.6z">
                                 </path>
@@ -79,7 +91,7 @@
             </tr>
             <tr>
                 <td style="background-color: var(--bg-modal-color);">
-                    <div>                        
+                    <div>
                         <svg height="120" width="150">
                             <text x="0" y="3" dominant-baseline="middle" text-anchor="middle" font-weight="normal"
                                 font-size="1em" fill="var(--txt-color)">
@@ -88,8 +100,7 @@
                             <ellipse cx="75" cy="65" rx="74" ry="45" stroke="#3A5B8F" stroke-width="2" fill="none" />
                             <text dominant-baseline="middle" text-anchor="middle" font-weight="normal" font-size="1.2em"
                                 fill="var(--txt-color)">
-                                <tspan id="ellipseTxtCounterEvolution-#id#" x="50%" y="50%" dy="0.3em">
-                                    #counterevolution#</tspan>
+                                <tspan id="ellipseTxtCounterEvolution-#id#" x="50%" y="50%" dy="0.3em"></tspan>
                             </text>
                         </svg>
                     </div>
@@ -103,188 +114,394 @@
                         <ellipse cx="75" cy="65" rx="74" ry="45" stroke="#3A5B8F" stroke-width="2" fill="none" />
                         <text dominant-baseline="middle" text-anchor="middle" font-weight="normal" font-size="1.2em"
                             fill="var(--txt-color)">
-                            <tspan id="ellipseTxtDistanceEvolution-#id#" x="50%" y="50%" dy="0.3em">#distanceevolution#
-                            </tspan>
+                            <tspan id="ellipseTxtDistanceEvolution-#id#" x="50%" y="50%" dy="0.3em"></tspan>
                         </text>
-                    </svg> 
+                    </svg>
                 </td>
             </tr>
             <tr>
                 <td style="background-color: var(--bg-modal-color);" colspan="2">Evolution continue sur 15 minutes</td>
-                <td style="background-color: var(--bg-modal-color);">&nbsp;</td>                
+                <td style="background-color: var(--bg-modal-color);">&nbsp;</td>
             </tr>
         </table>
 
-</div>
+        <!-- <div id="container-#id#" style="padding-top: 10px; height: 50%"></div> -->
 
-<div id="container-#id#" style="padding-top: 10px; width: 100%; height: 350px;"></div>
+        <div id="highcharts-#id#">
+            <figure id="figure-#id#" class="highcharts-figure" style="margin: 0px" ;>
+                <div class="container" style="width: 100%;">
+                    <div id="CarouselBlitzortung-#id#" class="carousel slide" data-ride="carousel"
+                        data-interval="false">
+                        <!-- Indicators -->
 
-<div class="cursor pluginAction logoSecondary">
-    <i class="icon kiko-marker-map"></i>
-    <span><a href="#mapurl#" target="_blank">Ouvrir la carte sur Blitzortung</a></span>
-</div>
 
-<script>
-    if ('#refresh_id#' != '') {
-        $('.eqLogic[data-eqLogic_uid=#uid#] .refresh').on('click', function () {
-            jeedom.cmd.execute({ id: '#refresh_id#' });
+                        <!-- Wrapper for slides -->
+                        <div class="carousel-inner">
+                            <div class="item #item1active#">
+                                <div class="chart" id="container-#id#" style="height: 300px;"></div>
+                            </div>
+
+                            <div class="item #item2active#">
+                                <div class="chart" id="containerpolar-#id#" style="height: 300px;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Left and right controls -->
+                        <a class="left carousel-control" href="#CarouselBlitzortung-#id#" data-slide="prev"
+                            role="button">
+                            <span class="fa fa-chevron-left"
+                                style="position: absolute; left: 15%; bottom: 80px; border-left-style: solid;"></span>
+                            <span class="sr-only">Previous</span>
+                        </a>
+                        <a class="right carousel-control" href="#CarouselBlitzortung-#id#" data-slide="next">
+                            <span class="fa fa-chevron-right"
+                                style="position: absolute; right: 15%; bottom: 80px; border-right-style: solid;"></span>
+                            <span class="sr-only">Next</span>
+                        </a>
+
+                    </div>
+                </div>
+            </figure>
+        </div>
+    </div>
+
+
+
+    <script>
+        if ('#refresh_id#' != '') {
+            $('.eqLogic[data-eqLogic_uid=#uid#] .refresh').on('click', function () {
+                jeedom.cmd.execute({ id: '#refresh_id#' });
+            });
+        } else {
+            $('.eqLogic[data-eqLogic_uid=#uid#] .refresh').remove();
+        }
+
+        // Gestion de l'affichage de l'icône orage
+        if ('#proba-blitz_id#' == 1) {
+            document.getElementById("#icon-blitz_#id#").style.display = 'block'; // Affichage
+        } else {
+            document.getElementById("#icon-blitz_#id#").style.display = 'none'; // Non affichage
+        }
+
+        // Gestion de l'affichage de l'icône nocommserver (plus de communication avec le serveur)
+        if ('#nocommserver#' == 1) {
+            document.getElementById("#icon-nocommserver_#id#").style.display = 'block'; // Affichage
+        } else {
+            document.getElementById("#icon-nocommserver_#id#").style.display = 'none'; // Non affichage
+        }
+
+        // Gestion de l'affichage de l'icône nocommblitzortung (probable problème coté serveur car plus d'impacts reçus dans le monde depuis plus de 5mn)
+        if ('#nocommblitzortung#' == 1) {
+            document.getElementById("#icon-nocommblitzortung_#id#").style.display = 'block'; // Affichage
+        } else {
+            document.getElementById("#icon-nocommblitzortung_#id#").style.display = 'none'; // Non affichage
+        }
+
+        // Gestion de l'affichage du compteur d'impacts
+        jeedom.cmd.addUpdateFunction('#counter_id#', function (_options) {
+            let v = _options.display_value
+            if (v == '' || v == 0) {
+                v = '---'
+                document.getElementById("gOrientation-#id#").setAttribute("visibility", 'hidden')
+            } else {
+                document.getElementById("gOrientation-#id#").setAttribute("visibility", 'visible')
+            }
+            $('#circleTxtImpacts-#id#').text(v);
+            if (v > 50) { // Au dela de 50 impacts, affichage de 2 cerles
+                document.getElementById("circle2Impacts-#id#").setAttribute("stroke", '#3A5B8F')
+                if (v > 200) { // Au dela de 200 impacts, affichage de 3 cerles
+                    document.getElementById("circle3Impacts-#id#").setAttribute("stroke", '#3A5B8F')
+                } else {
+                    document.getElementById("circle3Impacts-#id#").setAttribute("stroke", 'none')
+                }
+            } else {
+                document.getElementById("circle2Impacts-#id#").setAttribute("stroke", 'none')
+            }
         });
-    } else {
-        $('.eqLogic[data-eqLogic_uid=#uid#] .refresh').remove();
-    }
+        jeedom.cmd.refreshValue([{ cmd_id: '#counter_id#', display_value: '#counter_value#' }])
 
-    jeedom.cmd.addUpdateFunction('#cmdIdCounter#', function (_options) {
-        let v = _options.display_value
-        $('#circleTxtImpacts-#id#').text(v);
-        if (v > 50) { // Au dela de 50 impacts, affichage de 2 cerles
-            document.getElementById("circle2Impacts-#id#").setAttribute("stroke", '#3A5B8F')
-            if (v > 200) { // Au dela de 200 impacts, affichage de 3 cerles
-                document.getElementById("circle3Impacts-#id#").setAttribute("stroke", '#3A5B8F')
+
+        // Gestion de l'affichage de la distance du dernier impact
+        jeedom.cmd.addUpdateFunction('#distance_id#', function (_options) {
+            let d = _options.display_value
+            if (d == '') {
+                $('#circleTxtDistance-#id#').text('---');
             } else {
-                document.getElementById("circle3Impacts-#id#").setAttribute("stroke", 'none')
+                $('#circleTxtDistance-#id#').empty().append(d)
             }
-        } else {
-            document.getElementById("circle2Impacts-#id#").setAttribute("stroke", 'none')
-        }
-    });
-    jeedom.cmd.refreshValue([{ cmd_id: '#cmdIdCounter#', display_value: '#stateCounter#' }])
-
-
-    jeedom.cmd.addUpdateFunction('#cmdIdDistance#', function (_options) {
-        let d = _options.display_value
-        if (d == '') {
-            $('#circleTxtDistance-#id#').text('---');
-        } else {
-            $('#circleTxtDistance-#id#').empty().append(d)
-        }
-        if (d != 0) {
-            $('#circleTxtDistance-#id#').append(' ' + _options.unit)
-            if (d <= 10) {
-                document.getElementById("circleDistance-#id#").setAttribute("stroke", '#EA251F') // Cercle en Rouge
-            } else if (d <= 30) {
-                document.getElementById("circleDistance-#id#").setAttribute("stroke", '#EA6E1E') // Cercle en Orange
+            if (d != 0) {
+                $('#circleTxtDistance-#id#').append(' ' + _options.unit)
+                if (d <= 10) {
+                    document.getElementById("circleDistance-#id#").setAttribute("stroke", '#EA251F') // Cercle en Rouge
+                } else if (d <= 30) {
+                    document.getElementById("circleDistance-#id#").setAttribute("stroke", '#EA6E1E') // Cercle en Orange
+                } else {
+                    document.getElementById("circleDistance-#id#").setAttribute("stroke", '#DFE150') // Cercle en Jaune
+                }
             } else {
-                document.getElementById("circleDistance-#id#").setAttribute("stroke", '#DFE150') // Cercle en Jaune
+                document.getElementById("circleDistance-#id#").setAttribute("stroke", '#3A5B8F')
             }
-        } else {
-            document.getElementById("circleDistance-#id#").setAttribute("stroke", '#3A5B8F')
-        }
-    });
-    jeedom.cmd.refreshValue([{ cmd_id: '#cmdIdDistance#', display_value: '#stateDistance#', unit: '#uniteDistance#' }])
+        });
+        jeedom.cmd.refreshValue([{ cmd_id: '#distance_id#', display_value: '#distance_value#', unit: '#distance_unit#' }])
 
 
-    jeedom.cmd.addUpdateFunction('#cmdIdOrientation#', function (_options) {
-        let o = _options.display_value
-        document.getElementById("SvgOrientation-#id#").setAttribute("style", "transform: translate(-55px,-40px) rotate(" + o + "deg);")
-    });
-    jeedom.cmd.refreshValue([{ cmd_id: '#cmdIdOrientation#', display_value: '#orientationValue#' }])
-
-    /*
-    jeedom.cmd.addUpdateFunction('#cmdIdOrientation#', function (_options) {
-        let a = _options.display_value
-        let ca = Math.cos(a * Math.PI / 180)
-        let sa = Math.sin(a * Math.PI / 180)
-        x1 = 60 + 35 * sa
-        y1 = 65 - 35 * ca
-        x2 = 60 + 65 * sa
-        y2 = 65 - 65 * ca
-    });
-    jeedom.cmd.refreshValue([{ cmd_id: '#cmdIdOrientation#', display_value: '#Orientation#'}])
-    */
+        // Gestion de l'affichage de l'orientation du dernier impact
+        jeedom.cmd.addUpdateFunction('#lastorientation_id#', function (_options) {
+            let o = _options.display_value
+            document.getElementById("SvgOrientation-#id#").setAttribute("style", "transform-box: fill-box; transform: translate(-54px,-40px) rotate(" + o + "deg);")
+        });
+        jeedom.cmd.refreshValue([{ cmd_id: '#lastorientation_id#', display_value: '#lastorientation_value#' }])
 
 
-    jeedom.cmd.addUpdateFunction('#cmdIdcounterevolution#', function (_options) {
-        $('#ellipseTxtCounterEvolution-#id#').text(_options.display_value);
-    });
-    jeedom.cmd.refreshValue([{ cmd_id: '#cmdIdcounterevolution#', display_value: '#counterevolution#' }])
+        // Gestion de l'affichage de l'évolution des impacts sur 15mn
+        jeedom.cmd.addUpdateFunction('#counterevolution_id#', function (_options) {
+            $('#ellipseTxtCounterEvolution-#id#').text(_options.display_value);
+        });
+        jeedom.cmd.refreshValue([{ cmd_id: '#counterevolution_id#', display_value: '#counterevolution_value#' }])
 
 
-    jeedom.cmd.addUpdateFunction('#cmdIddistanceevolution#', function (_options) {
-        $('#ellipseTxtDistanceEvolution-#id#').text(_options.display_value);
-    });
-    jeedom.cmd.refreshValue([{ cmd_id: '#cmdIddistanceevolution#', display_value: '#distanceevolution#' }])
+        // Gestion de l'affichage de l'évolution de la distance sur 15mn
+        jeedom.cmd.addUpdateFunction('#distanceevolution_id#', function (_options) {
+            $('#ellipseTxtDistanceEvolution-#id#').text(_options.display_value);
+        });
+        jeedom.cmd.refreshValue([{ cmd_id: '#distanceevolution_id#', display_value: '#distanceevolution_value#' }])
 
-    Highcharts.chart('container-#id#', {
-        chart: {
-            type: 'scatter',
-            zoomType: 'xy'
-        },
-
-        title: {
-            style: { "color": "var(--txt-color)" },
-            text: ''
-        },
-
-        subtitle: {
-            useHTML: true,
-            text: ''
-        },
-
-        credits: {
-            enabled: false
-        },
-
-        yAxis: {
-            title: {
-                text: 'Distance (km)'
-            },
-            min: 0,
-            max: #rayon#
+        // Gestion de l'affichage du graphique
+        Highcharts.chart('container-#id#', {
+            chart: {
+                type: 'scatter',
+                zoomType: 'xy'
             },
 
-        xAxis: {
-            title: {
-                text: 'Minutes'
-            },
-            min: 0,
-            max: #tsmax#,
-            tickPositions: [#tickPositions#],
-            labels: {
-                formatter: function () {
-                    var time = this.value;
-                    var min = parseInt(time / 60);
-                    return min;
+            credits: {
+                text: 'Source : blitzortung.org',
+                href: '',
+                style: {
+                    cursor: 'arrow'
                 }
-            }
-        },
-
-        tooltip: {
-            useHTML: true,
-            headerFormat: null,
-            pointFormatter: function () {
-                return this.y + ' km il y a ' + Math.round(this.x / 60, 0) + ' minutes'
-            }
-        },
-
-        legend: {
-            enabled: false
-        },
-
-        plotOptions: {
-            scatter: {
-                marker: {
-                    radius: 2.5,
-                    symbol: 'circle',
-
-                }
-            }
-        },
-
-        series: [{
-            keys: ['x', 'y'],
-            data: [#data#],
-            zoneAxis: 'y',
-            zones: [{
-                value: 10,
-                color: '#EA251F'
-            }, {
-                value: 30,
-                color: '#EA6E1E'
             },
-            {
-                color: '#DFE150'
+
+            navigation: {
+                buttonOptions: {
+                    enabled: false
+                }
+            },
+
+            title: {
+                style: { "color": "var(--txt-color)" },
+                text: ''
+            },
+
+            subtitle: {
+                useHTML: true,
+                text: ''
+            },
+
+            yAxis: {
+                title: {
+                    text: 'Distance (km)'
+                },
+                min: 0,
+                max: #rayon#
+            },
+
+            xAxis: {
+                title: {
+                    text: 'Minutes'
+                },
+                min: 0,
+                max: #tsmax#,
+                tickPositions: [#tickPositions#],
+                labels: {
+                    formatter: function () {
+                        var time = this.value;
+                        var min = parseInt(time / 60);
+                        return min;
+                    }
+                }
+            },
+
+            tooltip: {
+                useHTML: true,
+                headerFormat: null,
+                pointFormatter: function () {
+                    return this.y + ' km il y a ' + Math.round(this.x / 60, 0) + ' minutes'
+                }
+            },
+
+            legend: {
+                enabled: false
+            },
+
+            plotOptions: {
+                scatter: {
+                    marker: {
+                        radius: 2.5,
+                        symbol: 'circle',
+
+                    }
+                }
+            },
+
+            series: [{
+                keys: ['x', 'y'],
+                data: [#data#],
+                zoneAxis: 'y',
+                zones: [{
+                    value: 10,
+                    color: '#EA251F'
+                }, {
+                    value: 30,
+                    color: '#EA6E1E'
+                },
+                {
+                    color: '#DFE150'
+                }]
             }]
-        }]
-    });
-</script>
+        });
+
+
+        Highcharts.chart('containerpolar-#id#', {
+            chart: {
+                polar: true
+            },
+
+            credits: {
+                text: 'Source : blitzortung.org',
+                href: '',
+                style: {
+                    cursor: 'arrow'
+                }
+            },
+
+            navigation: {
+                buttonOptions: {
+                    enabled: false
+                }
+            },
+
+            title: {
+                text: ''
+            },
+
+            pane: {
+                startAngle: 0,
+                endAngle: 360
+            },
+
+            xAxis: {
+                tickInterval: 45,
+                min: 0,
+                max: 360,
+                lineWidth: 3,
+                gridLineColor: 'var(--blitzortung-color)',
+                labels: {
+                    formatter: function () {
+                        let label;
+                        switch (this.value) {
+                            case 0:
+                                label = 'N';
+                                break;
+                            case 45:
+                                label = 'NE';
+                                break;
+                            case 90:
+                                label = 'E';
+                                break;
+                            case 135:
+                                label = 'SE';
+                                break;
+                            case 180:
+                                label = 'S';
+                                break;
+                            case 225:
+                                label = 'SO';
+                                break;
+                            case 270:
+                                label = 'O';
+                                break;
+                            case 315:
+                                label = 'NO';
+                                break;
+                        }
+                        return label;
+                    }
+                }
+            },
+
+            yAxis: {
+                min: 0,
+                max: #rayon#,
+                tickInterval: 10
+            },
+
+            tooltip: {
+                useHTML: true,
+                headerFormat: null,
+                pointFormatter: function () {
+                    return this.y + ' km à ' + this.x + '°'
+                }
+            },
+
+            plotOptions: {
+                scatter: {
+                    marker: {
+                        radius: 2.5,
+                        symbol: 'circle'
+                    }
+                },
+                series: {
+                    pointStart: 0,
+                    pointInterval: 1
+                }
+            },
+
+            series: [{
+                type: 'scatter',
+                name: 'Moins récents',
+                data: [#datapolar_lessrecent#], // Impacts les moins récents [[angle1, km1], [angle2, km2]]
+                color: '#ffb366' // couleur moins foncée
+            }, {
+                type: 'scatter',
+                name: 'Récents',
+                data: [#datapolar_recent#], // Impacts les plus récents [[angle1, km1], [angle2, km2]]
+                color: '#b35900' // Couleur plus foncée
+            }]
+        });
+
+    </script>
+
+    <style>
+        .carousel-control {
+            width: 5%;
+            margin-left: -20px;
+            margin-right: -20px;
+        }
+
+        [data-theme="core2019_Dark"] .blitzortung {
+            --blitzortung-color: rgba(160, 160, 160, 0.5);
+        }
+
+        [data-theme="core2019_Light"] .blitzortung {
+            --blitzortung-color: rgba(100, 100, 100, 0.5);
+        }
+
+        .blitzortung .highcharts-yaxis-grid .highcharts-grid-line {
+            stroke: var(--blitzortung-color) !important;
+            stroke-width: 1 !important;
+        }
+
+        .blitzortung .highcharts-yaxis-labels>text {
+            fill: var(--blitzortung-color) !important;
+        }
+
+        .blitzortung .highcharts-yaxis-labels>text:nth-child(1) {
+            display: none;
+        }
+
+        .blitzortung .highcharts-axis.highcharts-yaxis.highcharts-radial-axis {
+            display: none;
+        }
+    </style>
+
 </div>
