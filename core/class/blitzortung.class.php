@@ -302,7 +302,7 @@ class blitzortung extends eqLogic {
         //$y =  date('Y-m-d H:i:s', round($lastTS / 1000000000));
         $y =  date('Y-m-d H:i:s', $lastTS);
         log::add(__CLASS__, 'debug', '[' . $eqLogic->getName() . ']' . ' lastTSreceived : ' . $lastTS . ' (' . $y . ')');
-        $eqLogic->checkAndUpdateCmd('lastTSreceived', $lastTS); // Enregistrement du dernier timestamp envoyé par le serveur       
+        $eqLogic->checkAndUpdateCmd('lastTSreceived', $lastTS); // Enregistrement du dernier timestamp envoyé par le serveur
       }
     }
     self::refreshAllEqs();
@@ -629,7 +629,7 @@ class blitzortung extends eqLogic {
     if (count($eqs) != 0) {
       $lastTS_tosend = min($lastTS_array);
       log::add(__CLASS__, 'debug', 'Fetch (min between all entries)  : ' . $lastTS_tosend);
-      $data = array('since' => $lastTS_tosend, 'eqs' => $eqs);
+      $data = array('since' => intval($lastTS_tosend), 'eqs' => $eqs);
 
       $payload = json_encode($data);
       $ch = curl_init($url);
