@@ -63,7 +63,11 @@
 	</center>
 
 	<div class="item #item1active#">
-		<div class="chart" id="container-#id#" style="height: 220px; width: 210px;"></div>
+		<div class="chart scatter" id="container-#id#" style="height: 220px; width: 210px;"></div>
+	</div>
+
+	<div class="item #item2active#">
+		<div class="chart polar" id="containerpolar-#id#" style="height: 300px;"></div>
 	</div>
 
 	<span class="cursor">
@@ -295,6 +299,110 @@
 				// }]
 			}]
 		});
+
+		Highcharts.chart('containerpolar-#id#', {
+			chart: {
+				polar: true
+			},
+
+			credits: {
+				enabled: false
+			},
+
+			navigation: {
+				buttonOptions: {
+					enabled: false
+				}
+			},
+
+			title: {
+				text: ''
+			},
+
+			pane: {
+				startAngle: 0,
+				endAngle: 360
+			},
+
+			xAxis: {
+				tickInterval: 45,
+				min: 0,
+				max: 360,
+				lineWidth: 3,
+				gridLineColor: 'var(--blitzortung-color)',
+				labels: {
+					formatter: function () {
+						let label;
+						switch (this.value) {
+							case 0:
+								label = 'N';
+								break;
+							case 45:
+								label = 'NE';
+								break;
+							case 90:
+								label = 'E';
+								break;
+							case 135:
+								label = 'SE';
+								break;
+							case 180:
+								label = 'S';
+								break;
+							case 225:
+								label = 'SO';
+								break;
+							case 270:
+								label = 'O';
+								break;
+							case 315:
+								label = 'NO';
+								break;
+						}
+						return label;
+					}
+				}
+			},
+
+			yAxis: {
+				min: 0,
+				max: #rayon#,
+				tickInterval: 10
+			},
+
+			tooltip: {
+				useHTML: true,
+				headerFormat: null,
+				pointFormatter: function () {
+					return this.y + ' km à ' + this.x + '°'
+				}
+			},
+
+			plotOptions: {
+				scatter: {
+					marker: {
+						radius: 2.5,
+						symbol: 'circle'
+					}
+				},
+				series: {
+					pointStart: 0,
+					pointInterval: 1
+				}
+			},
+
+			series: [{
+				type: 'scatter',
+				name: 'Moins récents',
+				data: [#datapolar_lessrecent#], // Impacts les moins récents [[angle1, km1], [angle2, km2]]
+				color: '#ffb366' // couleur moins foncée
+			}, {
+				type: 'scatter',
+				name: 'Récents',
+				data: [#datapolar_recent#], // Impacts les plus récents [[angle1, km1], [angle2, km2]]
+				color: '#b35900' // Couleur plus foncée
+			}]
+		});
 	</script>
 	<style>
 		[data-theme="core2019_Dark"] .blitzortung {
@@ -309,12 +417,24 @@
 			stroke: var(--blitzortung-color);
 		}
 
-		.blitzortung .highcharts-xaxis-grid>path:nth-child(1) {
+		.blitzortung .scatter .highcharts-xaxis-grid>path:nth-child(1) {
 			stroke: var(--link-color);
 		}
 
 		.blitzortung .highcharts-color-0 {
 			fill: #EA6E1E;
+		}
+
+		.blitzortung .highcharts-grid.highcharts-xaxis-grid.highcharts-radial-axis-grid {
+			stroke: var(--blitzortung-color);
+		}
+
+		.blitzortung .highcharts-yaxis-labels>text:nth-child(1) {
+			display: none;
+		}
+
+		.blitzortung .highcharts-xaxis-labels.highcharts-radial-axis-labels>text {
+			fill: var(--link-color) !important;
 		}
 	</style>
 </div>
