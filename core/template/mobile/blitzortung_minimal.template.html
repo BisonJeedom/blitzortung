@@ -62,29 +62,23 @@
 		</div>
 	</center>
 
-	<div class="item #item1active#">
-		<div class="chart scatter" id="container-#id#" style="height: 220px; width: 210px;"></div>
+	<div class="item #item1active#" style="display: flex; justify-content: center;">
+		<div class=" chart scatter" id="container-#id#" style="height: 220px; width: 184px;"></div>
 	</div>
 
-	<div class="item #item2active#">
-		<div class="chart polar" id="containerpolar-#id#" style="height: 300px;"></div>
+	<div class="item #item2active#" style="display: flex; justify-content: center;">
+		<div class="chart polar" id="containerpolar-#id#" style="height: 220px; width: 184px;"></div>
 	</div>
-
-	<span class="cursor">
-		<a href="#mapurl#" target="_blank"
-			style="margin-left: 5px; font-size: 10px; font-style: italic; color: var(--link-color) !important;">Source :
-			blitzortung.org</a>
-	</span>
 
 	#divGraphInfo#
 
 	<script>
 		if ('#refresh_id#' != '') {
-			$('.eqLogic[data-eqLogic_uid=#uid#] .refresh').on('click', function () {
-				jeedom.cmd.execute({ id: '#refresh_id#' });
-			});
+			document.querySelector('.eqLogic[data-eqLogic_uid="#uid#"] .refresh')?.addEventListener('click', function () {
+				jeedom.cmd.execute({ id: '#refresh_id#' })
+			})
 		} else {
-			$('.eqLogic[data-eqLogic_uid=#uid#] .refresh').remove();
+			document.querySelector('.eqLogic[data-eqLogic_uid="#uid#"] .refresh')?.remove()
 		}
 
 		// Gestion de l'affichage de l'icône nocommserver (plus de communication avec le serveur)
@@ -204,7 +198,11 @@
 			},
 
 			credits: {
-				enabled: false
+				text: 'Source : blitzortung.org',
+				href: '',
+				style: {
+					cursor: 'arrow'
+				}
 			},
 
 			navigation: {
@@ -306,7 +304,11 @@
 			},
 
 			credits: {
-				enabled: false
+				text: 'Source : blitzortung.org',
+				href: '',
+				style: {
+					cursor: 'arrow'
+				}
 			},
 
 			navigation: {
@@ -403,6 +405,11 @@
 				color: '#b35900' // Couleur plus foncée
 			}]
 		});
+		if ('#item1active#' == 'active') {
+			document.getElementById("containerpolar-#id#").parentNode.remove();
+		} else {
+			document.getElementById("container-#id#").parentNode.remove();
+		}
 	</script>
 	<style>
 		[data-theme="core2019_Dark"] .blitzortung {
