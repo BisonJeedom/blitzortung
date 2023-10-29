@@ -63,14 +63,12 @@
 	</center>
 
 	<div class="item #item1active#" style="display: flex; justify-content: center;">
-		<div class=" chart scatter" id="container-#id#" style="height: 220px; width: 184px;"></div>
+		<div class=" chart scatter" id="container-#id#" style="height: 220px; width: 100%;"></div>
 	</div>
 
 	<div class="item #item2active#" style="display: flex; justify-content: center;">
-		<div class="chart polar" id="containerpolar-#id#" style="height: 220px; width: 184px;"></div>
+		<div class="chart polar" id="containerpolar-#id#" style="height: 220px; width: 100%;"></div>
 	</div>
-
-	#divGraphInfo#
 
 	<script>
 		if ('#refresh_id#' != '') {
@@ -191,220 +189,227 @@
 		});
 		jeedom.cmd.refreshValue([{ cmd_id: '#lastorientation_id#', display_value: '#lastorientation_value#' }])
 
-		Highcharts.chart('container-#id#', {
-			chart: {
-				type: 'scatter',
-				zoomType: 'xy'
-			},
+		function scatter() {
+			Highcharts.chart('container-#id#', {
+				chart: {
+					type: 'scatter',
+					zoomType: 'xy'
+				},
 
-			credits: {
-				text: 'Source : blitzortung.org',
-				href: '',
-				style: {
-					cursor: 'arrow'
-				}
-			},
+				credits: {
+					text: 'Source : blitzortung.org',
+					href: '',
+					style: {
+						cursor: 'arrow'
+					}
+				},
 
-			navigation: {
-				buttonOptions: {
-					enabled: false
-				}
-			},
+				navigation: {
+					buttonOptions: {
+						enabled: false
+					}
+				},
 
-			title: {
-				text: ''
-			},
-
-			subtitle: {
-				useHTML: true,
-				text: ''
-			},
-
-			yAxis: {
 				title: {
-					enabled: false
+					text: ''
 				},
-				min: 0,
-				max: #rayon#,
-				tickInterval: 10,
-				labels: {
-					style: {
-						color: 'var(--link-color)'
+
+				subtitle: {
+					useHTML: true,
+					text: ''
+				},
+
+				yAxis: {
+					title: {
+						enabled: false
 					},
-					x: -8
-				},
-			},
-
-			xAxis: {
-				title: {
-					text: 'Minutes',
-					style: {
-						color: 'var(--link-color)'
-					}
-				},
-				min: 0,
-				max: #tsmax#,
-				tickPositions: [#tickPositions#],
-				labels: {
-					formatter: function () {
-						var time = this.value;
-						var min = parseInt(time / 60);
-						return min;
+					min: 0,
+					max: #rayon#,
+					tickInterval: 10,
+					labels: {
+						style: {
+							color: 'var(--link-color)'
+						},
+						x: -8
 					},
-					style: {
-						color: 'var(--link-color)'
-					}
 				},
-				lineColor: 'var(--link-color)',
-				tickColor: 'var(--link-color)'
-			},
 
-			tooltip: {
-				useHTML: true,
-				headerFormat: null,
-				pointFormatter: function () {
-					return this.y + ' km il y a ' + Math.round(this.x / 60, 0) + ' minutes'
-				}
-			},
-
-			legend: {
-				enabled: false
-			},
-
-			plotOptions: {
-				scatter: {
-					marker: {
-						radius: 2.5,
-						symbol: 'circle',
-
-					}
-				}
-			},
-
-			series: [{
-				keys: ['x', 'y'],
-				data: [#data#],
-				zoneAxis: 'y',
-				// zones: [{
-				// 	value: 10,
-				// 	color: '#EA251F'
-				// }, {
-				// 	value: 30,
-				// 	color: '#EA6E1E'
-				// },
-				// {
-				// 	color: '#DFE150'
-				// }]
-			}]
-		});
-
-		Highcharts.chart('containerpolar-#id#', {
-			chart: {
-				polar: true
-			},
-
-			credits: {
-				text: 'Source : blitzortung.org',
-				href: '',
-				style: {
-					cursor: 'arrow'
-				}
-			},
-
-			navigation: {
-				buttonOptions: {
-					enabled: false
-				}
-			},
-
-			title: {
-				text: ''
-			},
-
-			pane: {
-				startAngle: 0,
-				endAngle: 360
-			},
-
-			xAxis: {
-				tickInterval: 45,
-				min: 0,
-				max: 360,
-				lineWidth: 3,
-				gridLineColor: 'var(--blitzortung-color)',
-				labels: {
-					formatter: function () {
-						let label;
-						switch (this.value) {
-							case 0:
-								label = 'N';
-								break;
-							case 45:
-								label = 'NE';
-								break;
-							case 90:
-								label = 'E';
-								break;
-							case 135:
-								label = 'SE';
-								break;
-							case 180:
-								label = 'S';
-								break;
-							case 225:
-								label = 'SO';
-								break;
-							case 270:
-								label = 'O';
-								break;
-							case 315:
-								label = 'NO';
-								break;
+				xAxis: {
+					title: {
+						text: 'Minutes',
+						style: {
+							color: 'var(--link-color)'
 						}
-						return label;
-					}
-				}
-			},
+					},
+					min: 0,
+					max: #tsmax#,
+					tickPositions: [#tickPositions#],
+					labels: {
+						formatter: function () {
+							var time = this.value;
+							var min = parseInt(time / 60);
+							return min;
+						},
+						style: {
+							color: 'var(--link-color)'
+						}
+					},
+					lineColor: 'var(--link-color)',
+					tickColor: 'var(--link-color)'
+				},
 
-			yAxis: {
-				min: 0,
-				max: #rayon#,
-				tickInterval: 10
-			},
-
-			tooltip: {
-				useHTML: true,
-				headerFormat: null,
-				pointFormatter: function () {
-					return this.y + ' km à ' + this.x + '°'
-				}
-			},
-
-			plotOptions: {
-				scatter: {
-					marker: {
-						radius: 2.5,
-						symbol: 'circle'
+				tooltip: {
+					useHTML: true,
+					headerFormat: null,
+					pointFormatter: function () {
+						return this.y + ' km il y a ' + Math.round(this.x / 60, 0) + ' minutes'
 					}
 				},
-				series: {
-					pointStart: 0,
-					pointInterval: 1
-				}
-			},
 
-			series: [{
-				type: 'scatter',
-				name: 'Moins récents',
-				data: [#datapolar_lessrecent#], // Impacts les moins récents [[angle1, km1], [angle2, km2]]
-				color: '#ffb366' // couleur moins foncée
-			}, {
-				type: 'scatter',
-				name: 'Récents',
-				data: [#datapolar_recent#], // Impacts les plus récents [[angle1, km1], [angle2, km2]]
-				color: '#b35900' // Couleur plus foncée
-			}]
-		});
+				legend: {
+					enabled: false
+				},
+
+				plotOptions: {
+					scatter: {
+						marker: {
+							radius: 2.5,
+							symbol: 'circle',
+
+						}
+					}
+				},
+
+				series: [{
+					keys: ['x', 'y'],
+					data: [#data#],
+					zoneAxis: 'y',
+					// zones: [{
+					// 	value: 10,
+					// 	color: '#EA251F'
+					// }, {
+					// 	value: 30,
+					// 	color: '#EA6E1E'
+					// },
+					// {
+					// 	color: '#DFE150'
+					// }]
+				}]
+			});
+		}
+		setTimeout(scatter);
+
+		function polar() {
+			Highcharts.chart('containerpolar-#id#', {
+				chart: {
+					polar: true
+				},
+
+				credits: {
+					text: 'Source : blitzortung.org',
+					href: '',
+					style: {
+						cursor: 'arrow'
+					}
+				},
+
+				navigation: {
+					buttonOptions: {
+						enabled: false
+					}
+				},
+
+				title: {
+					text: ''
+				},
+
+				pane: {
+					startAngle: 0,
+					endAngle: 360
+				},
+
+				xAxis: {
+					tickInterval: 45,
+					min: 0,
+					max: 360,
+					lineWidth: 3,
+					gridLineColor: 'var(--blitzortung-color)',
+					labels: {
+						formatter: function () {
+							let label;
+							switch (this.value) {
+								case 0:
+									label = 'N';
+									break;
+								case 45:
+									label = 'NE';
+									break;
+								case 90:
+									label = 'E';
+									break;
+								case 135:
+									label = 'SE';
+									break;
+								case 180:
+									label = 'S';
+									break;
+								case 225:
+									label = 'SO';
+									break;
+								case 270:
+									label = 'O';
+									break;
+								case 315:
+									label = 'NO';
+									break;
+							}
+							return label;
+						}
+					}
+				},
+
+				yAxis: {
+					min: 0,
+					max: #rayon#,
+					tickInterval: 10
+				},
+
+				tooltip: {
+					useHTML: true,
+					headerFormat: null,
+					pointFormatter: function () {
+						return this.y + ' km à ' + this.x + '°'
+					}
+				},
+
+				plotOptions: {
+					scatter: {
+						marker: {
+							radius: 2.5,
+							symbol: 'circle'
+						}
+					},
+					series: {
+						pointStart: 0,
+						pointInterval: 1
+					}
+				},
+
+				series: [{
+					type: 'scatter',
+					name: 'Moins récents',
+					data: [#datapolar_lessrecent#], // Impacts les moins récents [[angle1, km1], [angle2, km2]]
+					color: '#ffb366' // couleur moins foncée
+				}, {
+					type: 'scatter',
+					name: 'Récents',
+					data: [#datapolar_recent#], // Impacts les plus récents [[angle1, km1], [angle2, km2]]
+					color: '#b35900' // Couleur plus foncée
+				}]
+			});
+		}
+		setTimeout(polar);
+
 		if ('#item1active#' == 'active') {
 			document.getElementById("containerpolar-#id#").parentNode.remove();
 		} else {
