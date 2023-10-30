@@ -491,19 +491,11 @@ class blitzortung extends eqLogic {
   // Fonction exécutée automatiquement après la création de l'équipement
   public function postInsert() {
   }
+  */
 
   // Fonction exécutée automatiquement avant la mise à jour de l'équipement
   public function preUpdate() {
-  }
-
-  // Fonction exécutée automatiquement après la mise à jour de l'équipement
-  public function postUpdate() {
-  }
-  */
-
-  // Fonction exécutée automatiquement avant la sauvegarde (création ou mise à jour) de l'équipement
-  public function preSave() {
-    $lat = $this->getLatitude();
+        $lat = $this->getLatitude();
     $lon = $this->getLongitude();
     $rayon = $this->getConfiguration('cfg_rayon', 50);
 
@@ -520,6 +512,16 @@ class blitzortung extends eqLogic {
       throw new Exception('Le rayon doit être compris entre 1 et 200');
     }
   }
+
+  /*
+  // Fonction exécutée automatiquement après la mise à jour de l'équipement
+  public function postUpdate() {
+  }
+  
+  // Fonction exécutée automatiquement avant la sauvegarde (création ou mise à jour) de l'équipement
+  public function preSave() {
+  }
+  */
 
 
   // Fonction exécutée automatiquement après la sauvegarde (création ou mise à jour) de l'équipement
