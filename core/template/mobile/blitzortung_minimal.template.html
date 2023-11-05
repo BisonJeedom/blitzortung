@@ -62,25 +62,21 @@
 		</div>
 	</center>
 
-	<div class="item #item1active#">
-		<div class="chart" id="container-#id#" style="height: 220px; width: 210px;"></div>
+	<div class="item #item1active#" style="display: flex; justify-content: center;">
+		<div class=" chart scatter" id="container-#id#" style="height: 220px; width: 100%;"></div>
 	</div>
 
-	<span class="cursor">
-		<a href="#mapurl#" target="_blank"
-			style="margin-left: 5px; font-size: 10px; font-style: italic; color: var(--link-color) !important;">Source :
-			blitzortung.org</a>
-	</span>
-
-	#divGraphInfo#
+	<div class="item #item2active#" style="display: flex; justify-content: center;">
+		<div class="chart polar" id="containerpolar-#id#" style="height: 220px; width: 100%;"></div>
+	</div>
 
 	<script>
 		if ('#refresh_id#' != '') {
-			$('.eqLogic[data-eqLogic_uid=#uid#] .refresh').on('click', function () {
-				jeedom.cmd.execute({ id: '#refresh_id#' });
-			});
+			document.querySelector('.eqLogic[data-eqLogic_uid="#uid#"] .refresh')?.addEventListener('click', function () {
+				jeedom.cmd.execute({ id: '#refresh_id#' })
+			})
 		} else {
-			$('.eqLogic[data-eqLogic_uid=#uid#] .refresh').remove();
+			document.querySelector('.eqLogic[data-eqLogic_uid="#uid#"] .refresh')?.remove()
 		}
 
 		// Gestion de l'affichage de l'icône nocommserver (plus de communication avec le serveur)
@@ -193,108 +189,232 @@
 		});
 		jeedom.cmd.refreshValue([{ cmd_id: '#lastorientation_id#', display_value: '#lastorientation_value#' }])
 
-		Highcharts.chart('container-#id#', {
-			chart: {
-				type: 'scatter',
-				zoomType: 'xy'
-			},
+		function scatter() {
+			Highcharts.chart('container-#id#', {
+				chart: {
+					type: 'scatter',
+					zoomType: 'xy'
+				},
 
-			credits: {
-				enabled: false
-			},
+				credits: {
+					text: 'Source : blitzortung.org',
+					href: '',
+					style: {
+						cursor: 'arrow'
+					}
+				},
 
-			navigation: {
-				buttonOptions: {
-					enabled: false
-				}
-			},
+				navigation: {
+					buttonOptions: {
+						enabled: false
+					}
+				},
 
-			title: {
-				text: ''
-			},
-
-			subtitle: {
-				useHTML: true,
-				text: ''
-			},
-
-			yAxis: {
 				title: {
+					text: ''
+				},
+
+				subtitle: {
+					useHTML: true,
+					text: ''
+				},
+
+				yAxis: {
+					title: {
+						enabled: false
+					},
+					min: 0,
+					max: #rayon#,
+					tickInterval: 10,
+					labels: {
+						style: {
+							color: 'var(--link-color)'
+						},
+						x: -8
+					},
+				},
+
+				xAxis: {
+					title: {
+						text: 'Minutes',
+						style: {
+							color: 'var(--link-color)'
+						}
+					},
+					min: 0,
+					max: #tsmax#,
+					tickPositions: [#tickPositions#],
+					labels: {
+						formatter: function () {
+							var time = this.value;
+							var min = parseInt(time / 60);
+							return min;
+						},
+						style: {
+							color: 'var(--link-color)'
+						}
+					},
+					lineColor: 'var(--link-color)',
+					tickColor: 'var(--link-color)'
+				},
+
+				tooltip: {
+					useHTML: true,
+					headerFormat: null,
+					pointFormatter: function () {
+						return this.y + ' km il y a ' + Math.round(this.x / 60, 0) + ' minutes'
+					}
+				},
+
+				legend: {
 					enabled: false
 				},
-				min: 0,
-				max: #rayon#,
-				tickInterval: 10,
-				labels: {
-					style: {
-						color: 'var(--link-color)'
-					},
-					x: -8
-				},
-			},
 
-			xAxis: {
+				plotOptions: {
+					scatter: {
+						marker: {
+							radius: 2.5,
+							symbol: 'circle',
+
+						}
+					}
+				},
+
+				series: [{
+					keys: ['x', 'y'],
+					data: [#data#],
+					zoneAxis: 'y',
+					// zones: [{
+					// 	value: 10,
+					// 	color: '#EA251F'
+					// }, {
+					// 	value: 30,
+					// 	color: '#EA6E1E'
+					// },
+					// {
+					// 	color: '#DFE150'
+					// }]
+				}]
+			});
+		}
+		setTimeout(scatter);
+
+		function polar() {
+			Highcharts.chart('containerpolar-#id#', {
+				chart: {
+					polar: true
+				},
+
+				credits: {
+					text: 'Source : blitzortung.org',
+					href: '',
+					style: {
+						cursor: 'arrow'
+					}
+				},
+
+				navigation: {
+					buttonOptions: {
+						enabled: false
+					}
+				},
+
 				title: {
-					text: 'Minutes',
-					style: {
-						color: 'var(--link-color)'
+					text: ''
+				},
+
+				pane: {
+					startAngle: 0,
+					endAngle: 360
+				},
+
+				xAxis: {
+					tickInterval: 45,
+					min: 0,
+					max: 360,
+					lineWidth: 3,
+					gridLineColor: 'var(--blitzortung-color)',
+					labels: {
+						formatter: function () {
+							let label;
+							switch (this.value) {
+								case 0:
+									label = 'N';
+									break;
+								case 45:
+									label = 'NE';
+									break;
+								case 90:
+									label = 'E';
+									break;
+								case 135:
+									label = 'SE';
+									break;
+								case 180:
+									label = 'S';
+									break;
+								case 225:
+									label = 'SO';
+									break;
+								case 270:
+									label = 'O';
+									break;
+								case 315:
+									label = 'NO';
+									break;
+							}
+							return label;
+						}
 					}
 				},
-				min: 0,
-				max: #tsmax#,
-				tickPositions: [#tickPositions#],
-				labels: {
-					formatter: function () {
-						var time = this.value;
-						var min = parseInt(time / 60);
-						return min;
+
+				yAxis: {
+					min: 0,
+					max: #rayon#,
+					tickInterval: 10
+				},
+
+				tooltip: {
+					useHTML: true,
+					headerFormat: null,
+					pointFormatter: function () {
+						return this.y + ' km à ' + this.x + '°'
+					}
+				},
+
+				plotOptions: {
+					scatter: {
+						marker: {
+							radius: 2.5,
+							symbol: 'circle'
+						}
 					},
-					style: {
-						color: 'var(--link-color)'
+					series: {
+						pointStart: 0,
+						pointInterval: 1
 					}
 				},
-				lineColor: 'var(--link-color)',
-				tickColor: 'var(--link-color)'
-			},
 
-			tooltip: {
-				useHTML: true,
-				headerFormat: null,
-				pointFormatter: function () {
-					return this.y + ' km il y a ' + Math.round(this.x / 60, 0) + ' minutes'
-				}
-			},
+				series: [{
+					type: 'scatter',
+					name: 'Moins récents',
+					data: [#datapolar_lessrecent#], // Impacts les moins récents [[angle1, km1], [angle2, km2]]
+					color: '#ffb366' // couleur moins foncée
+				}, {
+					type: 'scatter',
+					name: 'Récents',
+					data: [#datapolar_recent#], // Impacts les plus récents [[angle1, km1], [angle2, km2]]
+					color: '#b35900' // Couleur plus foncée
+				}]
+			});
+		}
+		setTimeout(polar);
 
-			legend: {
-				enabled: false
-			},
-
-			plotOptions: {
-				scatter: {
-					marker: {
-						radius: 2.5,
-						symbol: 'circle',
-
-					}
-				}
-			},
-
-			series: [{
-				keys: ['x', 'y'],
-				data: [#data#],
-				zoneAxis: 'y',
-				// zones: [{
-				// 	value: 10,
-				// 	color: '#EA251F'
-				// }, {
-				// 	value: 30,
-				// 	color: '#EA6E1E'
-				// },
-				// {
-				// 	color: '#DFE150'
-				// }]
-			}]
-		});
+		if ('#item1active#' == 'active') {
+			document.getElementById("containerpolar-#id#").parentNode.remove();
+		} else {
+			document.getElementById("container-#id#").parentNode.remove();
+		}
 	</script>
 	<style>
 		[data-theme="core2019_Dark"] .blitzortung {
@@ -309,12 +429,24 @@
 			stroke: var(--blitzortung-color);
 		}
 
-		.blitzortung .highcharts-xaxis-grid>path:nth-child(1) {
+		.blitzortung .scatter .highcharts-xaxis-grid>path:nth-child(1) {
 			stroke: var(--link-color);
 		}
 
 		.blitzortung .highcharts-color-0 {
 			fill: #EA6E1E;
+		}
+
+		.blitzortung .highcharts-grid.highcharts-xaxis-grid.highcharts-radial-axis-grid {
+			stroke: var(--blitzortung-color);
+		}
+
+		.blitzortung .highcharts-yaxis-labels>text:nth-child(1) {
+			display: none;
+		}
+
+		.blitzortung .highcharts-xaxis-labels.highcharts-radial-axis-labels>text {
+			fill: var(--link-color) !important;
 		}
 	</style>
 </div>

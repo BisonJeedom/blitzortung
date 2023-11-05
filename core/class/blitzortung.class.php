@@ -302,7 +302,7 @@ class blitzortung extends eqLogic {
         //$y =  date('Y-m-d H:i:s', round($lastTS / 1000000000));
         $y =  date('Y-m-d H:i:s', $lastTS);
         log::add(__CLASS__, 'debug', '[' . $eqLogic->getName() . ']' . ' lastTSreceived : ' . $lastTS . ' (' . $y . ')');
-        $eqLogic->checkAndUpdateCmd('lastTSreceived', $lastTS); // Enregistrement du dernier timestamp envoyé par le serveur       
+        $eqLogic->checkAndUpdateCmd('lastTSreceived', $lastTS); // Enregistrement du dernier timestamp envoyé par le serveur
       }
     }
     self::refreshAllEqs();
@@ -491,19 +491,11 @@ class blitzortung extends eqLogic {
   // Fonction exécutée automatiquement après la création de l'équipement
   public function postInsert() {
   }
+  */
 
   // Fonction exécutée automatiquement avant la mise à jour de l'équipement
   public function preUpdate() {
-  }
-
-  // Fonction exécutée automatiquement après la mise à jour de l'équipement
-  public function postUpdate() {
-  }
-  */
-
-  // Fonction exécutée automatiquement avant la sauvegarde (création ou mise à jour) de l'équipement
-  public function preSave() {
-    $lat = $this->getLatitude();
+        $lat = $this->getLatitude();
     $lon = $this->getLongitude();
     $rayon = $this->getConfiguration('cfg_rayon', 50);
 
@@ -520,6 +512,16 @@ class blitzortung extends eqLogic {
       throw new Exception('Le rayon doit être compris entre 1 et 200');
     }
   }
+
+  /*
+  // Fonction exécutée automatiquement après la mise à jour de l'équipement
+  public function postUpdate() {
+  }
+  
+  // Fonction exécutée automatiquement avant la sauvegarde (création ou mise à jour) de l'équipement
+  public function preSave() {
+  }
+  */
 
 
   // Fonction exécutée automatiquement après la sauvegarde (création ou mise à jour) de l'équipement
@@ -629,7 +631,7 @@ class blitzortung extends eqLogic {
     if (count($eqs) != 0) {
       $lastTS_tosend = min($lastTS_array);
       log::add(__CLASS__, 'debug', 'Fetch (min between all entries)  : ' . $lastTS_tosend);
-      $data = array('since' => $lastTS_tosend, 'eqs' => $eqs);
+      $data = array('since' => intval($lastTS_tosend), 'eqs' => $eqs);
 
       $payload = json_encode($data);
       $ch = curl_init($url);
