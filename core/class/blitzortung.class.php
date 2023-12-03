@@ -340,7 +340,7 @@ class blitzortung extends eqLogic {
         //log::add(__CLASS__, 'debug', '| Nombre d\'enregistrement  : ' . $count_start);
 
         $new_arr = array();
-        $average_arr = array();
+        $average_arr = array(array());
         $i = 0;
 
         foreach ($arr as $key => $value) {
@@ -495,7 +495,7 @@ class blitzortung extends eqLogic {
 
   // Fonction exécutée automatiquement avant la mise à jour de l'équipement
   public function preUpdate() {
-        $lat = $this->getLatitude();
+    $lat = $this->getLatitude();
     $lon = $this->getLongitude();
     $rayon = $this->getConfiguration('cfg_rayon', 50);
 
