@@ -340,7 +340,13 @@ class blitzortung extends eqLogic {
         //log::add(__CLASS__, 'debug', '| Nombre d\'enregistrement  : ' . $count_start);
 
         $new_arr = array();
-        $average_arr = array(array());
+
+        //$average_arr = array(array());
+        for ($i = 0; $i < 3; $i++) { // initialisation du tableau $average_arr
+          $average_arr[$i][0] = 0;
+          $average_arr[$i][1] = 0;
+        }
+
         $i = 0;
 
         foreach ($arr as $key => $value) {
@@ -351,9 +357,7 @@ class blitzortung extends eqLogic {
             $new_arr[] = $value;
           }
           // $average_arr[0] : -15mn -> -10mn ;  $average_arr[1] : -10mn -> -5mn ; $average_arr[2] : -5mn -> 0mn
-          if (
-            $value["ts"] > $ts_limit_15mn
-          ) { // Si le TS est dans les 5 dernières minutes
+          if ($value["ts"] > $ts_limit_15mn) { // Si le TS est dans les 15 dernières minutes
             if ($value["ts"] < $ts_limit_10mn) {
               $average_arr[0][0]++;
               $average_arr[0][1] = $average_arr[0][1] + $value["distance"];
