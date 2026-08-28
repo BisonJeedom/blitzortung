@@ -541,7 +541,7 @@ class blitzortung extends eqLogic {
     $this->CreateCmd('counterevolution', 'Evolution des impacts sur 15mn', '', '1', '', 'none', '-1 month', '', '', 'info', 'numeric', '', '1');
     //$this->CreateCmd('timetoprocessexceeded', 'Délai de traitement trop important', '', '', '', '', '', '', '', 'info', 'numeric', '', '1');
     $this->CreateCmd('mapurl', 'URL de la carte', '', '0', '', '', '', '', '', 'info', 'string', '', '1');
-    $this->checkAndUpdateCmd('mapurl', 'https://map.blitzortung.org/#' . $this->getConfiguration("cfg_Zoom", 10) . '/' . $this->getLatitude() . '/' . $this->getLongitude());
+    $this->checkAndUpdateCmd('mapurl', 'https://maps.blitzortung.org/fr/#' . $this->getConfiguration("cfg_Zoom", 10) . '/' . $this->getLatitude() . '/' . $this->getLongitude());
 
 
     if ($this->getConfiguration('latChanged') == 'true' || $this->getConfiguration('lonChanged') == 'true' || $this->getConfiguration('rayonChanged') == 'true') {
