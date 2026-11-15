@@ -403,7 +403,7 @@ class blitzortung extends eqLogic {
           $evolution_distance = true;
           $eqLogic->checkAndUpdateCmd('distanceevolution', 1);
         }
-        if ($average_arr[0][0] < $average_arr[1][0] && $average_arr[1][0] < $average_arr[2][0]) {
+        if ($average_arr[0][1] < $average_arr[1][1] && $average_arr[1][1] < $average_arr[2][1]) {
           log::add(__CLASS__, 'info', '|  L\'orage s\'éloigne');
           $evolution_distance = true;
           $eqLogic->checkAndUpdateCmd('distanceevolution', -1);
